@@ -10,16 +10,33 @@ $Id$
 <project name="backup" default="backup">
 
     <target name="backup" depends="init">
+        <property name="backupstart" value="${datetime::now()}"/>
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <echo level="Warning">Backing up repository ${path::get-file-name(repo)}</echo>
             <property name="execstart" value="${datetime::now()}"/>
-            <!-- ::TODO:: Call svnadmin hotcopy then Subnant verify and dump on hotcopy repo -->    
+            <echo level="Warning" message="Hotcopying repository ${path::get-file-name(repo)}"/>
+            <property name="execstart" value="${datetime::now()}"/>
+            <exec program="${svnadmin}" failonerror="true" append="false">
+                <arg value="hotcopy"/>
+                <arg value="${path::combine(svn-root,repo)}"/>
+                <arg value="${path::combine(hotcopy-root,repo)}"/>
+                <arg value="--clean-logs"/>
+            </exec>
             <property name="exectime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(execstart))}"/>
-            <echo file="${subnant-output}" message="${string::pad-right('Backed up repository '+path::get-file-name(repo),50,' ')}(${exectime})" append="true"/>
+            <echo file="${subnant-output}" append="true">${string::pad-right('Hotcopied repository '+path::get-file-name(repo),60,' ')}(${exectime})</echo>
         </foreach>
+        <property name="svn-root" value="${hotcopy-root}"/>
+        <nant buildfile="verify.build" target="verify" inheritall="true"/>
+        <nant buildfile="dump.build"   target="dump"   inheritall="true"/>
+        <delete dir="${hotcopy-root}" unless="${property::exists('keep-hotcopy') and string::trim(string::to-lower(keep-hotcopy))=='true'}"/>
+        <property name="backuptime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(backupstart))}"/>
+        <echo file="${subnant-output}" append="true" message="${string::pad-right('Backup complete',60,' ')}(${backuptime})"/>
     </target>
 
     <target name="init">
+        <tstamp property="hotcopy-date" pattern="yyyyMMdd-HHmmss-ffff"/>
+        <property name="hotcopy-root" value="${path::combine(path::combine(path::get-temp-path(),'subnant-hotcopy'),hotcopy-date)}"
+             unless="${property::exists('hotcopy-root')}"/>
+        <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}"/>
     </target>
 
     <target name="help">
@@ -27,16 +44,17 @@ $Id$
             <![CDATA[backup: usage: subnant backup [-D:options=<value>]
 
 Backup repositories using svnadmin hotcopy to copy repository
-into temporary location, then verify and dump into dump-root
+into (temporary) location, then verify and dump into dump-root
 
 If repos not set, all repositories under svn-root are backed up
 
 Options:
 repos           comma separated list of repositories
-temp-root       root location of temporary directories
+hotcopy-root    root location of hotcopied repositories
 dump-root       repository dump root directory
 svn-root        repository root directory
 svn-bindir      Subversion binary directory
+keep-hotcopy    set true to keep hotcopied repositories
 sendmail        set true to email result
 
 Examples:
