@@ -9,9 +9,7 @@ $Id$
 -->
 <project name="verify" default="verify">
 
-    <description>Verify Subversion repositories</description>
-
-    <target name="verify" depends="init">
+    <target name="verify" depends="init" description="Verify Subversion repositories">
         <foreach item="String" delim="," in="${repos}" property="repo">
             <echo message="Verifying repository ${repo}"/>
             <exec program="${svnadmin}" failonerror="false" resultproperty="result">
@@ -25,12 +23,12 @@ $Id$
     <target name="init">
         <!-- Ready properties --> 
         <property name="svnadmin" value="${path::combine(svn_bindir,'svnadmin')}"/>
-        <!-- Verify that repository exists if command-line parameter given -->
+        <!-- Verify repositories exist if command-line parameter given -->
         <if test="${property::exists('repos')}">
             <foreach item="String" in="${repos}" delim="," property="repo">
                 <fail if="${directory::exists(path::combine(svnroot,repo))==false}" message="Can't find repository ${repo} under ${svnroot}"/>
             </foreach>
-        </if>   
+        </if>
         <!-- Build list of repositories if command-line parameter not given -->
         <ifnot test="${property::exists('repos')}">
             <property name="repos" value=""/>

@@ -8,11 +8,11 @@ http://svn.collab.net/viewcvs/svn/trunk/tools/hook-scripts/
 
 $Id$
 
-Checkout or extract Subnant into local filesystem, copy subnant.config.example
-to subnant.config and configure to your environment, then run subnant.build
+Export or checkout Subnant into local filesystem, copy subnant.config.example
+to subnant.config and configure to your environment.  Then run subnant.build
 as per any normal NAnt build or scheduled task/cron job.  For example:
 
-  svn checkout svn://svn.berlios.de/subnant/trunk c:\subnant
+  svn export svn://svn.berlios.de/subnant/trunk c:\subnant
 
   cd c:\subnant\conf
   copy subnant.config.example subnant.config
@@ -53,7 +53,7 @@ Subnant repository targets:
     repository structure.
 
 
-  * commit-control-access
+  * commit-access
 
 	Provides granular access control to a repository for those
 	using the ra_svn repository access layer (svnserve)

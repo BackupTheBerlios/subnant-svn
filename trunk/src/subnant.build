@@ -7,41 +7,41 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="subnant" default="test">
+<project name="subnant" default="test" basedir="${nant.project.buildfile}">
 
     <description>Subversion adminstration tasks handled using NAnt - http://subnant.berlios.de</description>   
 
-    <target name="bugtraq" depends="init,init-workingcopy">
+    <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in current wc or -D:wc=/path/to/wc">
         <nant buildfile="targets/bugtraq.build"/>
     </target>
 
-    <target name="commit-control-access" depends="init,init-repository">
-        <nant buildfile="targets/commit-control-access.build"/>
+    <target name="commit-access" depends="init,init-repository" description="Control access to repository using pre-commit hook">
+        <nant buildfile="targets/commit-access.build"/>
     </target>
 
-    <target name="commit-email" depends="init,init-repository">
+    <target name="commit-email" depends="init,init-repository" description="Generate email from commits using post-commit hook">
         <nant buildfile="targets/commit-email.build"/>
     </target>
 
-    <target name="create" depends="init,init-repository">
+    <target name="create" depends="init,init-repository" description="Create repositories -D:repos=repo1,repo2">
         <nant buildfile="targets/create.build"/>
     </target>
 
-    <target name="dump" depends="init,init-repository">
+    <target name="dump" depends="init,init-repository" description="Dump repositories with optional -D:repos=repo1,repo2">
         <nant buildfile="targets/dump.build"/>
     </target>
 
-    <target name="test" depends="init,init-workingcopy,init-repository">
+    <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets">
         <nant buildfile="targets/test.build"/>
     </target>
 
-    <target name="verify" depends="init,init-repository">
+    <target name="verify" depends="init,init-repository" description="Verify repositories with optional -D:repos=repo1,repo2">
         <nant buildfile="targets/verify.build"/>
     </target>
 
     <target name="init">
         <!-- Assign default config file unless subnant.config already defined as command-line parameter -->
-        <property name="subnant.config" value="${path::combine(project::get-buildfile-path(),'../../conf/subnant.config')}"
+        <property name="subnant.config" value="${path::combine(nant.project.buildfile,'../../conf/subnant.config')}"
             unless="${property::exists('subnant.config')}"/>
         <fail unless="${file::exists(subnant.config)}" message="Could not find ${subnant.config}"/>
         <xmlpeek file="${subnant.config}" xpath="/subnant/svn_bindir" property="svn_bindir"/>
