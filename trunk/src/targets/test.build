@@ -86,7 +86,7 @@ $Id$
 
 If no target is passed, all main targets are tested
    
-Valid options:
+Options:
 target          comma separated list of test targets
 
 Examples:

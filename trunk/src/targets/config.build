@@ -123,7 +123,7 @@ warnifnoissue   ${bugtraq_warnifnoissue}]]></echo>
 
 If no options passed, use values defined in subnant.config
 
-Valid options:
+Options:
 config          name of alternative configuration file
 
 Examples:

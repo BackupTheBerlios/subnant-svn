@@ -18,7 +18,7 @@ $Id$
     <target name="help">
 <echo><![CDATA[Executes: 
 
-Valid options:
+Options:
 option          description
    
 Examples:]]></echo>

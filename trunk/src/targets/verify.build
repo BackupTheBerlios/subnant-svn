@@ -57,19 +57,19 @@ $Id$
     </target>
 
     <target name="help">
-<echo><![CDATA[Executes: svnadmin verify <repos>
+<echo><![CDATA[Verify repositories using svnadmin
 
-If no options are passed, verify all repositories under <svn-root>
+If no options are passed, verify all repositories under 'svn-root'
 
-Valid options:
-repos           comma separated list of repositories under <svn-root>
+Options:
+repos           comma separated list of repositories under 'svn-root'
 svn-root        override subnant.config with new repository root directory
 svn-bindir      override subnant.config with new subversion binary directory
 
 Examples:
 subnant verify
 subnant verify -D:repos=repo1,repo2
-subnant verify -D:svn-root=/test/svnroot]]></echo>
+subnant verify -D:svn-root=/tmp/svnroot]]></echo>
     </target>
    
 </project>

@@ -29,6 +29,7 @@ Installation example:
   // Run from console or create scheduled task or cron job
   subnant -projecthelp
   subnant config
+  subnant help test
   subnant test
 
 
@@ -36,40 +37,53 @@ Repository targets:
 
   * create
 
-    Create one or more repositories using configuration in subnant.config,
-    and (optionally) setup hook scripts and configuration files.
+    Create one or more repositories using configuration in subnant.config
+    and (optionally) setup hook scripts and configuration files
 
 
   * verify
 
-    Verify some or all repositories under <svn-root> with (optional)
-    email sent detailing result and processing time.
+    Verify some or all repositories under 'svn-root' with (optional)
+    email sent detailing result and processing time
 
 
   * dump
 
-    Dumps some or all repositories under <svn-root> with (optional)
-    email sent detailing result and processing time.
+    Dumps some or all repositories under 'svn-root' with (optional)
+    email sent detailing result and processing time
 
+
+  * load
+
+    Loads some or all repositories from 'svn-dumps' to 'svn-root'
+
+
+  * copy
+
+    Copy one or more repositories from one location to another using
+    Subnant targets: verify, dump, create, load and verify
+
+
+Repository hook targets:
 
   * commit-email
 
     Generates email on post-commit event to addresses defined using
     Subversion property mail:post-commit from pre-defined path in
-    repository structure.
+    repository structure
 
 
   * commit-access
 
     Provides granular access control to a repository for those
-    using the ra_svn repository access layer (svnserve).
+    using the ra_svn repository access layer (svnserve)
 
 
 Working copy targets:
 
   * bugtraq
 
-    Sets bugtraq: properties defined in subnant.config.
+    Sets bugtraq: properties defined in subnant.config
 
     For information about bug tracking integration with Subversion:
     http://tortoisesvn.tigris.org/docs/TortoiseSVN_en/ch04s10.html
@@ -79,21 +93,21 @@ Other targets:
 
   * install
 
-    Creates a wrapper script.
+    Creates a 'subnant' wrapper script
 
 
   * config
 
-    Display subnant.config configuration.
+    Display configuration of subnant.config
 
 
   * test
 
-    Tests Subnant using the configuration in subnant.config.
+    Tests Subnant using the configuration in subnant.config
 
 
 
-Using hooks:
+Using hook targets:
 
     // Turn on hooks in subnant.config
     [edit /subnant/conf/subnant.config]
@@ -103,5 +117,4 @@ Using hooks:
     copy post-commit.bat.example post-commit.bat
 
     // Create new repository (or copy into existing repository)
-    cd /subnant/src
 	subnant create -D:repos=hooktest

@@ -52,7 +52,7 @@ $Id$
     <target name="help">
 <echo><![CDATA[Create 'subnant' wrapper script
 
-Valid options:
+Options:
 install.prefix  override operating systems default installation location
 subnant.srcdir  override location of source directory
 

@@ -50,12 +50,14 @@ $Id$
     </target>   
 
     <target name="help">
-<echo><![CDATA[Executes: svnadmin create <repos>
+<echo><![CDATA[Create repositories using svnadmin
 
 If no options are passed, use values defined in subnant.config
 
-Valid options:
-repos           comma separated list of repositories under <svn-root>
+Required:   
+repos           comma separated list of repositories under 'svn-root'
+   
+Options:
 svn-root        override subnant.config with new repository root directory
 svn-bindir      override subnant.config with new subversion binary directory
 fs-type         type of repository 'bdb' or 'fsfs'

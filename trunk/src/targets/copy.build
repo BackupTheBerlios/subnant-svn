@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$ 
+-->
+<project name="copy" default="copy">
+
+    <target name="copy" depends="init">
+    </target>
+
+    <target name="init">
+    </target>
+
+    <target name="help">
+<echo><![CDATA[Copy repositories from one location to another using
+Subnant targets: verify, dump, create, load and verify
+
+If 'repos' option not passed, all repositories under 'svn-root' are copied
+Source repositories are not removed unless 'delete-source' is set 'true'
+
+Option 'to-svn-bindir' is useful when migrating repositories between major
+Subversion release versions.
+
+Required:   
+to-svn-root     destination repository root directory
+   
+Options:
+repos           comma separated list of repositories to move
+svn-root        override subnant.config with source repository root directory
+svn-bindir      source repository subversion binary directory
+to-svn-bindir   destination repository subversion binary directory
+delete-source   remove source repositories after copy 'true' or 'false' 
+fs-type         type of destionation repository 'bdb' or 'fsfs'
+config-dir      read user configuration files from this directory
+bdb-log-keep    automatic log file removal [Berkeley DB] 'true' or 'false'
+bdb-txn-nosync  fsync at transaction commit [Berkeley DB] 'true' or 'false'
+   
+Examples:
+subnant copy -D:to-svn-root=/svnroot/dest
+subnant copy -D:to-svn-root=/svnroot/dest -D:repos=repo1,repo2
+subnant copy -D:to-svn-root=/svnroot/dest -D:to-svn-bindir=/tmp/svn2/bin]]></echo>
+    </target>
+   
+</project>

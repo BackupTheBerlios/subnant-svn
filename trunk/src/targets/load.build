@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$ 
+-->
+<project name="load" default="load">
+
+    <target name="load" depends="init">
+    </target>
+
+    <target name="init">
+    </target>
+
+    <target name="help">
+<echo><![CDATA[Load repositories from dump files using svnadmin
+
+If 'repos' option not supplied, all dumps under 'svn-dumps' are loaded
+
+Options:
+dumps           comma separated list of repository dumps to load
+dump-root       override subnant.config with repository dump directory
+svn-root        override subnant.config with source repository root directory
+svn-bindir      source repository subversion binary directory
+   
+Examples:
+subnant load
+subnant load -D:dumps=repo1.dump,repo2.dump
+subnant load -D:dumps=repo1.backup.dump -D:dump-root=/svnroot/dumps/backups]]></echo>
+    </target>
+   
+</project>

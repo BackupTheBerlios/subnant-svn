@@ -18,7 +18,9 @@ $Id$
     <target name="help">
 <echo><![CDATA[Set bugtraq properties
 
-Valid options:
+If 'wc' is not passed, assume current directory is working copy
+   
+Options:
 wc              comma separated list of working copies to set
    
 Examples:
