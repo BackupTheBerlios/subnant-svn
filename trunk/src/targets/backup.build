@@ -10,82 +10,119 @@ $Id$
 <project name="backup" default="backup">
 
     <target name="backup" depends="init">
-        <foreach item="String" delim="," in="${backup-repos}" property="repos">
-            <echo level="Warning" message="Hotcopying repository ${repos}"/>
-            <property name="exec-started" value="${datetime::now()}"/>
-            <delete dir="${path::combine(hotcopy-root,repos)}" if="${directory::exists(path::combine(hotcopy-root,repos))}"/>
-            <property name="hotcopy-failed" value="false"/>
-            <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="exec-result">
-                <arg value="hotcopy"/>
-                <arg value="${path::combine(svn-root,repos)}"/>
-                <arg value="${path::combine(hotcopy-root,repos)}"/>
-                <arg value="--clean-logs"/>
-            </exec>
-            <property name="hotcopy-failed" if="${exec-result!='0'}" value="true"/>
-            <echo if="${hotcopy-failed=='true'}" file="${subnant-output}" append="true"
-                message="${string::pad-right('*** ERROR Hotcopying repository '+repos,60,' ')}(${subnant::get-elapsed-time(exec-started,datetime::now())})"/>
-            <property name="backup-failed"  if="${hotcopy-failed=='true'}" value="true"/>
-            <!-- Only verify->dump if hotcopy ok -->
-            <ifnot test="${hotcopy-failed=='true'}">
-                <echo file="${subnant-output}" append="true"
-                    message="${string::pad-right('Hotcopied repository '+repos,60,' ')}(${subnant::get-elapsed-time(exec-started,datetime::now())})"/>
+        <foreach item="String" delim="," in="${repos}" property="repo">
+            <call target="hotcopy"/>
+            <if test="${hotcopy-ok=='true'}">
                 <nant buildfile="verify.build" target="verify">
                     <properties>
-                        <property name="svn-root" value="${hotcopy-root}"/>
+                        <property name="verify-repos"    value="${repo}"/>
+                        <property name="verify-svn-root" value="${hotcopy-root}"/>
                     </properties>
                 </nant>
-                <property name="backup-failed" if="${exec-result!='0'}" value="true"/>
-                <!-- Only dump if verify ok -->
-                <if test="${exec-result=='0'}">
+                <loadfile file="${exec-result}" property="verify-result"/>
+                <property name="verify-result" value="${string::trim(verify-result)}"/>
+                <property name="backup-ok" value="false" if="${verify-result!='0'}"/>
+                <if test="${verify-result=='0' and (backup-method=='dump' or backup-method=='increment')}">
+                    <call target="init-dump"/>
                     <nant buildfile="dump.build" target="dump">
                         <properties>
-                            <property name="svn-root" value="${hotcopy-root}"/>
+                            <property name="dump-repos"    value="${repo}"/>
+                            <property name="dump-svn-root" value="${hotcopy-root}"/>
+                            <property name="dump-rev" if="${backup-method=='increment'}" value="${dump-highest}:${dump-youngest}"/>
                         </properties>
                     </nant>
-                    <property name="backup-failed" if="${exec-result!='0'}" value="true"/>
+                    <loadfile file="${exec-result}" property="dump-result"/>
+                    <property name="dump-result" value="${string::trim(dump-result)}"/>
+                    <property name="backup-ok" value="false" if="${dump-result!='0'}"/>
                 </if>
-            </ifnot>
-            <delete dir="${path::combine(hotcopy-root,repos)}" unless="${keep-hotcopy=='true'}"/>
+                <call target="cycle-hotcopy"/>
+            </if>
         </foreach>
-        <!-- Reset repos from backup-repos -->
-        <property name="repos" value="${backup-repos}"/>
-        <echo unless="${backup-failed}" file="${subnant-output}" append="true" message="${string::pad-right('Backup complete',60,' ')}(${subnant::get-elapsed-time(backup-started,datetime::now())})"/>
-        <fail if="${backup-failed}" message="${string::pad-right('Backup complete but errors found',60,' ')}(${subnant::get-elapsed-time(backup-started,datetime::now())})"/>
+        <echo unless="${backup-ok=='true'}" file="${subnant-output}" append="true"
+            message="${string::pad-right('Backup complete',60,' ')}(${subnant::get-elapsed-time(backup-started)})"/>
+        <fail if="${backup-ok=='false'}"
+            message="${string::pad-right('Backup completed with errors!',60,' ')}(${subnant::get-elapsed-time(backup-started)})"/>
     </target>
 
     <target name="init">
-        <property name="backup-started" value="${datetime::now()}"/>
         <tstamp property="hotcopy-date" pattern="yyyyMMdd-HHmmss-ffff"/>
-        <!-- Most subnant targets should fail if a problem is encountered, however a backup should make an attempt
-             on all repositories targeted...which means not generating a NAnt exception on <exec> call failures -->   
-        <property name="failonerror"   value="false"/>
-        <property name="backup-failed" value="false"/>
-        <property name="keep-hotcopy"  value="false" unless="${property::exists('keep-hotcopy') and string::trim(string::to-lower(keep-hotcopy))=='true'}"/>
-        <property name="hotcopy-root"  value="${path::combine(path::combine(path::get-temp-path(),'subnant-hotcopy'),hotcopy-date)}"
-             unless="${property::exists('hotcopy-root')}"/>
-        <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}"/>
-        <!-- Take a copy of repos as repos is used down the chain (verify, dump) -->
-        <property name="backup-repos" value="${repos}"/>
+        <property name="backup-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="failonerror"    value="false"/>
+        <property name="backup-ok"      value="true"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/hotcopy-root"
+            property="hotcopy-root" unless="${property::exists('hotcopy-root')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/method"
+            property="method" unless="${property::exists('method')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/compress"
+            property="compress" unless="${property::exists('compress')}"/>
+        <fail unless="${directory::exists(hotcopy-root)}"
+            message="hotcopy-root is invalid or does not exist in filesystem: ${hotcopy-root}"/>
+        <property name="backup-method" value="${string::trim(string::to-lower(method))}"/>
+        <fail unless="${backup-method=='hotcopy' or backup-method=='dump' or backup-method=='increment'}"
+            message="Backup method must be hotcopy or dump or increment"/>
+        <property name="compress-backup" value="${string::trim(string::to-lower(compress))}"/>
+        <fail if="${compress-backup!='false' and int::parse(compress-backup)&lt;1 and int::parse(compress-backup)&gt;9}"
+            message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
     </target>
 
+    <target name="init-dump">
+        <property name="dump-highest"  value=""/>
+        <property name="dump-youngest" value=""/>
+    </target>
+
+    <target name="hotcopy">
+        <property name="hotcopy-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <echo level="Warning" message="Hotcopying repository ${repo}"/>
+        <delete dir="${path::combine(hotcopy-root,repo)}" if="${directory::exists(path::combine(hotcopy-root,repo))}"/>
+        <property name="hotcopy-ok" value="false"/>
+        <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="hotcopy-result">
+            <arg value="hotcopy"/>
+            <arg value="${path::combine(svn-root,repo)}"/>
+            <arg value="${path::combine(hotcopy-root,repo)}"/>
+            <arg value="--clean-logs"/>
+        </exec>
+        <property name="hotcopy-ok" value="true" if="${hotcopy-result=='0'}"/>
+        <echo if="${hotcopy-ok=='true'}" file="${subnant-output}" append="true"
+            message="${string::pad-right('Hotcopied repository '+repo,60,' ')}(${subnant::get-elapsed-time(hotcopy-started)})"/>
+        <echo if="${hotcopy-ok=='false'}" file="${subnant-output}" append="true"
+            message="${string::pad-right('*** ERROR hotcopying repository '+repo+' ***',60,' ')}"/>
+        <property name="backup-ok" if="${hotcopy-ok=='false'}" value="false"/>
+    </target>
+
+    <target name="cycle-hotcopy">
+    </target>
+   
     <target name="help">
         <echo level="Warning">
-            <![CDATA[backup: usage: subnant backup [-D:option=value]
+            <![CDATA[backup: usage: subnant backup [-D:<option>=<value>]
 
-Backup repositories using svnadmin hotcopy to copy repository
-into (temporary) location, then verify and dump into dump-root
+Backup repositories using svnadmin hotcopy, then verify hotcopy,
+then depending upon backup method, dump and compress all revisions,
+or only revisions committed up to and including last increment dump
 
-If repos not set, all repositories under svn-root are backed up
+Methods:   
+hotcopy       verbatim copy of repository, includes all revisions
+dump          dump hotcopy into portable format, includes all revisions
+increment     dump all younger revisions starting from highest revision
+              found in dump-root for repository (ie. only new revisions)
 
 Options:
-repos           comma separated list of repositories
-hotcopy-root    root location of hotcopied repositories
-dump-root       repository dump root directory
-svn-root        repository root directory
-svn-bindir      Subversion binary directory
-keep-hotcopy    set true to keep hotcopied repositories
-sendmail        set true to email result
+repos         comma separated list of repositories to backup *
+method        set backup method hotcopy or dump or increment **
+compress      set compression level 1 (lowest) to 9 (highest) **
+svn-root      repository root directory **
+dump-root     repository dump root directory **
+hotcopy-root  repository hotcopy root directory **
+svn-bindir    Subversion binary directory **
+incremental   set true for svnadmin --incremental switch ***
+deltas        set true for svnamdin --deltas switch ***
+sendmail      set true to email result
 
+*   If repos not set, all repositories under svn-root are backed up
+**  If option not set, default value in subnant.config is used
+*** Option only used when backup method is dump or incremental 
+
+   
 Examples:
 subnant backup
 subnant backup -D:repos=repo1,repo2

@@ -49,7 +49,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[install: usage: nant install [-D:option=value]
+            <![CDATA[install: usage: nant install [-D:<option>=<value>]
 
 Create subnant wrapper script
 

@@ -41,21 +41,21 @@ $Id$
     </target>
 
     <target name="exec-svnlook-diff">
-        <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="exec-result"  >
+        <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result"  >
             <arg value="diff"/>
             <arg value="${repos}"/>
             <arg value="${arg_revoption}"/>
             <arg value="${arg_revision}"/>
             <arg value="--no-diff-delete" if="${property::exists('no-diff-delete') and string::trim(string::to-lower(no-diff-delete))=='true'}"/>
         </exec>
-        <echo if="${exec-result!='0'}" file="${subnant-output}" message="*** ERROR executing svnlook on repository ${repos} ***" append="true"/>
-        <echo if="${exec-result!='0'}" level="Warning" message="*** ERROR executing svnlook on repository ${repos} ***"/>
+        <echo if="${svnlook-result!='0'}" file="${subnant-output}" message="*** ERROR executing svnlook on repository ${repos} ***" append="true"/>
+        <echo if="${svnlook-result!='0'}" level="Warning" message="*** ERROR executing svnlook on repository ${repos} ***"/>
         <fail unless="${file::exists(exec-output)}" message="svnlook diff file not found: ${exec-output}"/>
     </target>
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[commit-email: usage: subnant commit-email -D:repos=<repos> -D:rev=<rev> [-D:option=value]
+            <![CDATA[commit-email: usage: subnant commit-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
 
 Email result of svnlook diff on post-commit hook
 

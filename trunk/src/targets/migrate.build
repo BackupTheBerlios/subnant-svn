@@ -32,11 +32,11 @@ $Id$
                 </properties>
             </nant>
         </foreach>
-        <echo file="${subnant-output}" append="true" message="${string::pad-right('Migration complete',60,' ')}(${subnant::get-elapsed-time(migration-started,datetime::now())})"/>
-    </target>
+        <echo file="${subnant-output}" append="true" message="${string::pad-right('Migration complete',60,' ')}(${subnant::get-elapsed-time(migration-started)})"/>
+     </target>
 
     <target name="init">
-        <property name="migration-started" value="${datetime::now()}"/>
+        <property name="migration-started" value="${datetime::get-ticks(datetime(now())}"/>
         <fail message="to-svn-root not set" unless="${property::exists('to-svn-root')}"/>
         <fail message="to-svn-root doesn't exist: ${to-svn-root}" unless="${directory::exists(to-svn-root)}"/>
         <!-- Use default svn-bindir unless specifed, then verify it exists -->
@@ -48,7 +48,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[migrate: usage: subnant migrate -D:to-svn-root=</path/to-svn-root> [-D:option=value]
+            <![CDATA[migrate: usage: subnant migrate -D:to-svn-root=</path/to-svn-root> [-D:<option>=<value>]
 
 Copy repositories from one <svn-root> location to another using
 Subnant targets: backup, create, load and verify

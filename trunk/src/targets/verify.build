@@ -9,32 +9,39 @@ $Id$
 -->
 <project name="verify" default="verify">
 
-    <target name="verify">
-        <foreach item="String" delim="," in="${repos}" property="repo">
-            <echo level="Warning">Verifying repository ${repo}</echo>
-            <property name="verify-started" value="${datetime::now()}"/>
-            <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="exec-result">
+    <target name="verify" depends="init">
+        <foreach item="String" delim="," in="${verify-repos}" property="repo">
+            <echo level="Warning" message="Verifying repository ${repo}"/>
+            <property name="verify-started" value="${datetime::get-ticks(datetime::now())}"/>
+            <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="verify-result">
                 <arg value="verify"/>
-                <arg value="${path::combine(svn-root,repo)}"/>
+                <arg value="${path::combine(verify-svn-root,repo)}"/>
             </exec>
-            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Verified repository '+repo,60,' ')}(${subnant::get-elapsed-time(verify-started,datetime::now())})" append="true"/>
-            <echo if="${exec-result!='0'}" file="${subnant-output}" message="${string::pad-right('*** ERROR verifying repository '+repo+' ***',60,' ')}(${subnant::get-elapsed-time(verify-started,datetime::now())})" append="true"/>
+            <echo file="${exec-result}" message="${verify-result}" append="false"/>   
+            <echo if="${verify-result=='0'}" file="${subnant-output}" message="${string::pad-right('Verified repository '+repo,60,' ')}(${subnant::get-elapsed-time(verify-started)})" append="true"/>
+            <echo if="${verify-result!='0'}" file="${subnant-output}" message="${'*** ERROR verifying repository '+repo+' ***'}" append="true"/>
         </foreach>
     </target>
 
+    <target name="init">
+        <property name="verify-repos"    value="${repos}"    unless="${property::exists('verify-repos')}"/>
+        <property name="verify-svn-root" value="${svn-root}" unless="${property::exists('verify-svn-root')}"/>
+    </target>
+   
     <target name="help">
         <echo level="Warning">
-            <![CDATA[verify: usage: subnant verify [-D:option=value]
+            <![CDATA[verify: usage: subnant verify [-D:<option>=<value>]
 
 Verify repositories using svnadmin
 
-If repos not set, verifies all repositories under svn-root
-
 Options:
-repos           comma separated list of repositories under svn-root
-svn-root        repository root directory
-svn-bindir      Subversion binary directory
+repos           comma separated list of repositories *
+svn-root        repository root directory **
+svn-bindir      Subversion binary directory **
 sendmail        set true to email result
+
+*  If repos not set, all repositories under svn-root are verified
+** If option not set, default value in subnant.config is used
 
 Examples:
 subnant verify

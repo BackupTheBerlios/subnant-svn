@@ -13,7 +13,7 @@ $Id$
         <foreach item="String" delim="," in="${repos}" property="repo">
             <property name="repo" value="${string::trim(repo)}"/>
             <echo level="Warning" message="Creating ${fs-type} repository ${repo} under ${svn-root}"/>
-            <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="exec-result">
+            <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="create-result">
                 <arg value="create"/>
                 <arg value="--bdb-txn-nosync" if="${fs-type=='bdb' and bdb-txn-nosync=='true'}"/>
                 <arg value="--bdb-log-keep"   if="${fs-type=='bdb' and bdb-log-keep=='true'}"/>
@@ -23,10 +23,11 @@ $Id$
                 <arg value="${fs-type}"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
-            <echo if="${exec-result=='0'}" file="${subnant-output}" message="Created ${fs-type} repository ${repo} under ${svn-root}" append="true"/>
-            <echo if="${exec-result!='0'}" file="${subnant-output}" message="*** ERROR creating ${fs-type} repository ${repo} under ${svn-root} ***" append="true"/>
-            <call target="copy-repos-conf"  unless="${exec-result!='0' or (property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true')}"/>
-            <call target="copy-repos-hooks" unless="${exec-result!='0' or (property::exists('no-hooks') and string::to-lower(no-hooks)=='true')}"/>
+            <echo file="${exec-result}" message="${create-result}" append="false"/>   
+            <echo if="${create-result=='0'}" file="${subnant-output}" message="Created ${fs-type} repository ${repo} under ${svn-root}" append="true"/>
+            <echo if="${create-result!='0'}" file="${subnant-output}" message="*** ERROR creating ${fs-type} repository ${repo} under ${svn-root} ***" append="true"/>
+            <call target="copy-repos-conf"  unless="${create-result!='0' or (property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true')}"/>
+            <call target="copy-repos-hooks" unless="${create-result!='0' or (property::exists('no-hooks') and string::to-lower(no-hooks)=='true')}"/>
         </foreach>
     </target>
 
@@ -72,31 +73,31 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[create: usage: subnant create -D:repos=<repos> [-D:option=value]
+            <![CDATA[create: usage: subnant create -D:repos=<repos> [-D:<option>=<value>]
 
-Create repositories using svnadmin
-
-If no options are passed, use values in subnant.config
-and copy (if found) subnant/conf/svnserve.conf and any
-subnant/hooks/* appropriate for your operating system.
+Create repositories using svnadmin and copy (if found) 
+subnant/conf/svnserve.conf and any subnant/hooks/* 
+scripts appropriate for your operating system
 
 Required:   
-repos           comma separated list of repositories
-   
+repos           comma separated list of repositories to create
+
 Options:
-svn-root        repository root directory (must already exist)
-svn-bindir      Subversion binary directory (must already exist)
-fs-type         type of repository to create: bdb or 'fsfs
-config-dir      read user configuration files from this directory
-bdb-log-keep    [Berkeley DB] automatic log file removal : true or false
-bdb-txn-nosync  [Berkeley DB] fsync at transaction commit: true or false
+svn-root        repository root directory *
+svn-bindir      Subversion binary directory *
+fs-type         type of repository to create: bdb or fsfs *
+config-dir      read user configuration files from this directory *
+bdb-log-keep    set true for automatic log file removal  [Berkeley DB] *
+bdb-txn-nosync  set true for fsync at transaction commit [Berkeley DB] *
 no-svnserve     set true to not copy subnant/conf/svnserve.conf
 no-hooks        set true to not copy subnant/hooks/
 sendmail        set true to email result
 
+* If option not set, default value in subnant.config is used
+
 Examples:
-subnant create -D:repos=repo1,repo2
-subnant create -D:repos=repo1 -D:svn-root=/svnroot/repos
+subnant create -D:repos=repo1
+subnant create -D:repos=repo1,repo2 -D:svn-root=/svnroot/repos
 subnant create verify -D:repos=repo1 -D:fs-type=fsfs -D:no-hooks=true
             ]]>
         </echo>

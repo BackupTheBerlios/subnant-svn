@@ -11,29 +11,28 @@ $Id$
 
     <target name="load" depends="init">
         <foreach item="String" delim="," in="${dumps}" property="dump">
-            <call target="init-dump-file"/>
+            <call target="init-load"/>
             <echo level="Warning" message="Loading repository ${dump}"/>
-            <property name="execstart" value="${datetime::now()}"/>
             <exec program="${load}" failonerror="${failonerror}" resultproperty="exec-result">
                 <arg value="${svnadmin}"/>
                 <arg value="${path::combine(svn-root,dump)}"/>
                 <arg value="${dump-file}"/>
             </exec>
-            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Loaded repository '+dump,60,' ')}(${subnant::get-elapsed-time(load-started,datetime::now())})" append="true"/>
-            <echo if="${exec-result!='0'}" file="${subnant-output}" message="${string::pad-right('*** ERROR loading repository '+dump,60,' ')}(${subnant::get-elapsed-time(load-started,datetime::now())})" append="true"/>
+            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Loaded repository '+dump,60,' ')}(${subnant::get-elapsed-time(load-started)})" append="true"/>
+            <echo if="${exec-result!='0'}" file="${subnant-output}" message="${'*** ERROR loading repository '+dump+' ***'}" append="true"/>
         </foreach>
-    </target>
-
-    <target name="init-dump-file">
-        <property name="load-started" value="${datetime::now()}"/>
     </target>
 
     <target name="init">
     </target>
 
+    <target name="init-load">
+        <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
+    </target>
+
     <target name="help">
         <echo level="Warning">
-            <![CDATA[load: usage: subnant load -D:dumps=<dumpfile> [-D:option=value]
+            <![CDATA[load: usage: subnant load -D:dumps=<dumpfile> [-D:<option>=<value>]
 
 Load repositories from dumps using svnadmin
 

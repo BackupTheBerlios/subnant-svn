@@ -20,7 +20,7 @@ $Id$
         </if>
         <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep-test=='true'}"/>
         <echo level="Warning" message="Test complete"/>
-        <echo file="${subnant-output}" append="true" message="${string::pad-right('Test complete',60,' ')}(${subnant::get-elapsed-time(test-started,datetime::now())})"/>
+        <echo file="${subnant-output}" append="true" message="${string::pad-right('Test complete',60,' ')}(${subnant::get-elapsed-time(test-started)})"/>
     </target>
 
     <target name="do-test">
@@ -56,7 +56,7 @@ $Id$
         <delete dir="${wc}" if="${directory::exists(wc)}"/>
         <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>
         <property name="uri" value='${path::to-uri(path::combine(svn-root,repos))}'/>
-        <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="exec-result">
+        <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
             <arg value="checkout"/>
             <arg value="${uri}"/>
             <arg value="."/>
@@ -64,17 +64,32 @@ $Id$
         <echo level="Warning" message="Checked out repository ${path::get-file-name(repos)} into ${wc}"/>
     </target>
 
+    <!-- create-workingcopy wants a uri instead of path -->
+    <script language="C#" prefix="path">
+        <code>
+            <![CDATA[
+            [Function("to-uri")]
+            public string pathToUriString( string path )
+            {
+                Uri pathToUri = new Uri( path );
+                return pathToUri.ToString();
+            }
+            ]]>
+        </code>
+    </script>
+
     <target name="commit-workingcopy">
         <echo level="Warning" message="Committing...takes a while if email hooks enabled"/>
-        <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="exec-result">
+        <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
             <arg value="commit"/>
             <arg value="-m '${test-message}'"/>
         </exec>
-        <echo level="Warning" message="Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} with log ${test-message}"/>
+        <echo level="Warning" if="${svn-result=='0'}" message="Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} with log ${test-message}"/>
+        <echo level="Warning" if="${svn-result!='0'}" message="**** ERROR committing ${path::get-file-name(wc)} to ${path::get-file-name(repos)} ***"/>
     </target>
 
     <target name="search-log">
-        <exec program="${svnlook}" output="${exec-output}" append="false" failonerror="${failonerror}" resultproperty="exec-result">
+        <exec program="${svnlook}" output="${exec-output}" append="false" failonerror="${failonerror}" resultproperty="svnlook-result">
             <arg value="log"/>
             <arg value="${path::combine(test-root,repos)}"/>
         </exec>
@@ -88,7 +103,7 @@ $Id$
     </target>
 
     <target name="init">
-        <property name="test-started" value="${datetime::now()}"/>
+        <property name="test-started" value="${datetime::get-ticks(datetime::now())}"/>
         <tstamp property="test-date" pattern="yyyyMMdd-HHmmss-ffff"/>
         <property name="keep-test" value="false" unless="${property::exists('keep-test') and string::to-lower(keep-test)=='true'}"/>
         <property name="no-bdb"    value="false" unless="${property::exists('no-bdb') and string::to-lower(no-bdb)=='true'}"/>
@@ -111,7 +126,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[test: usage: subnant test [-D:option=value]
+            <![CDATA[test: usage: subnant test [-D:<option>=<value>]
 
 Call Subnant targets in a test environment
 

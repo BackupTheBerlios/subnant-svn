@@ -19,7 +19,7 @@ $Id$
 Copyright (C) 2005 Simon McKenna
 http://subnant.berlios.de
 
-Usage: subnant target [target] [-D:option=value]
+Usage: subnant <target> [<target>] [-D:<option>=<value>]
 
 Examples:
 subnant -projecthelp
@@ -99,13 +99,13 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
 
     <!-- Sub targets -->
     <target name="init">
-        <property name="subnant-started" value="${datetime::now()}"/>
         <tstamp property="tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
-        <property name="nant.onsuccess" value="success"/>
-        <property name="nant.onfailure" value="failure"/>
-        <!-- By default subnant will fail on any <exec> task errors, which is what most normal operations would want.
+        <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="nant.onsuccess"  value="success"/>
+        <property name="nant.onfailure"  value="failure"/>
+        <!-- By default Subnant will fail on any <exec> task errors, which is what most normal operations would want.
              However, for the backup target, one repository failing to <exec> should not stop other repositories from
-             having their backups done.   So we make the failonerror switchable and use a variable to store the result -->    
+             being backed up.  So we make the failonerror property switchable and use a variable to store the result -->    
         <property name="failonerror"    value="true"/>
         <property name="subnant-root"   value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"
             unless="${property::exists('subnant-root')}"/>
@@ -132,12 +132,16 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+tstamp)}"/>
         <!-- Define file used for <exec> task output (used for diff, etc) -->
         <property name="exec-output" value="${path::combine(path::get-temp-path(),'exec-output'+tstamp)}"/>
-        <echo file="${subnant-output}" append="false">Subnant started ${datetime::to-string(subnant-started)}
+        <!-- Define file used to store <exec> task result across targets -->
+        <property name="exec-result" value="${path::combine(path::get-temp-path(),'exec-result'+tstamp)}"/>
+        <echo file="${subnant-output}" append="false">Subnant started ${datetime::to-string(datetime::now())}
 </echo>
         <!-- If we're not displaying help cycle logs by maximum file age defined in config -->
         <if test="${subnant::get-target()!='help'}">
-            <xmlpeek file="${config}" xpath="/configuration/logs/maximum-age" property="logs-maximum-age" unless="${property::exists('logs-maximum-age')}"/>
-            <foreach item="File" property="log-file" if="${logs-maximum-age!='false' and logs-maximum-age&gt;='0'}">
+            <xmlpeek file="${config}" xpath="/configuration/logs/max-age" property="logs-max-age"/>
+            <xmlpeek file="${config}" xpath="/configuration/logs/archive" property="archive"/>
+            <property name="archive" value="${string::trim(string::to-lower(archive))}"/>
+            <foreach item="File" property="log-file" if="${logs-max-age!='false' and logs-max-age&gt;='0'}">
                 <in>
                     <items>
                         <include name="${path::combine(logdir,'*.log')}"/>
@@ -145,8 +149,14 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
                     </items>
                 </in>
                 <do>
-                    <delete file="${log-file}"
-                        if="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-maximum-age))}"/>
+                    <if test="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-max-age))}">
+                        <zip if="${archive=='true'}" zipfile="${path::combine(logdir,'archive.zip')}" failonerror="false" ziplevel="9" comment="Subnant logs">
+                            <fileset>
+                                <include name="${log-file}"/>
+                            </fileset>
+                        </zip>
+                        <delete file="${log-file}"/>
+                    </if>
                 </do>
             </foreach>
         </if>
@@ -155,9 +165,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     <target name="init-repos">
         <!-- Assign svn-root unless already set from command-line -->
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/svn-root" property="svn-root" unless="${property::exists('svn-root')}"/>
-        <ifnot test="${directory::exists(svn-root)}">
-            <fail message="Repository root directory doesn't exist: ${svn-root}"/>
-        </ifnot>
+        <fail unless="${directory::exists(svn-root)}" message="Repository root directory doesn't exist: ${svn-root}"/>
     </target>
 
     <target name="init-wc">
@@ -184,13 +192,8 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
                 <fail message="repos was set but no value entered"/>
             </if>
             <foreach item="String" in="${repos}" delim="," property="repo">
-                <ifnot test="${directory::exists(path::combine(svn-root,repo)) and file::exists(path::combine(svn-root,path::combine(repo,'db/fs-type')))}">
-                    <fail message="Can't find repository ${repo} under ${svn-root}"/>
-                </ifnot>
-                <loadfile file="${path::combine(svn-root,path::combine(repo,'db/fs-type'))}" property="fs-type-test"/>
-                <ifnot test="${string::contains(fs-type-test,'bdb') or string::contains(fs-type-test,'fsfs')}">
-                    <fail message="${repo} is not a bdb or fsfs repository"/>
-                </ifnot>
+                <fail unless="${directory::exists(path::combine(svn-root,repo)) and file::exists(path::combine(svn-root,path::combine(repo,'format')))}"
+                    message="Can't find repository ${repo} under ${svn-root}"/>
             </foreach>
         </if>
     </target>
@@ -211,9 +214,8 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             <property name="repos" value=""/>
             <foreach item="Folder" in="${svn-root}" property="repo">
                 <do>
-                    <property name="fs-type-test" value=""/>
-                    <loadfile file="${path::combine(repo,'db/fs-type')}" property="fs-type-test" failonerror="false"/>
-                    <if test="${string::contains(fs-type-test,'bdb') or string::contains(fs-type-test,'fsfs')}">
+                    <loadfile file="${path::combine(repo,'format')}" property="fs-format" failonerror="false"/>
+                    <if test="${int::parse(fs-format)&gt;0}">
                         <property name="repos" value="${repos+subnant::return-directory-name(repo)+','}"/>
                     </if>
                 </do>
@@ -235,9 +237,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             <record name="${nant-output}" action="Close" />
         </if>
         <call target="mail"/>
-        <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
-            <delete file="${subnant-output}"/>
-        </if>
+        <call target="delete-temp-files"/>
     </target>
 
     <target name="failure">
@@ -250,9 +250,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             <record name="${nant-output}" action="Close" />
         </if>
         <call target="mail"/>
-        <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
-            <delete file="${subnant-output}"/>
-        </if>
+        <call target="delete-temp-files"/>
     </target>
 
     <target name="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))=='true'}">
@@ -260,7 +258,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <!-- Mail message is culmination of results from all targets executed -->
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
             <echo file="${subnant-output}" append="true">
-${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,' ')}(${subnant::get-elapsed-time(subnant-started,datetime::now())} seconds)</echo>
+${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,' ')}(${subnant::get-elapsed-time(subnant-started)} seconds)</echo>
             <loadfile file="${subnant-output}" property="message"/>
         </if>
         <ifnot test="${property::exists('subnant-output') and file::exists(subnant-output)}">
@@ -279,20 +277,13 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
         </mail>
     </target>
 
-    <!-- Custom tasks -->
-    <!-- Some Subversion tasks require a URI encoded path -->
-    <script language="C#" prefix="path">
-        <code>
-            <![CDATA[
-            [Function("to-uri")]
-            public string pathToUriToString( string path )
-            {
-                Uri pathToUri = new Uri( path );
-                return pathToUri.ToString();
-            }
-            ]]>
-        </code>
-    </script>
+    <target name="delete-temp-files">
+        <delete file="${subnant-output}" if="${property::exists('subnant-output') and file::exists(subnant-output)}"/>
+        <delete file="${exec-output}"    if="${file::exists(exec-output)}"/>
+        <delete file="${exec-result}"    if="${file::exists(exec-result)}"/>
+    </target>
+   
+    <!-- Custom tasks used in Subnant.build or more than target build -->
 
     <!-- Function to determine whether to call help or default target -->
     <script language="C#" prefix="subnant">
@@ -338,14 +329,14 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
         </code>
     </script>
 
-    <!-- Display elapsed time in seconds -->
+    <!-- Display elapsed time in seconds using ticks for accuracy -->
     <script language="C#" prefix="subnant">
         <code>
             <![CDATA[
             [Function("get-elapsed-time")]
-            public string getSubnantElapsedTime(DateTime started, DateTime finished)
+            public string getSubnantElapsedTime(long ticks)
             {
-                TimeSpan elapsed = finished - started;
+                TimeSpan elapsed = TimeSpan.FromTicks(DateTime.Now.Ticks - ticks);
                 return Math.Round(elapsed.TotalSeconds, 2).ToString();
             }
             ]]>
@@ -374,17 +365,5 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
         </code>
     </script>
 
-    <!-- Display length of file in MB -->
-    <script language="C#" prefix="subnant">
-        <code>
-            <![CDATA[
-            [Function("length-in-mb")]
-            public string getSubnantLengthInMb( double length )
-            {
-                return Math.Round(((length/1024)/1024), 4).ToString();
-            }
-            ]]>
-        </code>
-    </script>
-   
+  
 </project>
