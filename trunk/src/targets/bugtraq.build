@@ -76,12 +76,12 @@ $Id$
         <echo level="Warning">
             <![CDATA[bugtraq: usage: subnant bugtraq [-D:wc=/path/to/wc]
 
-Set bugtraq properties using svn
-
-If wc not set, assume current directory is working copy
+Set bugtraq properties in a working copy using svn
 
 Options:
-wc              comma separated list of working copies to set
+wc              comma separated list of working copies to set *
+
+* If wc not set, assume current directory is the working copy
 
 Examples:
 subnant bugtraq

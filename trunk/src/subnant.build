@@ -281,9 +281,15 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
     </target>
 
     <target name="delete-temp-files">
-        <delete file="${subnant-output}" if="${property::exists('subnant-output') and file::exists(subnant-output)}"/>
-        <delete file="${exec-output}"    if="${file::exists(exec-output)}"/>
-        <delete file="${exec-result}"    if="${file::exists(exec-result)}"/>
+        <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
+            <delete file="${subnant-output}"/>
+        </if>
+        <if test="${property::exists('exec-output') and file::exists(exec-output)}">
+            <delete file="${exec-output}"    if="${file::exists(exec-output)}"/>
+        </if>
+        <if test="${property::exists('exec-result') and file::exists(exec-result)}">
+            <delete file="${exec-result}"    if="${file::exists(exec-result)}"/>
+        </if>
     </target>
    
     <!-- Custom tasks used in Subnant.build or more than target build -->

@@ -134,14 +134,14 @@ logregex            ${bugtraq_logregex}
 
 Displays configuration settings for Subnant
 
-If no options are passed, use values in subnant.config
-
 Options:
-config          name of alternative configuration file
+config          name of alternative configuration file *
+
+* If config not set, default file subnant.config is used
 
 Examples:
 subnant config
-subnant config -D:config=file
+subnant config -D:config=/path/to/file.config
             ]]>
         </echo>
     </target>

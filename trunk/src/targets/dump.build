@@ -103,17 +103,18 @@ Dump repositories using svnadmin, optionally compressing dump file
 
 Options:
 repos           comma separated list of repositories to dump *
-rev             dump revision number (or X:Y for range)
-dump-root       repository dump root directory **
-svn-root        repository root directory **
-svn-bindir      subversion binary directory **
+rev             dump revision number (or X:Y for range) **
+dump-root       repository dump root directory ***
+svn-root        repository root directory ***
+svn-bindir      subversion binary directory ***
 compress        set compression level 1 (lowest) to 9 (highest)
 incremental     set true for svnadmin --incremental switch
 deltas          set true for svnamdin --deltas switch
 sendmail        set true to email result
 
 *   If repos not set, all repositories under svn-root are dumped
-**  If option not set, default value in subnant.config is used
+**  If rev not set, all revisions dumped
+*** If option not set, default value in subnant.config is used
             
 Examples:
 subnant dump

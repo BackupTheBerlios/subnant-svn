@@ -36,20 +36,22 @@ $Id$
 
 Load repositories from dumps using svnadmin
 
-If dumpfile ends with .zip extension then uncompresses before loading
+If dump ends with .zip extension, will uncompress before loading
 
 Required:
 dumps           comma separated list of repository dumps
 
 Options:
-dump-root       repository dump directory
-svn-root        repository root directory
-svn-bindir      Subversion binary directory
+dump-root       repository dump directory *
+svn-root        repository root directory *
+svn-bindir      Subversion binary directory *
 sendmail        set true to email result
 
+* If option not set, default value in subnant.config is used
+
 Examples:
-subnant load -D:dumps=repo1.dumpfile.zip,repo2.dumpfile
-subnant load -D:dumps=repo1.dumpfile -D:dump-root=/svnroot/dumps
+subnant load -D:dumps=repo1.dump.zip,repo2.dump
+subnant load -D:dumps=repo1.dump -D:dump-root=/svnroot/dumps
             ]]>
         </echo>
     </target>

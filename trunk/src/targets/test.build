@@ -130,15 +130,15 @@ $Id$
 
 Call Subnant targets in a test environment
 
-If no target is set, all main targets are tested
-
 Options:
-target          comma separated list of test targets
+target          comma separated list of test targets *
 test-root       override (temporary) test root directory
 keep-test       set true to keep data created by test
 no-bdb          set true to not test bdb repository
 no-fsfs         set true to not test fsfs repository
 sendmail        set true to email result
+
+* If no target set, all main targets are tested
 
 Examples:
 subnant test

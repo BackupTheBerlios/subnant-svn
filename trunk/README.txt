@@ -16,12 +16,13 @@ Goals:
 
   * Backup multiple repositiories (hotcopy,verify,dump,compress,email result)
 
+  * Migrate multiple repositories (backup,create,load,verify)
+
   * Define standard repository configuration (conf,hooks), then make it easy
     to create repositories to standard, automatically included in backups
 
-  * Make it easy to migrate multiple repositories (backup,create,load,verify)
-
-  * Provide hook-script functionality similar to Subversion's own scripts
+  * Provide hook-script functionality similar to Subversion's own scripts,
+    but without the need for 3rd party tools (Perl, Python, sendmail, etc)
 
 
 Pre-requisites:
@@ -58,11 +59,18 @@ Setup:
   copy subnant.config.example subnant.config
   [edit subnant.config]
 
-  // Run from console or create scheduled task or cron job,
-  // each main target has help available and can be chained:
-  subnant -projecthelp
+  // Display current configuration
   subnant config
-  subnant help test
+
+
+Run:
+
+  // Help for each main target is available
+  subnant -projecthelp
+  subnant help
+  subnant help backup
+  
+  // Run from console or create scheduled task or cron job
   subnant test
   subnant backup -D:sendmail=true
   subnant create verify dump -D:repos=repo1,repo2

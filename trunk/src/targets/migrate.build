@@ -50,32 +50,31 @@ $Id$
         <echo level="Warning">
             <![CDATA[migrate: usage: subnant migrate -D:to-svn-root=</path/to-svn-root> [-D:<option>=<value>]
 
-Copy repositories from one <svn-root> location to another using
-Subnant targets: backup, create, load and verify
-
-If repos option not set, all repositories under svn-root are copied
+Migrate repositories from one location to another using
+Subnant targets: backup (hotcopy,dump,verify), create, load and verify
 
 Source repositories are not removed unless delete-source is set true
 
-All options that apply to Subnant create target apply to migrate target
-
-Allows for different Subversion binary version to be used on destination
-repository targets (create, load and verify) using to-svn-bindir option
+All options that apply to Subnant targets called by migrate can also
+be passed through, see help in relevant target for option details
 
 Required:   
 to-svn-root     destination repository root directory
 
 Options:
-repos           comma separated list of repositories to move
-svn-root        source repository root directory
-svn-bindir      source repository subversion binary directory
-to-svn-bindir   destination repository subversion binary directory
-delete-source   remove source repositories after copy: true or false 
+repos           comma separated list of repositories to move *
+svn-root        repository root directory used for backup **
+svn-bindir      subversion binary directory used for backup **
+to-svn-bindir   subversion binary directory used for create,load,verify
+delete-source   set true to remove source repositories after migrate
+
+*  If repos option not set, all repositories under svn-root are migrated
+** If option not set, default value in subnant.config is used
 
 Examples:
-subnant copy -D:to-svn-root=/svnroot/dest
-subnant copy -D:to-svn-root=/svnroot/dest -D:repos=repo1,repo2
-subnant copy -D:to-svn-root=/svnroot/dest -D:to-svn-bindir=/tmp/svn2/bin
+subnant migrate -D:to-svn-root=/svn2root/repos
+subnant migrate -D:to-svn-root=/svn2root/repos -D:repos=repo1,repo2
+subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin
             ]]>
         </echo>
     </target>
