@@ -18,7 +18,7 @@ $Id$
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
             <property name="exectime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(execstart))}"/>
-            <echo file="${subnant-output}" message="${string::pad-right('Verified repository '+path::get-file-name(repo),50,' ')}(${exectime})" append="true"/>
+            <echo file="${subnant-output}" message="${string::pad-right('Verified repository '+path::get-file-name(repo),60,' ')}(${exectime})" append="true"/>
         </foreach>
     </target>
 

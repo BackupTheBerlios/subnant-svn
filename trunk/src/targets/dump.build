@@ -12,7 +12,7 @@ $Id$
     <target name="dump" depends="init">
         <foreach item="String" delim="," in="${repos}" property="repo">
             <call target="init-dump-file"/>
-            <echo level="Warning">Dumping repository ${path::get-file-name(repo)} ${string::trim(arg_revoption+' '+arg_revision+' '+arg_incremental+' '+arg_deltas)}</echo>
+            <echo level="Warning" message="Dumping repository ${path::get-file-name(repo)} ${string::trim(arg_revoption+' '+arg_revision+' '+arg_incremental+' '+arg_deltas)}"/>
             <property name="execstart" value="${datetime::now()}"/>
             <exec program="${dump}" failonerror="true" append="false">
                 <arg value="${svnadmin}"/>
@@ -24,20 +24,22 @@ $Id$
                 <arg value="${arg_deltas}"/>
             </exec>
             <property name="exectime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(execstart))}"/>
-            <echo file="${subnant-output}" message="${string::pad-right('Dumped repository '+path::get-file-name(repo),50,' ')}(${exectime})" append="true"/>
+            <echo file="${subnant-output}" message="${string::pad-right('Dumped repository '+path::get-file-name(repo),60,' ')}(${exectime})" append="true"/>
             <call target="compress-dump-file" if="${compress!='false'}"/>
         </foreach>
     </target>
 
     <target name="compress-dump-file">
-        <echo level="Warning">Compressing ${path::get-file-name(dump-file)}</echo>
+        <property name="zipstart" value="${datetime::now()}"/>
+        <echo level="Warning" message="Compressing ${path::get-file-name(dump-file)}"/>
         <zip zipfile="${dump-file}.zip" failonerror="true" ziplevel="${compress}" comment="Subversion repository dump">
             <fileset>
                 <include name="${dump-file}"/>   
             </fileset>
         </zip>
         <delete file="${dump-file}"/>
-        <echo file="${subnant-output}" message="Compressed ${path::get-file-name(dump-file)}" append="true"/>
+        <property name="ziptime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(zipstart))}"/>
+        <echo file="${subnant-output}" message="${string::pad-right('Compressed dump to '+path::get-file-name(dump-file)+'.zip',60,' ')}(${ziptime})" append="true"/>
     </target>
 
     <target name="init" depends="init-windows,init-linux">
@@ -83,7 +85,7 @@ $Id$
 
     <target name="init-dump-file">
         <property name="dump-file" if="${rev=='false'}" value="${path::combine(dump-root,path::get-file-name(repo)+'.dumpfile')}"/>
-        <property name="dump-file" if="${rev!='false'}" value="${path::combine(dump-root,path::get-file-name(repo)+string::replace(arg_revision,':','-')+'.dumpfile')}"/>
+        <property name="dump-file" if="${rev!='false'}" value="${path::combine(dump-root,path::get-file-name(repo)+'-'+string::replace(arg_revision,':','-')+'.dumpfile')}"/>
     </target>
 
     <target name="help">

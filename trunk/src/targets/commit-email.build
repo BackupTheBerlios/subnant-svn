@@ -14,7 +14,7 @@ $Id$
         <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail_from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail_prefix"/>
-        <echo level="Warning">Sending post-commit mail to ${mail_post-commit}</echo>
+        <echo level="Warning" message="Sending post-commit mail to ${mail_post-commit}"/>
         <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_post-commit}"
           subject="${subject}">
             <files>
@@ -22,7 +22,7 @@ $Id$
             </files>
         </mail>
         <echo file="${subnant-output}" append="true" message="Post-commit email on repository ${repo}"/>
-        <echo level="Warning">Post-commit email on repository ${repo}</echo>
+        <echo level="Warning" message="Post-commit email on repository ${repo}"/>
     </target>
 
     <target name="init">

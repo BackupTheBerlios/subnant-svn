@@ -37,7 +37,7 @@ $Id$
             <!-- dont set logregex if nothing entered -->
             <call target="propset" if="${string::get-length(bugtraq_logregex)!=0}"/>
             <echo file="${subnant-output}" message="Set bugtraq properties in ${path}" append="true"/>
-            <echo level="Warning">Set bugtraq properties in ${path}</echo>
+            <echo level="Warning" message="Set bugtraq properties in ${path}"/>
         </foreach>
     </target>
    
