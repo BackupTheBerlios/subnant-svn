@@ -27,6 +27,6 @@
 # have filesystem-level permission to access the repository.
 #
 #
-# Goto http://subnant.berlios.de for more information on command below
+# Visit http://subnant.berlios.de for details on command below
 
 subnant commit-email -D:repos="$1" -D:rev="$2"

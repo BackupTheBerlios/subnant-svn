@@ -37,6 +37,6 @@ REM  invoke it (typically the user httpd runs as), and that user must
 REM  have filesystem-level permission to access the repository.
 REM
 REM
-REM Goto http://subnant.berlios.de for more information on command below
+REM Visit http://subnant.berlios.de for details on command below
 
 subnant commit-access -D:repos="%1" -D:txn="%2"
