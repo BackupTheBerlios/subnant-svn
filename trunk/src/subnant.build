@@ -9,13 +9,13 @@ $Id$
 -->
 <project name="subnant" default="usage" basedir=".">
 
-<description>Subversion adminstration tasks handled using NAnt
+<description>Subversion adminstration using NAnt
 Copyright (C) 2005 Simon McKenna
 http://subnant.berlios.de</description>   
 
     <property name="nant.onsuccess" value="success"/>
     <property name="nant.onfailure" value="failure"/>  
-  
+
     <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in current wc or -D:wc=/path/to/wc">
         <if test="${target::has-executed('help')}">
             <nant buildfile="targets/bugtraq.build" target="help"/>
@@ -98,7 +98,7 @@ http://subnant.berlios.de</description>
     </target>
 
     <target name="usage">
-<echo><![CDATA[Subversion adminstration tasks handled using NAnt
+<echo><![CDATA[Subversion adminstration using NAnt
 Copyright (C) 2005 Simon McKenna
 http://subnant.berlios.de
 
@@ -135,15 +135,15 @@ subnant verify dump -D:repos=repo1,repo2]]></echo>
     <target name="help"/>
 
     <target name="success">
-        <!-- Send success mail message if required by any .config/subnant/mail/target/<target> -->
+        <!-- Send success mail message if 'true' in any .config/subnant/mail/target/<target> -->
     </target>
 
     <target name="failure">
-        <!-- Send failure mail message if required by any .config/subnant/mail/target/<target> -->
+        <!-- Send failure mail message if 'true|fail' in any .config/subnant/mail/target/<target> -->
     </target>
 
     <target name="mail">
-        <!-- -->
+        <!-- Mail message is culmination of results from all targets executed -->
     </target>
    
 </project>

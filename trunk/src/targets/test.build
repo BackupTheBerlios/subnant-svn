@@ -33,6 +33,7 @@ $Id$
             <nant buildfile="verify.build"  target="verify"/>
             <nant buildfile="dump.build"    target="dump"/>
         </ifnot>
+        <delete dir="${test-root}" if="${directory::exists(test-root)}"/>   
     </target>
 
     <target name="init">
@@ -43,9 +44,11 @@ $Id$
     </target>
 
     <target name="init-repository">
-        <property name="svn-root"      value="${test-root}"/>
+        <property name="svn-root"       value="${test-root}"/>
         <property name="test-repo-bdb"  value="${'repo-bdb-'+test-date}"/>
         <property name="test-repo-fsfs" value="${'repo-fsfs-'+test-date}"/>
+        <property name="test-dumps"     value="${path::combine(test-root,'repo-dumps-'+test-date)}"/>
+        <mkdir dir="${test-dumps}" unless="${directory::exists(test-dumps)}"/>   
     </target>
 
     <target name="init-workingcopy">
