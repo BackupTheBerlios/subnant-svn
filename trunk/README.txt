@@ -23,9 +23,10 @@ Installation example:
   copy subnant.config.example subnant.config
   [edit subnant.config]
 
-  // Run as NAnt build (or create scheduled task/cron job)
+  // Run from console or create scheduled task/cron job
   subnant -projecthelp
   subnant config
+  subnant test
 
 
 Subnant repository targets:
