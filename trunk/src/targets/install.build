@@ -19,7 +19,7 @@ $Id$
     <target name="init-windows" if="${platform::is-win32()}">
         <property name="install.prefix" value="${environment::get-folder-path('ProgramFiles')}"
             unless="${property::exists('install.prefix')}"/>
-        <property name="install.bindir" value="${path::combine(install.prefix, 'SubNAnt')}"/>
+        <property name="install.bindir" value="${path::combine(install.prefix, 'Subnant')}"/>
         <property name="wrapper" value="${path::combine(install.bindir, 'subnant.bat')}" />
     </target>
 
@@ -32,7 +32,7 @@ $Id$
     <target name="install-windows" if="${platform::is-win32()}">
         <echo file="${wrapper}" append="false">@echo off</echo>
         <echo file="${wrapper}" append="true">nant -nologo -buildfile:"${subnant.srcdir}\subnant.build" %*</echo>
-        <echo>Created SubNAnt script '${wrapper}'</echo>
+        <echo>Created '${wrapper}' wrapper script</echo>
         <echo>Searching environment path for '${install.bindir}'</echo>
         <if test="${string::contains(environment::get-variable('PATH'),install.bindir)}">
             <echo>Found in path, 'subnant' command should be available</echo>
@@ -46,7 +46,7 @@ $Id$
         <echo file="${wrapper}" append="false">#!/bin/sh</echo>
         <echo file="${wrapper}" append="true">nant -nologo -buildfile:"${subnant.srcdir}/subnant.build" $@</echo>
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'subnant')}"/>
-        <echo>Created SubNAnt script '${wrapper}'</echo>
+        <echo>Created '${wrapper}' wrapper script</echo>
     </target>
     
     <target name="help">
@@ -58,7 +58,7 @@ subnant.srcdir  override location of source directory
 
 Examples:
 nant install
-nant install -D:install.prefix="C:\SubNAnt"]]></echo>
+nant install -D:install.prefix="C:\Subnant"]]></echo>
     </target>
    
 </project>
