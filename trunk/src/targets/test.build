@@ -27,14 +27,14 @@ $Id$
             <property name="wc"      value="${test-wc-fsfs}"/>
             <call target="test-all"/>
         </ifnot>
-        <delete dir="${test-root}" if="${directory::exists(test-root)}"/>   
+        <delete dir="${test-root}" if="${directory::exists(test-root)}"/>
         <write>Test complete</write>
     </target>
 
     <target name="init">
         <tstamp property="test-date" pattern="HHmmss"/>
         <property name="test-root" value="${path::combine(path::get-temp-path(),'subnant-test')}"/>
-        <mkdir dir="${test-root}" unless="${directory::exists(test-root)}"/>   
+        <mkdir dir="${test-root}" unless="${directory::exists(test-root)}"/>
     </target>
 
     <target name="init-repository">
@@ -42,7 +42,7 @@ $Id$
         <property name="test-repo-bdb"  value="${'repo-bdb-'+test-date}"/>
         <property name="test-repo-fsfs" value="${'repo-fsfs-'+test-date}"/>
         <property name="test-dumps"     value="${path::combine(test-root,'repo-dumps-'+test-date)}"/>
-        <mkdir dir="${test-dumps}" unless="${directory::exists(test-dumps)}"/>   
+        <mkdir dir="${test-dumps}" unless="${directory::exists(test-dumps)}"/>
     </target>
 
     <target name="init-workingcopy">
@@ -77,8 +77,8 @@ subnant test -D:target=create,verify,dump]]></write>
     </target>
 
     <target name="create-workingcopy">
-        <delete dir="${wc}" if="${directory::exists(wc)}"/>   
-        <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>   
+        <delete dir="${wc}" if="${directory::exists(wc)}"/>
+        <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>
         <property name="uri" value='${path::to-uri(path::combine(svn-root,repos))}'/>
         <exec program="${svn}" workingdir="${wc}" failonerror="true" output="${output-file}" append="true">
             <arg value="checkout"/>
@@ -86,7 +86,7 @@ subnant test -D:target=create,verify,dump]]></write>
             <arg value="."/>
         </exec>
         <write>Checked out repository '${repos}' into ${wc}</write>
-    </target>   
+    </target>
 
     <target name="commit-workingcopy">
         <exec program="${svn}" workingdir="${wc}" failonerror="true" output="${output-file}" append="true">
@@ -94,7 +94,7 @@ subnant test -D:target=create,verify,dump]]></write>
             <arg value="-m '${test-message}'"/>
         </exec>
         <write>Committed '${repos}' with log '${test-message}'</write>
-    </target>   
+    </target>
 
     <target name="search-log">
         <exec program="${svnlook}" failonerror="true" output="${output-file}" append="true">
@@ -108,6 +108,6 @@ subnant test -D:target=create,verify,dump]]></write>
         <ifnot test="${string::contains(test-output,test-message)}">
             <fail>Log '${test-message}' not found in repository</fail>
         </ifnot>
-    </target>   
+    </target>
 
 </project>

@@ -22,33 +22,33 @@ $Id$
                 <arg value="${fs-type}"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
-            <echo file="${log-file}" message="Created repository '${repo}'"/>  
+            <echo file="${log-file}" message="Created repository '${repo}'"/>
             <write>Created ${fs-type} repository '${repo}' under ${svn-root}</write>
         </foreach>
     </target>
 
     <target name="init">
-        <!-- Assign config values to properties so long as they haven't been passed as a command-line parameter --> 
+        <!-- Assign config values to properties so long as they haven't been passed as a command-line parameter -->
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/fs-type"    property="fs-type"    unless="${property::exists('fs-type')}"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/config-dir" property="config-dir" unless="${property::exists('config-dir')}"/>
-        <!-- Ready properties --> 
+        <!-- Ready properties -->
         <property name="svnadmin"   value="${path::combine(svn-bindir,'svnadmin')}"/>
         <property name="fs-type"    value="${string::trim(string::to-lower(fs-type))}"/>
         <property name="config-dir" value="${string::trim(config-dir)}"/>
-        <!-- Verify properties --> 
+        <!-- Verify properties -->
         <fail if="${property::exists('repos')==false}" message="Can't create repository as 'repos' property not defined"/>
         <fail if="${fs-type!='bdb' and fs-type!='fsfs'}" message="fs-type must be 'bdb' or 'fsfs'"/>
         <fail if="${string::get-length(config-dir)>=0 and directory::exists(config-dir)==false}" message="config-dir ${config-dir} directory doesn't exist"/>
-        <!-- Assign, ready and verify bdb properties if needed --> 
-        <if test="${fs-type=='bdb'}"> 
+        <!-- Assign, ready and verify bdb properties if needed -->
+        <if test="${fs-type=='bdb'}">
             <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-log-keep"   property="bdb-log-keep"   unless="${property::exists('bdb-log-keep')}"/>
             <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-txn-nosync" property="bdb-txn-nosync" unless="${property::exists('bdb-txn-nosync')}"/>
             <property name="bdb-log-keep" value="${string::trim(string::to-lower(bdb-log-keep))}"/>
             <property name="bdb-txn-nosync" value="${string::trim(string::to-lower(bdb-txn-nosync))}"/>
             <fail if="${bdb-log-keep!='true' and bdb-log-keep!='false'}" message="bdb-log-keep ${bdb-log-keep} must be 'true' or 'false'"/>
             <fail if="${bdb-txn-nosync!='true' and bdb-txn-nosync!='false'}" message="bdb-txn-nosync ${bdb-txn-nosync} must be 'true' or 'false'"/>
-        </if>   
-    </target>   
+        </if>
+    </target>
 
     <target name="help">
 <write><![CDATA[Create repositories using svnadmin

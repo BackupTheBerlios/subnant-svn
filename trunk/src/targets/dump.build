@@ -10,7 +10,7 @@ $Id$
 <project name="dump" default="dump">
 
     <target name="dump" depends="init">
-        <echo file="${log-file}" append="true" message="Dumped repository"/>  
+        <echo file="${log-file}" append="true" message="Dumped repository"/>
     </target>
 
     <target name="init">

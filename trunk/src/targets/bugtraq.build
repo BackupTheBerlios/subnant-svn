@@ -3,7 +3,7 @@
 Copyright (C) 2005 Simon McKenna
 
 Licensed under the GNU General Public License
-http://www.gnu.org/copyleft/gpl.html <http://www.gnu.org/copyleft/gpl.html> 
+http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
@@ -32,7 +32,7 @@ $Id$
             <property name="propval"  value="${bugtraq_warnifnoissue}"/>
             <!-- warnifnoissue is false by default -->
             <call target="propset" if="${bugtraq_warnifnoissue=='true'}"/>
-            <echo file="${log-file}" message="Set bugtraq properties in '${path}'"/>  
+            <echo file="${log-file}" message="Set bugtraq properties in '${path}'"/>
             <write>Set bugtraq properties in '${path}'</write>
         </foreach>
     </target>
@@ -43,11 +43,11 @@ $Id$
         <fail if="${string::get-length(wc)==0}" message="Option 'wc' was defined but no value set"/>
         <foreach item="String" in="${wc}" delim="," property="path">
             <ifnot test="${file::exists(path::combine(path,'.svn/format')) or file::exists(path::combine(path,'_svn/format'))}">
-                <echo file="${log-file}" message="Could not find working copy in '${path}'" append="true"/>  
+                <echo file="${log-file}" message="Could not find working copy in '${path}'" append="true"/>
                 <fail message="Could not find working copy in '${path}'"/>
             </ifnot>
         </foreach>
-        <!-- Read bugtraq properties from config --> 
+        <!-- Read bugtraq properties from config -->
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/message"       property="bugtraq_message"/>
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/append"        property="bugtraq_append"/>
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/url"           property="bugtraq_url"/>
@@ -72,7 +72,7 @@ $Id$
             <arg value="${propval}"/>
             <arg value="${path}"/>
         </exec>
-        <write>Set ${propname} property to '${propval}'</write>
+        <write>Set property ${propname} to '${propval}'</write>
     </target>
 
     <target name="help">

@@ -38,7 +38,7 @@ $Id$
             <write>Found in path, 'subnant' command should be available</write>
         </if>
         <ifnot test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install.bindir))}">
-            <write>Not found, please add '${install.bindir}' to your environment path</write> -->
+            <write>Not found, please add '${install.bindir}' to your environment path</write>
         </ifnot>
     </target>
    

@@ -10,7 +10,7 @@ $Id$
 <project name="commit-email" default="commit-email">
 
     <target name="commit-email" depends="init">
-        <echo file="${log-file}" append="true" message="Commit email generated"/>  
+        <echo file="${log-file}" append="true" message="Commit email generated"/>
     </target>
    
     <target name="init">

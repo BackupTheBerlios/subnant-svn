@@ -10,7 +10,7 @@ $Id$
 <project name="commit-access" default="commit-access">
 
     <target name="commit-access" depends="init">
-        <echo file="${log-file}" append="true" message="Commit access granted"/>  
+        <echo file="${log-file}" append="true" message="Commit access granted"/>
     </target>
    
     <target name="init">
