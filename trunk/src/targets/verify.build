@@ -11,14 +11,13 @@ $Id$
 
     <target name="verify">
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <echo level="Warning">Verifying repository ${path::get-file-name(repo)}</echo>
-            <property name="execstart" value="${datetime::now()}"/>
+            <echo level="Warning">Verifying repository ${repo}</echo>
+            <property name="verify-started" value="${datetime::now()}"/>
             <exec program="${svnadmin}" failonerror="true">
                 <arg value="verify"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
-            <property name="exectime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(execstart))}"/>
-            <echo file="${subnant-output}" message="${string::pad-right('Verified repository '+path::get-file-name(repo),60,' ')}(${exectime})" append="true"/>
+            <echo file="${subnant-output}" message="${string::pad-right('Verified repository '+repo,60,' ')}(${subnant::get-elapsed-time(verify-started,datetime::now())})" append="true"/>
         </foreach>
     </target>
 

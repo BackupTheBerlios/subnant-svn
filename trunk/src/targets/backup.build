@@ -10,33 +10,42 @@ $Id$
 <project name="backup" default="backup">
 
     <target name="backup" depends="init">
-        <property name="backupstart" value="${datetime::now()}"/>
-        <foreach item="String" delim="," in="${repos}" property="repo">
-            <property name="execstart" value="${datetime::now()}"/>
-            <echo level="Warning" message="Hotcopying repository ${path::get-file-name(repo)}"/>
+        <foreach item="String" delim="," in="${backup-repos}" property="repos">
+            <property name="exec-started" value="${datetime::now()}"/>
+            <echo level="Warning" message="Hotcopying repository ${repos}"/>
             <property name="execstart" value="${datetime::now()}"/>
             <exec program="${svnadmin}" failonerror="true" append="false">
                 <arg value="hotcopy"/>
-                <arg value="${path::combine(svn-root,repo)}"/>
-                <arg value="${path::combine(hotcopy-root,repo)}"/>
+                <arg value="${path::combine(svn-root,repos)}"/>
+                <arg value="${path::combine(hotcopy-root,repos)}"/>
                 <arg value="--clean-logs"/>
             </exec>
-            <property name="exectime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(execstart))}"/>
-            <echo file="${subnant-output}" append="true">${string::pad-right('Hotcopied repository '+path::get-file-name(repo),60,' ')}(${exectime})</echo>
+            <echo file="${subnant-output}" append="true" message="${string::pad-right('Hotcopied repository '+repos,60,' ')}(${subnant::get-elapsed-time(exec-started,datetime::now())})"/>
+            <nant buildfile="verify.build" target="verify">
+                <properties>
+                    <property name="svn-root" value="${hotcopy-root}"/>
+                </properties>
+            </nant>
+            <nant buildfile="dump.build" target="dump">
+                <properties>
+                    <property name="svn-root" value="${hotcopy-root}"/>
+                </properties>
+            </nant>
         </foreach>
-        <property name="svn-root" value="${hotcopy-root}"/>
-        <nant buildfile="verify.build" target="verify" inheritall="true"/>
-        <nant buildfile="dump.build"   target="dump"   inheritall="true"/>
+        <!-- Reset repos from backup-repos -->
+        <property name="repos" value="${backup-repos}"/>
         <delete dir="${hotcopy-root}" unless="${property::exists('keep-hotcopy') and string::trim(string::to-lower(keep-hotcopy))=='true'}"/>
-        <property name="backuptime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(backupstart))}"/>
-        <echo file="${subnant-output}" append="true" message="${string::pad-right('Backup complete',60,' ')}(${backuptime})"/>
+        <echo file="${subnant-output}" append="true" message="${string::pad-right('Backup complete',60,' ')}(${subnant::get-elapsed-time(backup-started,datetime::now())})"/>
     </target>
 
     <target name="init">
+        <property name="backup-started" value="${datetime::now()}"/>
         <tstamp property="hotcopy-date" pattern="yyyyMMdd-HHmmss-ffff"/>
         <property name="hotcopy-root" value="${path::combine(path::combine(path::get-temp-path(),'subnant-hotcopy'),hotcopy-date)}"
              unless="${property::exists('hotcopy-root')}"/>
         <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}"/>
+        <!-- Take a copy of repos as repos is used down the chain (verify, dump) -->
+        <property name="backup-repos" value="${repos}"/>
     </target>
 
     <target name="help">

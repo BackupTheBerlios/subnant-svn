@@ -10,42 +10,46 @@ $Id$
 <project name="test" default="test">
 
     <target name="test" depends="init,init-repository,init-workingcopy">
-        <if test="${property::exists('target')}">
-            <call target="create-workingcopy" if="$({property::exists('target')==false) or ({property::exists('target')==true and string::contains('bugtraq'))}"/>
+        <if test="${no-bdb!='true'}">
+            <property name="test-fs" value="bdb"/>
+            <call target="do-test"/>
         </if>
-        <ifnot test="${property::exists('target')}">
-            <!-- Test bdb repository -->
-            <if test="${no-bdb!='true'}">
-                <echo level="Warning" message="Testing bdb repository and working copy..."/>
-                <echo file="${subnant-output}" message="Testing bdb repository and working copy..." append="true"/>
-                <property name="repos"   value="test-repo-bdb"/>
-                <property name="fs-type" value="bdb"/>
-                <property name="wc"      value="${test-wc-bdb}"/>
-                <call target="test-all"/>
-            </if>
-            <!-- Test fsfs repository -->
-            <if test="${no-fsfs!='true'}">
-                <echo level="Warning" message="Testing fsfs repository and working copy..."/>
-                <echo file="${subnant-output}" message="Testing fsfs repository and working copy..." append="true"/>
-                <property name="repos"   value="test-repo-fsfs"/>
-                <property name="fs-type" value="fsfs"/>
-                <property name="wc"      value="${test-wc-fsfs}"/>
-                <call target="test-all"/>
-            </if>
-        </ifnot>
+        <if test="${no-fsfs!='true'}">
+            <property name="test-fs" value="fsfs"/>
+            <call target="do-test"/>
+        </if>
         <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep-test=='true'}"/>
         <echo level="Warning" message="Test complete"/>
-        <echo file="${subnant-output}" message="Test complete" append="true"/>
+        <echo file="${subnant-output}" append="true" message="${string::pad-right('Test complete',60,' ')}(${subnant::get-elapsed-time(test-started,datetime::now())})"/>
+    </target>
+
+    <target name="do-test">
+        <echo level="Warning" message="Testing ${test-fs} repository and working copy..."/>
+        <echo file="${subnant-output}" message="Testing ${test-fs} repository and working copy..." append="true"/>
+        <property name="repos"   value="${'test-repo-'+test-fs}"/>
+        <property name="fs-type" value="${test-fs}"/>
+        <property name="wc"      value="${path::combine(test-root,'wc-'+test-fs)}"/>
+        <if test="${property::exists('target')}">
+            <foreach item="String" delim="," in="${target}" property="test-target">
+                <nant buildfile="${test-target}.build" target="test"/>
+            </foreach>
+        </if>
+        <ifnot test="${property::exists('target')}">
+            <call target="test-all"/>
+        </ifnot>
     </target>
 
     <target name="test-all">
-        <nant buildfile="create.build"  target="create"  inheritall="true"/>
+        <!-- ::TODO:: Create test target in each main target, so that all this test target has to do
+             is setup the test framework (temp directories, etc)...the other targets test themselves -->
+    	<nant buildfile="create.build"  target="create"/>
         <call target="create-workingcopy"/>
-        <nant buildfile="bugtraq.build" target="bugtraq" inheritall="true"/>
+        <nant buildfile="bugtraq.build" target="bugtraq"/>
         <call target="commit-workingcopy"/>
         <call target="search-log"/>
-        <nant buildfile="verify.build"  target="verify"  inheritall="true"/>
-        <nant buildfile="dump.build"    target="dump"    inheritall="true"/>
+        <nant buildfile="verify.build"  target="verify"/>
+        <nant buildfile="dump.build"    target="dump"/>
+        <!--<nant buildfile="migrate.build" target="test"/> migrate tests nearly everything! -->
     </target>
 
     <target name="create-workingcopy">
@@ -61,7 +65,7 @@ $Id$
     </target>
 
     <target name="commit-workingcopy">
-        <echo level="Warning" message="Committing, will take a while if hooks enabled..."/>
+        <echo level="Warning" message="Committing...takes a while if email hooks enabled"/>
         <exec program="${svn}" workingdir="${wc}" failonerror="true">
             <arg value="commit"/>
             <arg value="-m '${test-message}'"/>
@@ -84,6 +88,7 @@ $Id$
     </target>
 
     <target name="init">
+        <property name="test-started" value="${datetime::now()}"/>
         <tstamp property="test-date" pattern="yyyyMMdd-HHmmss-ffff"/>
         <property name="keep-test" value="false" unless="${property::exists('keep-test') and string::to-lower(keep-test)=='true'}"/>
         <property name="no-bdb"    value="false" unless="${property::exists('no-bdb') and string::to-lower(no-bdb)=='true'}"/>
@@ -101,8 +106,6 @@ $Id$
     </target>
 
     <target name="init-workingcopy">
-        <property name="test-wc-bdb"  value="${path::combine(test-root,'wc-bdb')}"/>
-        <property name="test-wc-fsfs" value="${path::combine(test-root,'wc-fsfs')}"/>
         <property name="test-message" value="${'message for test '+test-date}"/>
     </target>
 
