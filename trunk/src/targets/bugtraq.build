@@ -16,7 +16,8 @@ $Id$
             <call target="propset"/>
             <property name="propname" value="bugtraq:append"/>
             <property name="propval"  value="${bugtraq_append}"/>
-            <call target="propset"/>
+            <!-- append is true by default -->
+            <call target="propset" if="${bugtraq_append!='true'}"/>
             <property name="propname" value="bugtraq:url"/>
             <property name="propval"  value="${bugtraq_url}"/>
             <call target="propset"/>
@@ -25,10 +26,12 @@ $Id$
             <call target="propset"/>
             <property name="propname" value="bugtraq:number"/>
             <property name="propval"  value="${bugtraq_number}"/>
-            <call target="propset"/>
+            <!-- number is true by default -->
+            <call target="propset" if="${bugtraq_number!='true'}"/>
             <property name="propname" value="bugtraq:warnifnoissue"/>
             <property name="propval"  value="${bugtraq_warnifnoissue}"/>
-            <call target="propset"/>
+            <!-- warnifnoissue is false by default -->
+            <call target="propset" if="${bugtraq_warnifnoissue=='true'}"/>
             <echo file="${log-file}" message="Set bugtraq properties in '${path}'"/>  
             <write>Set bugtraq properties in '${path}'</write>
         </foreach>
