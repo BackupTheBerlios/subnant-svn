@@ -124,8 +124,8 @@ Usage: subnant <target> -D:<option>
 
 Examples:
 subnant -projecthelp
-subnant help config
 subnant config
+subnant help test
 subnant test
 subnant verify dump -D:repos=repo1,repo2]]></write>
     </target>
@@ -136,10 +136,12 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
     <target name="init">
         <property name="nant.onsuccess" value="success"/>
         <property name="nant.onfailure" value="failure"/>  
-        <tstamp property="starttime" pattern="HHmmss"/>
-        <property name="log-file" value="${path::combine(path::get-temp-path(),'subnant-log'+starttime)}"/>
-        <echo file="${log-file}" append="false" message="Subnant started ${datetime::to-string(datetime::now())}"/>  
-        <!-- Assign default config file unless config already defined from command-line property -->
+        <tstamp property="startstamp" pattern="HHmmss"/>
+        <property name="log-file"    value="${path::combine(path::get-temp-path(),'subnant-log-'+startstamp)}"/>
+        <property name="output-file" value="${path::combine(path::get-temp-path(),'subnant-output-'+startstamp)}"/>
+        <property name="starttime"   value="${datetime::now()}"/>
+        <echo file="${log-file}" append="false" message="Subnant started ${datetime::to-string(starttime)}"/>  
+        <!-- Assign default config file unless config already defined from command-line option -->
         <property name="config" value="${path::combine(project::get-buildfile-path(),'../../conf/subnant.config')}"
             unless="${property::exists('config')}"/>
         <fail unless="${file::exists(config)}" message="Could not find ${path::get-file-name(config)}"/>
@@ -153,9 +155,8 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
     </target>
 
     <target name="init-workingcopy">
-        <!-- Assign wc unless already defined from command-line property -->
+        <!-- Assign wc unless already defined from command-line option -->
         <property name="wc" value="${directory::get-current-directory()}" unless="${property::exists('wc')}"/>
-        <fail unless="${directory::exists(wc)}" message="Working copy directory doesn't exist: ${wc}"/>
     </target>
 
     <target name="success">
@@ -165,7 +166,7 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
         <if test="${property::exists('sendmail') and sendmail=='true'}">   
             <property name="subject" value="SUCCESS"/>
             <call target="mail"/>   
-        </if>   
+        </if>
     </target>
 
     <target name="failure">
@@ -173,13 +174,15 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
         <property name="searchon" value="true|onfail"/>
         <call target="mailtarget" unless="${target::has-executed('help')}"/>
         <if test="${property::exists('sendmail') and sendmail=='true'}">   
-            <property name="subject" value="FAILURE"/>
+            <property name="subject"       value="FAILURE"/>
+            <property name="attach-output" value="true"/>
             <call target="mail"/>   
-        </if>   
+        </if>
     </target>
 
     <target name="mailtarget">
         <property name="sendmail" value="false"/>
+        <fail unless="${property::exists('config')}" message="Email not sent as config file not yet set"/>
         <!-- Read mail target settings -->
         <xmlpeek file="${config}" xpath="/configuration/mail/target/bugtraq"       property="mail_bugtraq"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/target/commit-access" property="mail_commit-access"/>
@@ -205,7 +208,9 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
 
     <target name="mail">
         <!-- Mail message is culmination of results from all targets executed -->
-        <echo file="${log-file}" append="true" message="Subnant finished ${datetime::to-string(datetime::now())}"/>  
+        <property name="stoptime" value="${datetime::now()}"/>
+        <echo file="${log-file}" append="true" message="Subnant finished ${datetime::to-string(stoptime)} [${timespan::to-string(datetime::parse(stoptime)-datetime::parse(starttime))}]"/>  
+        <echo file="${log-file}" append="true" message="Output:" if="${property::exists('attach-output') and file::exists(output-file)}"/>
         <loadfile file="${log-file}" property="message"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"      property="mail_from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"      property="mail_host"/>
@@ -213,7 +218,11 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
         <xmlpeek file="${config}" xpath="/configuration/mail/prefix"    property="mail_prefix"/>
         <write>Sending mail to ${mail_tolist}</write>   
         <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_tolist}"
-          subject="${mail_prefix} ${subject}" message="${message}"/>
+          subject="${mail_prefix} ${subject}" message="${message}">
+            <files>
+                <include name="${output-file}" if="${property::exists('attach-output') and file::exists(output-file)}"/>
+            </files>
+        </mail>
     </target>
 
     <!-- Custom tasks -->
@@ -223,7 +232,7 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
         </imports>
         <code>
             <![CDATA[
-            [TaskName( "write" )]
+            [TaskName("write")]
             public class write : Task
             {
                 private string _contents;
@@ -232,13 +241,13 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
                     get { return _contents; }
                     set { _contents = value; }
                 }
-                protected override void InitializeTask( XmlNode taskNode )
+                protected override void InitializeTask(XmlNode taskNode)
                 {
-                    Contents = Project.ExpandProperties( taskNode.InnerText, Location );
+                    Contents = Project.ExpandProperties(taskNode.InnerText, Location);
                 }
                 protected override void ExecuteTask()
                 {
-                    Console.Out.WriteLine( Contents );
+                    Console.Out.WriteLine(Contents);
                 }
             }
             ]]>
@@ -248,14 +257,14 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
     <script language="C#" prefix="path">
         <code>
              <![CDATA[
-             [Function( "to-uri" )]
-             public static string pathToUriToString( String Path )
+             [Function("to-uri")]
+             public string pathToUriToString(String Path)
              {
-                 Uri pathToUri = new Uri( Path );
+                 Uri pathToUri = new Uri(Path);
                  return pathToUri.ToString();
              }
              ]]>
          </code>
      </script>
-   
+  
 </project>

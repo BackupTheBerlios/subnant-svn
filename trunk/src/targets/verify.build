@@ -11,13 +11,12 @@ $Id$
 
     <target name="verify" depends="init" description="Verify Subversion repositories">
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <write>Verifying repository '${path::get-file-name(repo)}'</write>
-            <exec program="${svnadmin}" failonerror="false" resultproperty="result">
+            <exec program="${svnadmin}" failonerror="true" output="${output-file}" append="true">
                 <arg value="verify"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
-            <echo file="${log-file}" append="true" if="${result=='0'}" message="Verified repository '${path::get-file-name(repo)}'"/>  
-            <echo file="${log-file}" append="true" if="${result!='0'}" message="Failed to verify repository '${path::get-file-name(repo)}'"/>  
+            <echo file="${log-file}" message="Verified repository '${path::get-file-name(repo)}'" append="true"/>  
+            <write>Verified repository '${path::get-file-name(repo)}'</write>
         </foreach>
     </target>
 
@@ -26,14 +25,20 @@ $Id$
         <property name="svnadmin" value="${path::combine(svn-bindir,'svnadmin')}"/>
         <!-- Verify repositories exist if command-line parameter given -->
         <if test="${property::exists('repos')}">
-            <fail if="${string::get-length(repos)==0}" message="Property 'repos' was defined but no value set"/>
+            <if test="${string::get-length(repos)==0}">
+                <echo file="${log-file}" message="Property 'repos' was defined but no value set" append="true"/>  
+                <fail message="Property 'repos' was defined but no value set"/>
+            </if>   
             <foreach item="String" in="${repos}" delim="," property="repo">
-                <fail unless="${directory::exists(path::combine(svn-root,repo)) and file::exists(path::combine(svn-root,path::combine(repo,'db/fs-type')))}" 
-                    message="Can't find repository '${repo}' under ${svn-root}"/>
+                <ifnot test="${directory::exists(path::combine(svn-root,repo)) and file::exists(path::combine(svn-root,path::combine(repo,'db/fs-type')))}">
+                    <echo file="${log-file}" message="Can't find repository '${repo}' under ${svn-root}" append="true"/>  
+                    <fail message="Can't find repository '${repo}' under ${svn-root}"/>
+                </ifnot>
                 <loadfile file="${path::combine(svn-root,path::combine(repo,'db/fs-type'))}" property="fs-type-test"/>
                 <ifnot test="${string::contains(fs-type-test,'bdb') or string::contains(fs-type-test,'fsfs')}">  
+                    <echo file="${log-file}" message="'${repo}' is not a 'bdb' or 'fsfs' type of repository" append="true"/>  
                     <fail message="'${repo}' is not a 'bdb' or 'fsfs' type of repository"/>
-                </ifnot>  
+                </ifnot>
             </foreach>
         </if>
         <!-- Build list of repositories under svn-root if command-line parameter not given -->
@@ -53,6 +58,7 @@ $Id$
                 <property name="repos" value="${string::substring(repos,0,string::get-length(repos)-1)}"/>
             </if>
             <ifnot test="${string::get-length(repos)>0}">
+                <echo file="${log-file}" message="No repositories found under ${svn-root}" append="true"/>  
                 <fail message="No repositories found under ${svn-root}"/>
             </ifnot>
         </ifnot>   

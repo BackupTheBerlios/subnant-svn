@@ -15,32 +15,26 @@ $Id$
         </if>
         <ifnot test="${property::exists('target')}">
             <!-- Test bdb repository -->
+            <write>Testing bdb repository and working copy...</write>
             <property name="repos"   value="${test-repo-bdb}"/>
             <property name="fs-type" value="bdb"/>
             <property name="wc"      value="${test-wc-bdb}"/>
-            <nant buildfile="create.build"  target="create"/>
-            <call target="create-workingcopy"/>
-            <nant buildfile="bugtraq.build" target="bugtraq"/>
-            <nant buildfile="verify.build"  target="verify"/>
-            <nant buildfile="dump.build"    target="dump"/>
+            <call target="test-all"/>
             <!-- Test fsfs repository -->
+            <write>Testing fsfs repository and working copy...</write>
             <property name="repos"   value="${test-repo-fsfs}"/>
             <property name="fs-type" value="fsfs"/>
             <property name="wc"      value="${test-wc-fsfs}"/>
-            <nant buildfile="create.build"  target="create"/>
-            <call target="create-workingcopy"/>
-            <nant buildfile="bugtraq.build" target="bugtraq"/>
-            <nant buildfile="verify.build"  target="verify"/>
-            <nant buildfile="dump.build"    target="dump"/>
+            <call target="test-all"/>
         </ifnot>
         <delete dir="${test-root}" if="${directory::exists(test-root)}"/>   
+        <write>Test complete</write>
     </target>
 
     <target name="init">
         <tstamp property="test-date" pattern="HHmmss"/>
         <property name="test-root" value="${path::combine(path::get-temp-path(),'subnant-test')}"/>
         <mkdir dir="${test-root}" unless="${directory::exists(test-root)}"/>   
-        <property name="svn" value="${path::combine(svn-bindir,'svn')}"/>
     </target>
 
     <target name="init-repository">
@@ -52,27 +46,18 @@ $Id$
     </target>
 
     <target name="init-workingcopy">
-        <property name="test-wc-bdb" value="${path::combine(test-root,'wc-bdb-'+test-date)}"/>
+        <property name="svn"          value="${path::combine(svn-bindir,'svn')}"/>
+        <property name="svnlook"      value="${path::combine(svn-bindir,'svnlook')}"/>
+        <property name="test-wc-bdb"  value="${path::combine(test-root,'wc-bdb-'+test-date)}"/>
         <property name="test-wc-fsfs" value="${path::combine(test-root,'wc-fsfs-'+test-date)}"/>
+        <property name="test-message" value="${'Log message for test '+test-date}"/>
     </target>
 
-    <target name="create-workingcopy">
-        <delete dir="${wc}" if="${directory::exists(wc)}"/>   
-        <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>   
-        <property name="uri" value='${path::to-uri(path::combine(svn-root,repos))}'/>
-        <write>Checking out repository '${repos}' into ${wc}</write>
-        <exec program="${svn}" workingdir="${wc}" failonerror="true" resultproperty="result">
-            <arg value="checkout"/>
-            <arg value="${uri}"/>
-            <arg value="."/>
-        </exec>
-    </target>   
-
-    <target name="help">
-<write><![CDATA[Executes targets in a test environment
+     <target name="help">
+<write><![CDATA[Call Subnant targets in a test environment
 
 If no target is passed, all main targets are tested
-   
+
 Options:
 target          comma separated list of test targets
 
@@ -80,5 +65,49 @@ Examples:
 subnant test
 subnant test -D:target=create,verify,dump]]></write>
     </target>
-   
+
+    <target name="test-all">
+        <nant buildfile="create.build"  target="create"/>
+        <call target="create-workingcopy"/>
+        <nant buildfile="bugtraq.build" target="bugtraq"/>
+        <call target="commit-workingcopy"/>
+        <call target="search-log"/>
+        <nant buildfile="verify.build"  target="verify"/>
+        <nant buildfile="dump.build"    target="dump"/>
+    </target>
+
+    <target name="create-workingcopy">
+        <delete dir="${wc}" if="${directory::exists(wc)}"/>   
+        <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>   
+        <property name="uri" value='${path::to-uri(path::combine(svn-root,repos))}'/>
+        <exec program="${svn}" workingdir="${wc}" failonerror="true" output="${output-file}" append="true">
+            <arg value="checkout"/>
+            <arg value="${uri}"/>
+            <arg value="."/>
+        </exec>
+        <write>Checked out repository '${repos}' into ${wc}</write>
+    </target>   
+
+    <target name="commit-workingcopy">
+        <exec program="${svn}" workingdir="${wc}" failonerror="true" output="${output-file}" append="true">
+            <arg value="commit"/>
+            <arg value="-m '${test-message}'"/>
+        </exec>
+        <write>Committed '${repos}' with log '${test-message}'</write>
+    </target>   
+
+    <target name="search-log">
+        <exec program="${svnlook}" failonerror="true" output="${output-file}" append="true">
+            <arg value="log"/>
+            <arg value="${path::combine(test-root,repos)}"/>
+        </exec>
+        <loadfile file="${output-file}" property="test-output"/>
+        <if test="${string::contains(test-output,test-message)}">
+            <write>Found '${test-message}' in repository log</write>
+        </if>
+        <ifnot test="${string::contains(test-output,test-message)}">
+            <fail>Log '${test-message}' not found in repository</fail>
+        </ifnot>
+    </target>   
+
 </project>

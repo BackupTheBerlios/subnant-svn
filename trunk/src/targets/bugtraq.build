@@ -3,31 +3,86 @@
 Copyright (C) 2005 Simon McKenna
 
 Licensed under the GNU General Public License
-http://www.gnu.org/copyleft/gpl.html
+http://www.gnu.org/copyleft/gpl.html <http://www.gnu.org/copyleft/gpl.html> 
 
-$Id$ 
+$Id$
 -->
 <project name="bugtraq" default="bugtraq">
 
     <target name="bugtraq" depends="init">
-        <echo file="${log-file}" append="true" message="Set bugtraq properties on working copy"/>  
+        <foreach item="String" in="${wc}" delim="," property="path">
+            <property name="propname" value="bugtraq:message"/>
+            <property name="propval"  value="${bugtraq_message}"/>
+            <call target="propset"/>
+            <property name="propname" value="bugtraq:append"/>
+            <property name="propval"  value="${bugtraq_append}"/>
+            <call target="propset"/>
+            <property name="propname" value="bugtraq:url"/>
+            <property name="propval"  value="${bugtraq_url}"/>
+            <call target="propset"/>
+            <property name="propname" value="bugtraq:label"/>
+            <property name="propval"  value="${bugtraq_label}"/>
+            <call target="propset"/>
+            <property name="propname" value="bugtraq:number"/>
+            <property name="propval"  value="${bugtraq_number}"/>
+            <call target="propset"/>
+            <property name="propname" value="bugtraq:warnifnoissue"/>
+            <property name="propval"  value="${bugtraq_warnifnoissue}"/>
+            <call target="propset"/>
+            <echo file="${log-file}" message="Set bugtraq properties in '${path}'"/>  
+            <write>Set bugtraq properties in '${path}'</write>
+        </foreach>
     </target>
    
     <target name="init">
+        <property name="svn" value="${path::combine(svn-bindir,'svn')}"/>
+        <!-- Verify current directory or 'wc' option is a working copy -->
+        <fail if="${string::get-length(wc)==0}" message="Option 'wc' was defined but no value set"/>
+        <foreach item="String" in="${wc}" delim="," property="path">
+            <ifnot test="${file::exists(path::combine(path,'.svn/format')) or file::exists(path::combine(path,'_svn/format'))}">
+                <echo file="${log-file}" message="Could not find working copy in '${path}'" append="true"/>  
+                <fail message="Could not find working copy in '${path}'"/>
+            </ifnot>
+        </foreach>
+        <!-- Read bugtraq properties from config --> 
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/message"       property="bugtraq_message"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/append"        property="bugtraq_append"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/url"           property="bugtraq_url"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/label"         property="bugtraq_label"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/number"        property="bugtraq_number"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/warnifnoissue" property="bugtraq_warnifnoissue"/>
+        <!-- Ready properties -->
+        <property name="bugtraq_append"        value="${string::trim(string::to-lower(bugtraq_append))}"/>
+        <property name="bugtraq_number"        value="${string::trim(string::to-lower(bugtraq_number))}"/>
+        <property name="bugtraq_warnifnoissue" value="${string::trim(string::to-lower(bugtraq_warnifnoissue))}"/>
+        <property name="bugtraq_url"           value="${string::trim(bugtraq_url)}"/>
+        <!-- xmlpeek doesn't like CDATA, so search for start and end tags, if found remove from end of url -->
+        <if test="${string::substring(bugtraq_url,1,8)=='![CDATA[' and string::substring(bugtraq_url,string::get-length(bugtraq_url)-3,2)==']]'}">
+            <property name="bugtraq_url" value="${string::substring(bugtraq_url,9,string::get-length(bugtraq_url)-12)}"/>
+        </if>
+    </target>
+
+    <target name="propset">
+        <exec program="${svn}" failonerror="true" output="${output-file}" append="true">
+            <arg value="propset"/>
+            <arg value="${propname}"/>
+            <arg value="${propval}"/>
+            <arg value="${path}"/>
+        </exec>
+        <write>Set ${propname} property to '${propval}'</write>
     </target>
 
     <target name="help">
 <write><![CDATA[Set bugtraq properties
 
-If 'wc' is not passed, assume current directory is working copy
-   
+If 'wc' not passed, assumes current directory is working copy
+
 Options:
 wc              comma separated list of working copies to set
-   
+
 Examples:
 subnant bugtraq
-subnant bugtraq -D:wc=/project]]></write>
+subnant bugtraq -D:wc=/project1,"/project 2"]]></write>
     </target>
-       
-   
+
 </project>

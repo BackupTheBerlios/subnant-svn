@@ -121,7 +121,7 @@ warnifnoissue   ${bugtraq_warnifnoissue}]]></write>
     <target name="help">
 <write><![CDATA[Displays configuration settings for Subnant
 
-If no options passed, use values defined in subnant.config
+If no options are passed, use values in subnant.config
 
 Options:
 config          name of alternative configuration file
