@@ -117,12 +117,12 @@ subnant verify dump -D:repos=repo1,repo2]]></echo>
         <property name="config" value="${path::combine(project::get-buildfile-path(),'../../conf/subnant.config')}"
             unless="${property::exists('config')}"/>
         <fail unless="${file::exists(config)}" message="Could not find ${config}"/>
-        <xmlpeek file="${config}" xpath="/subnant/svn-bindir" property="svn-bindir"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-bindir" property="svn-bindir"/>
     </target>
 
     <target name="init-repository">
         <!-- Assign svn-root unless already defined from command-line property -->
-        <xmlpeek file="${config}" xpath="/subnant/svn-repos/svn-root" property="svn-root" unless="${property::exists('svn-root')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/svn-root" property="svn-root" unless="${property::exists('svn-root')}"/>
         <fail unless="${directory::exists(svn-root)}" message="Repository root directory doesn't exist: ${svn-root}"/>
     </target>
 
@@ -135,11 +135,13 @@ subnant verify dump -D:repos=repo1,repo2]]></echo>
     <target name="help"/>
 
     <target name="success">
-        <!-- Send success mail message if 'true' in any .config/subnant/mail/target/<target> -->
+        <!-- Send success mail message if 'true' in subnant.config/configuration/mail/target/<target> -->
+        <property name="searchon" value="true"/>
     </target>
 
     <target name="failure">
-        <!-- Send failure mail message if 'true|fail' in any .config/subnant/mail/target/<target> -->
+        <!-- Send failure mail message if 'true|onfail' in subnant.config/configuration/mail/target/<target> -->
+       <property name="searchon" value="true|onfail"/>
     </target>
 
     <target name="mail">

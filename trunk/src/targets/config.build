@@ -10,20 +10,26 @@ $Id$
 <project name="config" default="config">
 
     <target name="config" depends="init">
+    <!-- ::To-Do:: Generate from subnant.config using nodename and nodevalue for each /subnant node -->
 <echo><![CDATA[Configuration for: ${path::get-file-name(config)}
 
 Repository settings:
 
 svn-bindir      ${bindir}
 svn-root        ${svn-root}
-svn-dumps       ${svn-dumps}
-
 fs-type         ${fs-type}
 config-dir      ${config-dir}
 bdb-log-keep    ${bdb-log-keep}
 bdb-txn-nosync  ${bdb-txn-nosync}
 
 
+Repository dump settings:
+
+dump-root       ${dump-root}
+incrementally   ${incrementally}
+deltas          ${deltas}
+
+   
 Mail settings:
 
 from            ${mail_from}
@@ -44,29 +50,32 @@ warnifnoissue   ${bugtraq_warnifnoissue}]]></echo>
     </target>
 
     <target name="init">
+        <!-- ::To-Do:: Parse automatically from subnant.config -->
         <!-- Get all properties except for svn-bindir and svn-root which are defined in init and init-repository -->
-        <xmlpeek file="${config}" xpath="/subnant/svn-repos/fs-type"         property="fs-type"/>
-        <xmlpeek file="${config}" xpath="/subnant/svn-repos/config-dir"      property="config-dir"/>
-        <xmlpeek file="${config}" xpath="/subnant/svn-repos/bdb-log-keep"    property="bdb-log-keep"/>
-        <xmlpeek file="${config}" xpath="/subnant/svn-repos/bdb-txn-nosync"  property="bdb-txn-nosync"/>
-        <xmlpeek file="${config}" xpath="/subnant/svn-dumps"                 property="svn-dumps"/>
-        <xmlpeek file="${config}" xpath="/subnant/mail/from"                 property="mail_from"/>
-        <xmlpeek file="${config}" xpath="/subnant/mail/host"                 property="mail_host"/>
-        <xmlpeek file="${config}" xpath="/subnant/mail/tolist/to"            property="mail_tolist"/>
-        <xmlpeek file="${config}" xpath="/subnant/mail/prefix"               property="mail_prefix"/>
-        <xmlpeek file="${config}" xpath="/subnant/mail/target/bugtraq"       property="mail_bugtraq"/>
-        <xmlpeek file="${config}" xpath="/subnant/mail/target/commit-access" property="mail_commit-access"/>
-        <xmlpeek file="${config}" xpath="/subnant/mail/target/commit-email"  property="mail_commit-email"/>
-        <xmlpeek file="${config}" xpath="/subnant/mail/target/create"        property="mail_create"/>
-        <xmlpeek file="${config}" xpath="/subnant/mail/target/dump"          property="mail_dump"/>
-        <xmlpeek file="${config}" xpath="/subnant/mail/target/verify"        property="mail_verify"/>
-        <xmlpeek file="${config}" xpath="/subnant/bugtraq/message"           property="bugtraq_message"/>
-        <xmlpeek file="${config}" xpath="/subnant/bugtraq/append"            property="bugtraq_append"/>
-        <xmlpeek file="${config}" xpath="/subnant/bugtraq/url"               property="bugtraq_url"/>
-        <xmlpeek file="${config}" xpath="/subnant/bugtraq/label"             property="bugtraq_label"/>
-        <xmlpeek file="${config}" xpath="/subnant/bugtraq/number"            property="bugtraq_number"/>
-        <xmlpeek file="${config}" xpath="/subnant/bugtraq/warnifnoissue"     property="bugtraq_warnifnoissue"/>
-        <!-- Ready repository properties -->
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/fs-type"         property="fs-type"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/config-dir"      property="config-dir"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-log-keep"    property="bdb-log-keep"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-txn-nosync"  property="bdb-txn-nosync"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-dumps/dump-root"       property="dump-root"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-dumps/incrementally"   property="incrementally"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-dumps/deltas"          property="deltas"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/from"                 property="mail_from"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/host"                 property="mail_host"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/tolist/to"            property="mail_tolist"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/prefix"               property="mail_prefix"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/bugtraq"       property="mail_bugtraq"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/commit-access" property="mail_commit-access"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/commit-email"  property="mail_commit-email"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/create"        property="mail_create"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/dump"          property="mail_dump"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/verify"        property="mail_verify"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/message"           property="bugtraq_message"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/append"            property="bugtraq_append"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/url"               property="bugtraq_url"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/label"             property="bugtraq_label"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/number"            property="bugtraq_number"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/warnifnoissue"     property="bugtraq_warnifnoissue"/>
+        <!-- Ready repository settings -->
         <property name="bindir"         value="[Not set]"    if="${string::get-length(svn-bindir)==0}"/>
         <property name="bindir"         value="${svn-bindir}" unless="${string::get-length(svn-bindir)==0}"/>
         <property name="config-dir"     value="[Not set]"    if="${string::get-length(config-dir)==0}"/>
@@ -74,7 +83,14 @@ warnifnoissue   ${bugtraq_warnifnoissue}]]></echo>
         <property name="bdb-log-keep"   value="[Disabled]"   unless="${bdb-log-keep=='[Enabled]'}"/>
         <property name="bdb-txn-nosync" value="[Enabled]"    if="${string::trim(string::to-lower(bdb-txn-nosync))=='true'}"/>
         <property name="bdb-txn-nosync" value="[Disabled]"   unless="${bdb-txn-nosync=='[Enabled]'}"/>
-        <!-- Ready mail target properties -->
+        <!-- Ready repository dump settings -->
+        <property name="dump-root"     value="${dump-root}" unless="${string::get-length(dump-root)==0}"/>
+        <property name="dump-root"     value="[Not set]"    if="${string::get-length(dump-root)==0}"/>
+        <property name="incrementally" value="[Enabled]"    if="${string::trim(string::to-lower(incrementally))=='true'}"/>
+        <property name="incrementally" value="[Disabled]"   unless="${incrementally=='[Enabled]'}"/>
+        <property name="deltas"        value="[Enabled]"    if="${string::trim(string::to-lower(deltas))=='true'}"/>
+        <property name="deltas"        value="[Disabled]"   unless="${deltas=='[Enabled]'}"/>
+        <!-- Ready mail target settings -->
         <property name="mail_bugtraq"       value="${string::trim(string::to-lower(mail_bugtraq))}"/>
         <property name="mail_commit-access" value="${string::trim(string::to-lower(mail_commit-access))}"/>
         <property name="mail_commit-email"  value="${string::trim(string::to-lower(mail_commit-email))}"/>
@@ -103,9 +119,9 @@ warnifnoissue   ${bugtraq_warnifnoissue}]]></echo>
     </target>   
 
     <target name="help">
-<echo><![CDATA[Displays configuration settings for SubNAnt
+<echo><![CDATA[Displays configuration settings for Subnant
 
-If no options are passed, use values defined in subnant.config
+If no options passed, use values defined in subnant.config
 
 Valid options:
 config          name of alternative configuration file
