@@ -10,7 +10,6 @@ $Id$
 <project name="config" default="config">
 
     <target name="config" depends="init">
-    <!-- ::To-Do:: Generate from subnant.config using nodename and nodevalue for each /subnant node -->
         <write>
             <![CDATA[Config file: ${path::get-file-name(config)}
 
@@ -27,6 +26,7 @@ bdb-txn-nosync  ${bdb-txn-nosync}
 Repository dump settings:
 
 dump-root       ${dump-root}
+compress        ${compress}
 incremental     ${incremental}
 deltas          ${deltas}
 
@@ -48,6 +48,7 @@ url             ${bugtraq_url}
 label           ${bugtraq_label}
 number          ${bugtraq_number}
 warnifnoissue   ${bugtraq_warnifnoissue}
+logregex        ${bugtraq_logregex}
             ]]>
         </write>
     </target>
@@ -60,11 +61,12 @@ warnifnoissue   ${bugtraq_warnifnoissue}
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-log-keep"    property="bdb-log-keep"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-txn-nosync"  property="bdb-txn-nosync"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-dumps/dump-root"       property="dump-root"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-dumps/compress"        property="compress"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-dumps/incremental"     property="incremental"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-dumps/deltas"          property="deltas"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"                 property="mail_from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"                 property="mail_host"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/tolist/to"            property="mail_tolist"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/tolist"               property="mail_tolist"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/prefix"               property="mail_prefix"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/target/commit-access" property="mail_commit-access"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/target/commit-email"  property="mail_commit-email"/>
@@ -76,26 +78,37 @@ warnifnoissue   ${bugtraq_warnifnoissue}
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/label"             property="bugtraq_label"/>
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/number"            property="bugtraq_number"/>
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/warnifnoissue"     property="bugtraq_warnifnoissue"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/logregex"          property="bugtraq_logregex"/>
         <!-- Ready repository settings -->
-        <property name="bindir"         value="[Not set]"    if="${string::get-length(svn-bindir)==0}"/>
-        <property name="bindir"         value="${svn-bindir}" unless="${string::get-length(svn-bindir)==0}"/>
-        <property name="config-dir"     value="[Not set]"    if="${string::get-length(config-dir)==0}"/>
-        <property name="bdb-log-keep"   value="[Enabled]"    if="${string::trim(string::to-lower(bdb-log-keep))=='true'}"/>
-        <property name="bdb-log-keep"   value="[Disabled]"   unless="${bdb-log-keep=='[Enabled]'}"/>
-        <property name="bdb-txn-nosync" value="[Enabled]"    if="${string::trim(string::to-lower(bdb-txn-nosync))=='true'}"/>
-        <property name="bdb-txn-nosync" value="[Disabled]"   unless="${bdb-txn-nosync=='[Enabled]'}"/>
+        <property name="bindir"         value="[not set - path used]" if="${string::get-length(svn-bindir)==0}"/>
+        <property name="bindir"         value="${svn-bindir}"         unless="${string::get-length(svn-bindir)==0}"/>
+        <property name="config-dir"     value="[not set]"  if="${string::get-length(config-dir)==0}"/>
+        <property name="bdb-log-keep"   value="[enabled]"  if="${string::trim(string::to-lower(bdb-log-keep))=='true'}"/>
+        <property name="bdb-log-keep"   value="[disabled]" unless="${bdb-log-keep=='[Enabled]'}"/>
+        <property name="bdb-txn-nosync" value="[enabled]"  if="${string::trim(string::to-lower(bdb-txn-nosync))=='true'}"/>
+        <property name="bdb-txn-nosync" value="[disabled]" unless="${bdb-txn-nosync=='[Enabled]'}"/>
         <!-- Ready repository dump settings -->
         <property name="dump-root"     value="${dump-root}" unless="${string::get-length(dump-root)==0}"/>
-        <property name="dump-root"     value="[Not set]"    if="${string::get-length(dump-root)==0}"/>
-        <property name="incremental"   value="[Enabled]"    if="${string::trim(string::to-lower(incremental))=='true'}"/>
-        <property name="incremental"   value="[Disabled]"   unless="${incremental=='[Enabled]'}"/>
-        <property name="deltas"        value="[Enabled]"    if="${string::trim(string::to-lower(deltas))=='true'}"/>
-        <property name="deltas"        value="[Disabled]"   unless="${deltas=='[Enabled]'}"/>
+        <property name="dump-root"     value="[not set]"    if="${string::get-length(dump-root)==0}"/>
+        <property name="level"         value="${string::trim(string::to-lower(compress))}"/>
+        <property name="compress"      value="level ${level}" if="${level!='false' and int::parse(level)&gt;=0 and int::parse(level)&lt;=9}"/>
+        <property name="compress"      value="[disabled]"   if="${level=='false' or int::parse(level)&lt;0 or int::parse(level)&gt;9}"/>
+        <property name="incremental"   value="[enabled]"    if="${string::trim(string::to-lower(incremental))=='true'}"/>
+        <property name="incremental"   value="[disabled]"   unless="${incremental=='[Enabled]'}"/>
+        <property name="deltas"        value="[enabled]"    if="${string::trim(string::to-lower(deltas))=='true'}"/>
+        <property name="deltas"        value="[disabled]"   unless="${deltas=='[Enabled]'}"/>
         <!-- Ready mail target settings -->
         <property name="mail_commit-access" value="${string::trim(string::to-lower(mail_commit-access))}"/>
         <property name="mail_commit-email"  value="${string::trim(string::to-lower(mail_commit-email))}"/>
         <property name="mail_dump"          value="${string::trim(string::to-lower(mail_dump))}"/>
         <property name="mail_verify"        value="${string::trim(string::to-lower(mail_verify))}"/>
+        <!-- Ready bugtraq settings -->
+        <!-- xmlpeek doesn't like CDATA, so search for start and end tags, if found remove from url -->
+        <property name="bugtraq_url" value="${string::trim(bugtraq_url)}"/>
+        <if test="${string::substring(bugtraq_url,1,8)=='![CDATA[' and string::substring(bugtraq_url,string::get-length(bugtraq_url)-3,2)==']]'}">
+            <property name="bugtraq_url" value="${string::substring(bugtraq_url,9,string::get-length(bugtraq_url)-12)}"/>
+        </if>
+        <property name="bugtraq_logregex" value="[not set]" if="${string::trim(bugtraq_logregex)==''}"/>
         <!-- Test for 'true' targets -->
         <property name="mail_targets" value=""/>
         <property name="mail_targets" value="${mail_targets+'commit-access,'}" if="${mail_commit-access=='true'}"/>
