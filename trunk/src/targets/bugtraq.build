@@ -37,7 +37,7 @@ $Id$
             <!-- dont set logregex if nothing entered -->
             <call target="propset" if="${string::get-length(bugtraq_logregex)!=0}"/>
             <echo file="${log-file}" message="Set bugtraq properties in '${path}'"/>
-            <write>Set bugtraq properties in '${path}'</write>
+            <write>Set bugtraq properties in ${path}</write>
         </foreach>
     </target>
    
@@ -68,7 +68,6 @@ $Id$
             <arg value="${propval}"/>
             <arg value="${path}"/>
         </exec>
-        <write>Set property ${propname} to '${propval}'</write>
     </target>
 
     <target name="help">
