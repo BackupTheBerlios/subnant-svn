@@ -13,6 +13,7 @@ $Id$
         <foreach item="String" delim="," in="${backup-repos}" property="repos">
             <echo level="Warning" message="Hotcopying repository ${repos}"/>
             <property name="exec-started" value="${datetime::now()}"/>
+            <delete dir="${path::combine(hotcopy-root,repos)}" if="${directory::exists(path::combine(hotcopy-root,repos))}"/>
             <property name="hotcopy-failed" value="false"/>
             <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="exec-result">
                 <arg value="hotcopy"/>
@@ -33,10 +34,7 @@ $Id$
                         <property name="svn-root" value="${hotcopy-root}"/>
                     </properties>
                 </nant>
-                <!-- Record failure if verify failed -->
-                <if test="${exec-result!='0'}">
-                    <property name="backup-failed" value="true"/>
-                </if>
+                <property name="backup-failed" if="${exec-result!='0'}" value="true"/>
                 <!-- Only dump if verify ok -->
                 <if test="${exec-result=='0'}">
                     <nant buildfile="dump.build" target="dump">
@@ -47,10 +45,10 @@ $Id$
                     <property name="backup-failed" if="${exec-result!='0'}" value="true"/>
                 </if>
             </ifnot>
+            <delete dir="${path::combine(hotcopy-root,repos)}" unless="${keep-hotcopy=='true'}"/>
         </foreach>
         <!-- Reset repos from backup-repos -->
         <property name="repos" value="${backup-repos}"/>
-        <delete dir="${hotcopy-root}" unless="${property::exists('keep-hotcopy') and string::trim(string::to-lower(keep-hotcopy))=='true'}"/>
         <echo unless="${backup-failed}" file="${subnant-output}" append="true" message="${string::pad-right('Backup complete',60,' ')}(${subnant::get-elapsed-time(backup-started,datetime::now())})"/>
         <fail if="${backup-failed}" message="${string::pad-right('Backup complete but errors found',60,' ')}(${subnant::get-elapsed-time(backup-started,datetime::now())})"/>
     </target>
@@ -62,7 +60,8 @@ $Id$
              on all repositories targeted...which means not generating a NAnt exception on <exec> call failures -->   
         <property name="failonerror"   value="false"/>
         <property name="backup-failed" value="false"/>
-        <property name="hotcopy-root" value="${path::combine(path::combine(path::get-temp-path(),'subnant-hotcopy'),hotcopy-date)}"
+        <property name="keep-hotcopy"  value="false" unless="${property::exists('keep-hotcopy') and string::trim(string::to-lower(keep-hotcopy))=='true'}"/>
+        <property name="hotcopy-root"  value="${path::combine(path::combine(path::get-temp-path(),'subnant-hotcopy'),hotcopy-date)}"
              unless="${property::exists('hotcopy-root')}"/>
         <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}"/>
         <!-- Take a copy of repos as repos is used down the chain (verify, dump) -->
@@ -90,7 +89,7 @@ sendmail        set true to email result
 Examples:
 subnant backup
 subnant backup -D:repos=repo1,repo2
-subnant backup -D:dump-root=/svnroot/dumps
+subnant backup -D:dump-root=/svnroot/dumps -D:sendmail=true
             ]]>
         </echo>
     </target>

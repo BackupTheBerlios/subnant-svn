@@ -28,7 +28,7 @@ subnant help test
 subnant test
 subnant backup -D:sendmail=true
 subnant create verify dump -D:repos=repo1,repo2
-subannt migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
+subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             </echo>
         </if>
     </target>
@@ -122,8 +122,11 @@ subannt migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <xmlpeek file="${config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir"
             unless="${property::exists('nantcontrib-bindir')}"/>
         <loadtasks assembly="${nantcontrib-bindir}/NAnt.Contrib.Tasks.dll"/>
-        <!-- Define file used for standard NAnt build log -->
-        <property name="nant-output" value="${path::combine(subnant-root,'logs/subnant-'+tstamp+'.log')}"/>
+        <!-- Define location and file used for standard NAnt build log -->
+        <xmlpeek file="${config}" xpath="/configuration/logs/logdir" property="logdir" unless="${property::exists('logdir')}"/>
+        <property name="logdir" value="${path::combine(subnant-root,'logs')}" unless="${property::exists('logdir') and string::get-length(string::trim(logdir))&gt;0}"/>
+        <mkdir dir="${logdir}" unless="${directory::exists(logdir)}"/>
+        <property name="nant-output" value="${path::combine(logdir,'subnant-'+tstamp+'.log')}"/>
         <record name="${nant-output}" level="Info" action="Start"/>
         <!-- Define file used for Subnant output (used in emails) -->
         <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+tstamp)}"/>
@@ -133,17 +136,17 @@ subannt migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
 </echo>
         <!-- If we're not displaying help cycle logs by maximum file age defined in config -->
         <if test="${subnant::get-target()!='help'}">
-            <xmlpeek file="${config}" xpath="/configuration/logs-max-age" property="logs-max-age" unless="${property::exists('logs-max-age')}"/>
-            <foreach item="File" property="log-file" if="${logs-max-age!='false' and logs-max-age&gt;='0'}">
+            <xmlpeek file="${config}" xpath="/configuration/logs/maximum-age" property="logs-maximum-age" unless="${property::exists('logs-maximum-age')}"/>
+            <foreach item="File" property="log-file" if="${logs-maximum-age!='false' and logs-maximum-age&gt;='0'}">
                 <in>
                     <items>
-                        <include name="${path::combine(subnant-root,'logs/*.log')}"/>
+                        <include name="${path::combine(logdir,'*.log')}"/>
                         <exclude name="${nant-output}"/>
                     </items>
                 </in>
                 <do>
                     <delete file="${log-file}"
-                        if="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-max-age))}"/>
+                        if="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-maximum-age))}"/>
                 </do>
             </foreach>
         </if>
@@ -228,28 +231,41 @@ subannt migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     <!-- Final targets -->
     <target name="success">
         <property name="subject" value="Success on ${subnant::get-build-targets()}"/>
+        <if test="${property::exists('nant-output') and file::exists(nant-output)}">
+            <record name="${nant-output}" action="Close" />
+        </if>
         <call target="mail"/>
-        <record name="${nant-output}" action="Close"/>
-        <delete file="${subnant-output}" if="${file::exists(subnant-output)}"/>
+        <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
+            <delete file="${subnant-output}"/>
+        </if>
     </target>
 
     <target name="failure">
         <property name="subject" value="*** ERROR during ${subnant::get-build-targets()} ***"/>
-        <property name="attach-output" value="true"/>
-        <if test="${property::exists('subnant-output')}">
+        <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
+            <property name="attach-output" value="true"/>
             <echo file="${subnant-output}" append="true" message="*** ERROR occurred - log attached ***"/>
         </if>
-        <record name="${nant-output}" action="Close"/>
+        <if test="${property::exists('nant-output') and file::exists(nant-output)}">
+            <record name="${nant-output}" action="Close" />
+        </if>
         <call target="mail"/>
-        <delete file="${subnant-output}" if="${file::exists(subnant-output)}"/>
+        <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
+            <delete file="${subnant-output}"/>
+        </if>
     </target>
 
     <target name="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))=='true'}">
         <fail unless="${property::exists('config')}" message="Email not sent as config file not yet set"/>
         <!-- Mail message is culmination of results from all targets executed -->
-        <echo file="${subnant-output}" append="true">
+        <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
+            <echo file="${subnant-output}" append="true">
 ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,' ')}(${subnant::get-elapsed-time(subnant-started,datetime::now())} seconds)</echo>
-        <loadfile file="${subnant-output}" property="message"/>
+            <loadfile file="${subnant-output}" property="message"/>
+        </if>
+        <ifnot test="${property::exists('subnant-output') and file::exists(subnant-output)}">
+            <property name="message" value="No output generated by Subnant log?"/>
+        </ifnot>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail_from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail_tolist"/>
