@@ -11,10 +11,9 @@ $Id$
 
     <target name="backup" depends="init">
         <foreach item="String" delim="," in="${backup-repos}" property="repos">
+            <echo level="Warning" message="Hotcopying repository ${repos}"/>
             <property name="exec-started" value="${datetime::now()}"/>
             <property name="hotcopy-failed" value="false"/>
-            <echo level="Warning" message="Hotcopying repository ${repos}"/>
-            <property name="execstart" value="${datetime::now()}"/>
             <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="exec-result">
                 <arg value="hotcopy"/>
                 <arg value="${path::combine(svn-root,repos)}"/>
@@ -25,7 +24,7 @@ $Id$
             <echo if="${hotcopy-failed=='true'}" file="${subnant-output}" append="true"
                 message="${string::pad-right('*** ERROR Hotcopying repository '+repos,60,' ')}(${subnant::get-elapsed-time(exec-started,datetime::now())})"/>
             <property name="backup-failed"  if="${hotcopy-failed=='true'}" value="true"/>
-            <!-- Don't bother verifying if hotcopied failed -->
+            <!-- Only verify->dump if hotcopy ok -->
             <ifnot test="${hotcopy-failed=='true'}">
                 <echo file="${subnant-output}" append="true"
                     message="${string::pad-right('Hotcopied repository '+repos,60,' ')}(${subnant::get-elapsed-time(exec-started,datetime::now())})"/>
