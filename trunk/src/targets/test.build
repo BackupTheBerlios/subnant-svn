@@ -55,7 +55,7 @@ $Id$
     <target name="create-workingcopy">
         <delete dir="${wc}" if="${directory::exists(wc)}"/>
         <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>
-        <property name="uri" value='${path::to-uri(path::combine(svn-root,repos))}'/>
+        <property name="uri" value='${subnant::to-uri(path::combine(svn-root,repos))}'/>
         <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
             <arg value="checkout"/>
             <arg value="${uri}"/>
@@ -63,20 +63,6 @@ $Id$
         </exec>
         <echo level="Warning" message="Checked out repository ${path::get-file-name(repos)} into ${wc}"/>
     </target>
-
-    <!-- create-workingcopy wants a uri instead of path -->
-    <script language="C#" prefix="path">
-        <code>
-            <![CDATA[
-            [Function("to-uri")]
-            public string pathToUriString( string path )
-            {
-                Uri pathToUri = new Uri( path );
-                return pathToUri.ToString();
-            }
-            ]]>
-        </code>
-    </script>
 
     <target name="commit-workingcopy">
         <echo level="Warning" message="Committing...takes a while if email hooks enabled"/>

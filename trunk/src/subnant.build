@@ -293,11 +293,10 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
     </target>
    
     <!-- Custom tasks used in Subnant.build or more than target build -->
-
-    <!-- Function to determine whether to call help or default target -->
     <script language="C#" prefix="subnant">
         <code>
             <![CDATA[
+            // Function to determine whether to call help or default target
             [Function("get-target")]
             public string getSubnantTarget()
             {
@@ -306,56 +305,16 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
                 else
                     return Project.CurrentTarget.Name;
             }
-            ]]>
-        </code>
-    </script>
 
-    <!-- Function to return count of build targets, as help should display subnant
-         usage (if their is only one build target) rather than the main targets help -->
-    <script language="C#" prefix="subnant">
-        <code>
-            <![CDATA[
+            // Function to return count of build targets, as help should display subnant
+            // usage (if their is only one build target) rather than the main targets help
             [Function("get-targets-count")]
             public int getSubnantTargetsCount()
             {
                 return Project.BuildTargets.Count;
             }
-            ]]>
-        </code>
-    </script>
 
-    <!-- path::get-directory-name() returns full path, sometimes we just want directory name -->
-    <script language="C#" prefix="subnant">
-        <code>
-            <![CDATA[
-            [Function("return-directory-name")]
-            public string getSubnantDirectoryName( string path )
-            {
-                DirectoryInfo directory = new DirectoryInfo( path );
-                return directory != null ? directory.Name : string.Empty;
-            }
-            ]]>
-        </code>
-    </script>
-
-    <!-- Display elapsed time in seconds using ticks for accuracy -->
-    <script language="C#" prefix="subnant">
-        <code>
-            <![CDATA[
-            [Function("get-elapsed-time")]
-            public string getSubnantElapsedTime(long ticks)
-            {
-                TimeSpan elapsed = TimeSpan.FromTicks(DateTime.Now.Ticks - ticks);
-                return Math.Round(elapsed.TotalSeconds, 2).ToString();
-            }
-            ]]>
-        </code>
-    </script>
-
-    <!-- Display list of build targets  -->
-    <script language="C#" prefix="subnant">
-        <code>
-            <![CDATA[
+            // Display list of build targets   
             [Function("get-build-targets")]
             public string getSubnantBuildTargets()
             {
@@ -363,16 +322,46 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
                 System.Collections.Specialized.StringEnumerator targetEnumerator = Project.BuildTargets.GetEnumerator();
 
                 while (targetEnumerator.MoveNext())
-	                targets += targetEnumerator.Current+", ";
+                    targets += targetEnumerator.Current+", ";
 
                 if (targets.EndsWith(", "))
                     targets = targets.Substring(0, targets.Length-2);
 
                 return targets;
             }
+
+            // path::get-directory-name() returns full path, sometimes we just want directory name   
+            [Function("return-directory-name")]
+            public string getSubnantDirectoryName( string path )
+            {
+                DirectoryInfo directory = new DirectoryInfo( path );
+                return directory != null ? directory.Name : string.Empty;
+            }
+
+            // Display elapsed time in seconds using ticks for accuracy   
+            [Function("get-elapsed-time")]
+            public string getSubnantElapsedTime(long ticks)
+            {
+                TimeSpan elapsed = TimeSpan.FromTicks(DateTime.Now.Ticks - ticks);
+                return Math.Round(elapsed.TotalSeconds, 2).ToString();
+            }
+
+            // Subversion may want a uri instead of path   
+            [Function("to-uri")]
+            public string pathToUriString( string path )
+            {
+                Uri pathToUri = new Uri( path );
+                return pathToUri.ToString();
+            }
+
+            // Display length of file in MB
+            [Function("length-in-mb")]
+            public string getLengthInMb( double length )
+            {
+                return Math.Round(((length/1024)/1024), 4).ToString();
+            }
             ]]>
         </code>
     </script>
-
   
 </project>

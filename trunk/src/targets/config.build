@@ -115,7 +115,7 @@ logregex            ${bugtraq_logregex}
         <property name="num-hotcopy"     value="[invalid] ${num-hotcopy}" if="${int::parse(num-hotcopy)&lt;-1}"/>
         <property name="verify"          value="${string::trim(string::to-lower(verify-hotcopy))}"/>
         <property name="num-dump"        value="[invalid] ${num-dump}"    if="${int::parse(num-dump)&lt;1}"/>
-        <property name="level"           value="${string::trim(string::to-lower(compress))}"/>
+        <property name="level"           value="${string::trim(string::to-lower(compress-dump))}"/>
         <property name="compress"        value="level ${level}"     if="${level!='false' and int::parse(level)&gt;=1 and int::parse(level)&lt;=9}"/>
         <property name="compress"        value="[disabled]"         if="${level=='false'}"/>
         <property name="compress"        value="[invalid] ${level}" if="${level!='false' and (int::parse(level)&lt;1 or int::parse(level)&gt;9)}"/>

@@ -60,7 +60,8 @@ $Id$
     </target>
 
     <target name="init-linux" if="${platform::is-unix()}">
-        <property name="dump" value="{path::combine(subnant-root,'src/inc/dump.sh')}"/>
+        <property name="dump" value="${path::combine(subnant-root,'src/inc/dump.sh')}"/>
+        <echo level="Warning" message="dump: ${dump}"/>   
     </target>
 
     <target name="init-dump">
@@ -81,19 +82,6 @@ $Id$
         <delete file="${dump-file}"/>
         <echo file="${subnant-output}" message="${string::pad-right('Compressed '+path::get-file-name(zip-file)+' ('+subnant::length-in-mb(file::get-length(zip-file))+'MB)',60,' ')}(${subnant::get-elapsed-time(zip-started)})" append="true"/>
     </target>
-
-    <!-- Display length of file in MB -->
-    <script language="C#" prefix="subnant">
-        <code>
-            <![CDATA[
-            [Function("length-in-mb")]
-            public string getLengthInMb( double length )
-            {
-                return Math.Round(((length/1024)/1024), 4).ToString();
-            }
-            ]]>
-        </code>
-    </script>
 
     <target name="help">
         <echo level="Warning">
