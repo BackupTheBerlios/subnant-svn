@@ -49,7 +49,7 @@ $Id$
         <property name="mail_targets" value="${mail_targets+'verify '}"        if="${string::trim(string::to-lower(mail_verify))=='yes'}"/>
 
         <echo><![CDATA[
-Configuration for: ${subnant.config}
+Configuration for: ${path::get-file-name(subnant.config)}
 
 Repository settings
 
