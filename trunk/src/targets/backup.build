@@ -12,35 +12,57 @@ $Id$
     <target name="backup" depends="init">
         <foreach item="String" delim="," in="${backup-repos}" property="repos">
             <property name="exec-started" value="${datetime::now()}"/>
+            <property name="hotcopy-failed" value="false"/>
             <echo level="Warning" message="Hotcopying repository ${repos}"/>
             <property name="execstart" value="${datetime::now()}"/>
-            <exec program="${svnadmin}" failonerror="true" append="false">
+            <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="exec-result">
                 <arg value="hotcopy"/>
                 <arg value="${path::combine(svn-root,repos)}"/>
                 <arg value="${path::combine(hotcopy-root,repos)}"/>
                 <arg value="--clean-logs"/>
             </exec>
-            <echo file="${subnant-output}" append="true" message="${string::pad-right('Hotcopied repository '+repos,60,' ')}(${subnant::get-elapsed-time(exec-started,datetime::now())})"/>
-            <nant buildfile="verify.build" target="verify">
-                <properties>
-                    <property name="svn-root" value="${hotcopy-root}"/>
-                </properties>
-            </nant>
-            <nant buildfile="dump.build" target="dump">
-                <properties>
-                    <property name="svn-root" value="${hotcopy-root}"/>
-                </properties>
-            </nant>
+            <property name="hotcopy-failed" if="${exec-result!='0'}" value="true"/>
+            <echo if="${hotcopy-failed=='true'}" file="${subnant-output}" append="true"
+                message="${string::pad-right('*** ERROR Hotcopying repository '+repos,60,' ')}(${subnant::get-elapsed-time(exec-started,datetime::now())})"/>
+            <property name="backup-failed"  if="${hotcopy-failed=='true'}" value="true"/>
+            <!-- Don't bother verifying if hotcopied failed -->
+            <ifnot test="${hotcopy-failed=='true'}">
+                <echo file="${subnant-output}" append="true"
+                    message="${string::pad-right('Hotcopied repository '+repos,60,' ')}(${subnant::get-elapsed-time(exec-started,datetime::now())})"/>
+                <nant buildfile="verify.build" target="verify">
+                    <properties>
+                        <property name="svn-root" value="${hotcopy-root}"/>
+                    </properties>
+                </nant>
+                <!-- Record failure if verify failed -->
+                <if test="${exec-result!='0'}">
+                    <property name="backup-failed" value="true"/>
+                </if>
+                <!-- Only dump if verify ok -->
+                <if test="${exec-result=='0'}">
+                    <nant buildfile="dump.build" target="dump">
+                        <properties>
+                            <property name="svn-root" value="${hotcopy-root}"/>
+                        </properties>
+                    </nant>
+                    <property name="backup-failed" if="${exec-result!='0'}" value="true"/>
+                </if>
+            </ifnot>
         </foreach>
         <!-- Reset repos from backup-repos -->
         <property name="repos" value="${backup-repos}"/>
         <delete dir="${hotcopy-root}" unless="${property::exists('keep-hotcopy') and string::trim(string::to-lower(keep-hotcopy))=='true'}"/>
-        <echo file="${subnant-output}" append="true" message="${string::pad-right('Backup complete',60,' ')}(${subnant::get-elapsed-time(backup-started,datetime::now())})"/>
+        <echo unless="${backup-failed}" file="${subnant-output}" append="true" message="${string::pad-right('Backup complete',60,' ')}(${subnant::get-elapsed-time(backup-started,datetime::now())})"/>
+        <fail if="${backup-failed}" message="${string::pad-right('Backup complete but errors found',60,' ')}(${subnant::get-elapsed-time(backup-started,datetime::now())})"/>
     </target>
 
     <target name="init">
         <property name="backup-started" value="${datetime::now()}"/>
         <tstamp property="hotcopy-date" pattern="yyyyMMdd-HHmmss-ffff"/>
+        <!-- Most subnant targets should fail if a problem is encountered, however a backup should make an attempt
+             on all repositories targeted...which means not generating a NAnt exception on <exec> call failures -->   
+        <property name="failonerror"   value="false"/>
+        <property name="backup-failed" value="false"/>
         <property name="hotcopy-root" value="${path::combine(path::combine(path::get-temp-path(),'subnant-hotcopy'),hotcopy-date)}"
              unless="${property::exists('hotcopy-root')}"/>
         <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}"/>

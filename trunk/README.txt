@@ -66,7 +66,7 @@ Setup:
   subnant test
   subnant backup -D:sendmail=true
   subnant create verify dump -D:repos=repo1,repo2
-  subannt migrate -D:to-svn-root=/svn2root -D:to-svn-bindir=/svn2/bin
+  subannt migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin
 
 
 Repository targets:
@@ -74,7 +74,7 @@ Repository targets:
   * backup
 
     Backup some or all repositories under svn-root using svnadmin hotcopy
-    to copy into temporary location, then call Subnant targets verify and
+    to copy into (temporary) location, then call Subnant targets verify and
     dump for each repository
 
 

@@ -41,14 +41,16 @@ $Id$
     </target>
 
     <target name="exec-svnlook-diff">
-        <exec program="${svnlook}" failonerror="true" output="${exec-output}" append="false">
+        <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="exec-result"  >
             <arg value="diff"/>
             <arg value="${repos}"/>
             <arg value="${arg_revoption}"/>
             <arg value="${arg_revision}"/>
             <arg value="--no-diff-delete" if="${property::exists('no-diff-delete') and string::trim(string::to-lower(no-diff-delete))=='true'}"/>
         </exec>
-        <fail unless="${file::exists(exec-output)}" message="svnlook output file not found: ${exec-output}"/>
+        <echo if="${exec-result!='0'}" file="${subnant-output}" message="*** ERROR executing svnlook on repository ${repos} ***" append="true"/>
+        <echo if="${exec-result!='0'}" level="Warning" message="*** ERROR executing svnlook on repository ${repos} ***"/>
+        <fail unless="${file::exists(exec-output)}" message="svnlook diff file not found: ${exec-output}"/>
     </target>
 
     <target name="help">

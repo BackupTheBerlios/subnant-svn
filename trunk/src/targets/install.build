@@ -23,14 +23,14 @@ $Id$
             <echo level="Warning" message="Not found, please add ${install-bindir} to your environment path"/>
         </ifnot>
     </target>
-   
+
     <target name="install-linux" if="${platform::is-unix()}">
         <echo file="${wrapper}" append="false">#!/bin/sh</echo>
         <echo file="${wrapper}" append="true">nant -emacs -indent:-4 -quiet -nologo -buildfile:${subnant-root}/src/subnant.build $@</echo>
-        <exec program="chmod" commandline="a+x ${path::combine(install-bindir, 'subnant')}"/>
+        <exec program="chmod" commandline="a+x ${path::combine(install-bindir, 'subnant')}" failonerror="${failonerror}" resultproperty="exec-result" />
         <echo level="Warning" message="Created ${wrapper} wrapper script"/>
     </target>
-    
+
     <target name="init" depends="init-windows,init-linux">
     </target>
 
@@ -66,5 +66,5 @@ nant install -D:install-prefix="E:\Subnant"
             ]]>
         </echo>
     </target>
-   
+
 </project>

@@ -62,12 +62,14 @@ $Id$
     </target>
 
     <target name="propset">
-        <exec program="${svn}" failonerror="true">
+        <exec program="${svn}" failonerror="${failonerror}" resultproperty="exec-result">
             <arg value="propset"/>
             <arg value="${propname}"/>
             <arg value="${propval}"/>
             <arg value="${path}"/>
         </exec>
+        <echo if="${exec-result!='0'}" file="${subnant-output}" message="*** ERROR setting bugtraq property ${propname} to ${propval}" append="true"/>
+        <echo if="${exec-result!='0'}" level="Warning" message="*** ERROR setting bugtraq property ${propname} to ${propval}"/>
     </target>
 
     <target name="help">

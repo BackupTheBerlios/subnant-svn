@@ -13,7 +13,7 @@ $Id$
         <foreach item="String" delim="," in="${repos}" property="repo">
             <call target="init-dump-file"/>
             <echo level="Warning" message="Dumping repository ${string::trim(repo+' '+arg_revoption+' '+arg_revision+' '+arg_incremental+' '+arg_deltas)}"/>
-            <exec program="${dump}" failonerror="true" append="false">
+            <exec program="${dump}" failonerror="${failonerror}" resultproperty="exec-result">
                 <arg value="${svnadmin}"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
                 <arg value="${dump-file}"/>
@@ -22,8 +22,9 @@ $Id$
                 <arg value="${arg_incremental}"/>
                 <arg value="${arg_deltas}"/>
             </exec>
-            <echo file="${subnant-output}" message="${string::pad-right('Dumped repository '+repo,60,' ')}(${subnant::get-elapsed-time(dump-started,datetime::now())})" append="true"/>
-            <call target="compress-dump-file" if="${compress!='false'}"/>
+            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Dumped repository '+repo,60,' ')}(${subnant::get-elapsed-time(dump-started,datetime::now())})" append="true"/>
+            <echo if="${exec-result!='0'}" file="${subnant-output}" message="${string::pad-right('*** ERROR dumping repository '+repo+' ***',60,' ')}(${subnant::get-elapsed-time(dump-started,datetime::now())})" append="true"/>
+            <call target="compress-dump-file" if="${exec-result=='0' and compress!='false'}"/>
         </foreach>
     </target>
 
@@ -36,13 +37,13 @@ $Id$
     <target name="compress-dump-file">
         <property name="zip-started" value="${datetime::now()}"/>
         <echo level="Warning" message="Compressing ${path::get-file-name(dump-file)}"/>
-        <zip zipfile="${dump-file}.zip" failonerror="true" ziplevel="${compress}" comment="Subversion repository dump">
+        <zip zipfile="${dump-file}.zip" failonerror="${failonerror}" ziplevel="${compress}" comment="Subversion repository dump">
             <fileset>
                 <include name="${dump-file}"/>   
             </fileset>
         </zip>
         <delete file="${dump-file}"/>
-        <echo file="${subnant-output}" message="${string::pad-right('Compressed dump to '+path::get-file-name(dump-file)+'.zip',60,' ')}(${subnant::get-elapsed-time(zip-started,datetime::now())})" append="true"/>
+        <echo file="${subnant-output}" message="${string::pad-right('Compressed '+path::get-file-name(dump-file)+'.zip to '+subnant::length-in-mb(file::get-length(dump-file+'.zip'))+'MB',60,' ')}(${subnant::get-elapsed-time(zip-started,datetime::now())})" append="true"/>
     </target>
 
     <target name="init" depends="init-windows,init-linux">
@@ -112,5 +113,5 @@ subnant dump -D:svn-root=/svnroot/repos -D:compress=9
             ]]>
         </echo>
     </target>
-   
+
 </project>

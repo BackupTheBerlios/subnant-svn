@@ -13,7 +13,7 @@ $Id$
         <foreach item="String" delim="," in="${repos}" property="repo">
             <property name="repo" value="${string::trim(repo)}"/>
             <echo level="Warning" message="Creating ${fs-type} repository ${repo} under ${svn-root}"/>
-            <exec program="${svnadmin}" failonerror="true">
+            <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="exec-result">
                 <arg value="create"/>
                 <arg value="--bdb-txn-nosync" if="${fs-type=='bdb' and bdb-txn-nosync=='true'}"/>
                 <arg value="--bdb-log-keep"   if="${fs-type=='bdb' and bdb-log-keep=='true'}"/>
@@ -23,9 +23,10 @@ $Id$
                 <arg value="${fs-type}"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
-            <echo file="${subnant-output}" message="Created ${fs-type} repository ${repo} under ${svn-root}" append="true"/>
-            <call target="copy-repos-conf"  unless="${property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true'}"/>
-            <call target="copy-repos-hooks" unless="${property::exists('no-hooks') and string::to-lower(no-hooks)=='true'}"/>
+            <echo if="${exec-result=='0'}" file="${subnant-output}" message="Created ${fs-type} repository ${repo} under ${svn-root}" append="true"/>
+            <echo if="${exec-result!='0'}" file="${subnant-output}" message="*** ERROR creating ${fs-type} repository ${repo} under ${svn-root} ***" append="true"/>
+            <call target="copy-repos-conf"  unless="${exec-result!='0' or (property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true')}"/>
+            <call target="copy-repos-hooks" unless="${exec-result!='0' or (property::exists('no-hooks') and string::to-lower(no-hooks)=='true')}"/>
         </foreach>
     </target>
 
