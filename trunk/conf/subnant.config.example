@@ -57,7 +57,6 @@
             <!-- 'onfail' - send email on failure of target execution -->
             <commit-access>onfail</commit-access>
             <commit-email>onfail</commit-email>
-            <create>true</create>
             <dump>true</dump>
             <verify>true</verify>
         </target>

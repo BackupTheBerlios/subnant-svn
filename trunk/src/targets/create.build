@@ -51,7 +51,8 @@ $Id$
     </target>
 
     <target name="help">
-<write><![CDATA[Create repositories using svnadmin
+        <write>
+            <![CDATA[Create repositories using svnadmin
 
 If no options are passed, use values in subnant.config
 
@@ -69,7 +70,9 @@ bdb-txn-nosync  fsync at transaction commit [Berkeley DB] 'true' or 'false'
 Examples:
 subnant create -D:repos=repo1,repo2
 subnant create -D:repos=repo1 -D:svn-root=/svnroot
-subnant create -D:repos=repo1 -D:fs-type=fsfs]]></write>
+subnant create -D:repos=repo1 -D:fs-type=fsfs
+            ]]>
+        </write>
     </target>
    
 </project>

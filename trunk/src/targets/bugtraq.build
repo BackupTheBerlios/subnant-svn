@@ -76,7 +76,8 @@ $Id$
     </target>
 
     <target name="help">
-<write><![CDATA[Set bugtraq properties
+        <write>
+            <![CDATA[Set bugtraq properties
 
 If 'wc' not passed, assumes current directory is working copy
 
@@ -85,7 +86,9 @@ wc              comma separated list of working copies to set
 
 Examples:
 subnant bugtraq
-subnant bugtraq -D:wc=/project1,"/project 2"]]></write>
+subnant bugtraq -D:wc=/project1,"/project 2"
+            ]]>
+        </write>
     </target>
 
 </project>

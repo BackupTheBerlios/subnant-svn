@@ -134,19 +134,16 @@ subnant verify dump -D:repos=repo1,repo2
         <!-- Read mail target settings -->
         <xmlpeek file="${config}" xpath="/configuration/mail/target/commit-access" property="mail_commit-access"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/target/commit-email"  property="mail_commit-email"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/target/create"        property="mail_create"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/target/dump"          property="mail_dump"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/target/verify"        property="mail_verify"/>
         <!-- Ready mail target settings -->
         <property name="mail_commit-access" value="${string::trim(string::to-lower(mail_commit-access))}"/>
         <property name="mail_commit-email"  value="${string::trim(string::to-lower(mail_commit-email))}"/>
-        <property name="mail_create"        value="${string::trim(string::to-lower(mail_create))}"/>
         <property name="mail_dump"          value="${string::trim(string::to-lower(mail_dump))}"/>
         <property name="mail_verify"        value="${string::trim(string::to-lower(mail_verify))}"/>
         <!-- Test for executed targets -->
         <property name="sendmail" value="true" if="${target::has-executed('commit-access') and string::contains(searchon,mail_commit-access)}"/>
         <property name="sendmail" value="true" if="${target::has-executed('commit-email')  and string::contains(searchon,mail_commit-email)}"/>
-        <property name="sendmail" value="true" if="${target::has-executed('create')        and string::contains(searchon,mail_create)}"/>
         <property name="sendmail" value="true" if="${target::has-executed('dump')          and string::contains(searchon,mail_dump)}"/>
         <property name="sendmail" value="true" if="${target::has-executed('verify')        and string::contains(searchon,mail_verify)}"/>
     </target>
@@ -219,7 +216,7 @@ subnant verify dump -D:repos=repo1,repo2
         <code>
             <![CDATA[
             [Function("get-target")]
-            public string getSubnantTarget()
+            public  string getSubnantTarget()
             {
                 if (Project.BuildTargets.Contains("help"))
                 {
@@ -234,10 +231,8 @@ subnant verify dump -D:repos=repo1,repo2
         </code>
     </script>
 
-    <!--
-    Simple function to return count of build targets, as 'help' should display subnant usage,
-    rather than the main targets 'help' if their is only one build target.
-    -->
+    <!-- Simple function to return count of build targets, as 'help' should display subnant
+    usage (if their is only one build target) rather than the main targets 'help' -->
     <script language="C#" prefix="subnant">
         <code>
             <![CDATA[
@@ -249,4 +244,6 @@ subnant verify dump -D:repos=repo1,repo2
             ]]>
         </code>
     </script>
+
 </project>
+   

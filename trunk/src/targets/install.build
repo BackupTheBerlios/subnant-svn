@@ -50,7 +50,8 @@ $Id$
     </target>
     
     <target name="help">
-<write><![CDATA[Create 'subnant' wrapper script
+        <write>
+            <![CDATA[Create 'subnant' wrapper script
 
 Options:
 install.prefix  override operating systems default installation location
@@ -58,7 +59,9 @@ subnant.srcdir  override location of source directory
 
 Examples:
 nant install
-nant install -D:install.prefix="C:\Subnant"]]></write>
+nant install -D:install.prefix="C:\Subnant"
+            ]]>
+        </write>
     </target>
    
 </project>

@@ -16,7 +16,8 @@ $Id$
     </target>
 
     <target name="help">
-<write><![CDATA[Copy repositories from one location to another using
+        <write>
+            <![CDATA[Copy repositories from one location to another using
 Subnant targets: verify, dump, create, load and verify
 
 If 'repos' option not passed, all repositories under 'svn-root' are copied
@@ -42,7 +43,9 @@ bdb-txn-nosync  fsync at transaction commit [Berkeley DB] 'true' or 'false'
 Examples:
 subnant copy -D:to-svn-root=/svnroot/dest
 subnant copy -D:to-svn-root=/svnroot/dest -D:repos=repo1,repo2
-subnant copy -D:to-svn-root=/svnroot/dest -D:to-svn-bindir=/tmp/svn2/bin]]></write>
+subnant copy -D:to-svn-root=/svnroot/dest -D:to-svn-bindir=/tmp/svn2/bin
+            ]]>
+        </write>
     </target>
    
 </project>

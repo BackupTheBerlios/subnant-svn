@@ -17,12 +17,15 @@ $Id$
     </target>
 
     <target name="help">
-<write><![CDATA[Executes: 
+        <write>
+            <![CDATA[Executes: 
 
 Options:
 option          description
 
-Examples:]]></write>
+Examples:
+            ]]>
+        </write>
     </target>
    
 </project>

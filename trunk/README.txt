@@ -1,7 +1,7 @@
 
 Subnant
 
-Subversion adminstration using NAnt on .NET or Mono runtime
+Subversion administration using NAnt on .NET or Mono runtime
 http://subnant.berlios.de
 
 Thanks to the Subversion scripts used as inspiration
@@ -33,6 +33,7 @@ Installation example:
   subnant config
   subnant help test
   subnant test
+  subnant verify dump -D:repos=repo1,repo2
 
 
 Repository targets:
@@ -52,7 +53,7 @@ Repository targets:
   * dump
 
     Dumps some or all repositories under 'svn-root' with (optional)
-    email sent detailing result and processing time
+    compression and email sent detailing result and processing time.
 
 
   * load
@@ -118,5 +119,5 @@ Using hook targets:
     cd /subnant/hooks
     copy post-commit.bat.example post-commit.bat
 
-    // Create new repository (or copy into existing repository)
+    // Create new repository (or copy hook script into repos/conf)
     subnant create -D:repos=hooktest
