@@ -28,4 +28,4 @@ REM have filesystem-level permission to access the repository.
 REM
 REM See http://subnant.berlios.de for complete list of possible targets
 
-nant /f:%SUBNANT_HOME%/src/subnant.build commit-email -D:repos="%1" -D:rev="%2"
+nant /f:"%SUBNANT_HOME%\src\subnant.build" commit-email -D:repos="%1" -D:rev="%2"

@@ -38,4 +38,4 @@
 #
 # See http://subnant.berlios.de for complete list of possible targets
 
-nant /f:${SUBNANT_HOME}/src/subnant.build commit-access -D:repos="$1" -D:txn="$2"
+nant /f:"${SUBNANT_HOME}/src/subnant.build" commit-access -D:repos="$1" -D:txn="$2"
