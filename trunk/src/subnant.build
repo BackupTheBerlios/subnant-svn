@@ -16,7 +16,7 @@ $Id$
         <if test="${subnant::get-targets-count()==1}">
             <echo level="Warning">
                 <![CDATA[Subversion administration using NAnt
-Copyright (C) 2005 Simon McKenna   
+Copyright (C) 2005 Simon McKenna
 http://subnant.berlios.de
 
 Usage: subnant <target> -D:<option>
@@ -26,8 +26,7 @@ subnant -projecthelp
 subnant config
 subnant help test
 subnant test
-subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
-                ]]>
+subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true]]>
             </echo>
         </if>   
     </target>

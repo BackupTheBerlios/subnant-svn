@@ -3,8 +3,8 @@
 <configuration description="Settings for Subnant">
 
     <logs-max-age
-        description="Maximum number of days Subnant keeps its logs"
-        conditional="false (forever) or number of days to keep logs">30</logs-max-age>
+        description="Number of days Subnant should keep logs"
+        conditional="false (forever) or number of days to keep logs">7</logs-max-age>
 
     <nantcontrib-bindir
         description="Location of NAntContrib binary files"
