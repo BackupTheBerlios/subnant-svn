@@ -10,7 +10,7 @@ $Id$
 <project name="config" default="config">
 
     <target name="config" depends="init">
-        <write>
+        <echo level="Warning">
             <![CDATA[Config file: ${path::get-file-name(config)}
 
 Repository settings:
@@ -49,7 +49,7 @@ number          ${bugtraq_number}
 warnifnoissue   ${bugtraq_warnifnoissue}
 logregex        ${bugtraq_logregex}
             ]]>
-        </write>
+        </echo>
     </target>
 
     <target name="init">
@@ -102,7 +102,7 @@ logregex        ${bugtraq_logregex}
     </target>
 
     <target name="help">
-        <write>
+        <echo level="Warning">
             <![CDATA[Displays configuration settings for Subnant
 
 If no options are passed, use values in subnant.config
@@ -114,7 +114,7 @@ Examples:
 subnant config
 subnant config -D:config=file
             ]]>
-        </write>
+        </echo>
     </target>
    
 </project>

@@ -11,7 +11,7 @@ $Id$
 
     <target name="commit-email" depends="init">
         <echo file="${subnant-output}" append="true" message="::TODO:: Commit email"/>
-        <write>Commit email</write>
+        <echo level="Warning">Commit email</echo>
     </target>
 
     <target name="init">
@@ -33,7 +33,7 @@ $Id$
     </target>
 
     <target name="help">
-        <write>
+        <echo level="Warning">
             <![CDATA[Email result of svnlook diff on post-commit hook
 
 Finds email addresses using Subversion property mail:post-commit
@@ -50,7 +50,7 @@ sendmail         set true to email result
 Examples:
 subnant commit-email -D:repos=repo1 -D:rev=1
             ]]>
-        </write>
+        </echo>
     </target>
    
 </project>

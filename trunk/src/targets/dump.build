@@ -11,8 +11,8 @@ $Id$
 
     <target name="dump" depends="init">
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <write>Dumping repository ${path::get-file-name(repo)}</write>
             <call target="init-dump-file"/>
+            <echo level="Warning">Dumping repository ${path::get-file-name(repo)}</echo>
             <exec program="${dump}" failonerror="true" append="false">
                 <arg value="${svnadmin}"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
@@ -28,7 +28,7 @@ $Id$
     </target>
 
     <target name="compress-dump-file">
-        <write>Compressing ${path::get-file-name(repo)}</write>
+        <echo level="Warning">Compressing ${path::get-file-name(repo)}</echo>
         <zip zipfile="${dump-file}.zip" failonerror="true" ziplevel="${compress}" comment="Subversion repository dump">
             <fileset>
                 <include name="${dump-file}"/>   
@@ -74,7 +74,7 @@ $Id$
     </target>
 
     <target name="help">
-        <write>
+        <echo level="Warning">
             <![CDATA[Dump repositories using svnadmin
 
 If repos not set, dump all repositories under svn-root
@@ -95,7 +95,7 @@ subnant dump
 subnant dump -D:repos=repo1,repo2 -D:sendmail=true
 subnant dump -D:svn-root=/svnroot/repos -D:compress=9
             ]]>
-        </write>
+        </echo>
     </target>
    
 </project>

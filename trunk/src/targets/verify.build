@@ -11,7 +11,7 @@ $Id$
 
     <target name="verify">
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <write>Verifying repository ${path::get-file-name(repo)}</write>
+            <echo level="Warning">Verifying repository ${path::get-file-name(repo)}</echo>
             <exec program="${svnadmin}" failonerror="true">
                 <arg value="verify"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
@@ -21,7 +21,7 @@ $Id$
     </target>
 
     <target name="help">
-        <write>
+        <echo level="Warning">
             <![CDATA[Verify repositories using svnadmin
 
 If repos not set, verifies all repositories under svn-root
@@ -37,7 +37,7 @@ subnant verify
 subnant verify -D:repos=repo1,repo2
 subnant verify -D:svn-root=/svnroot/repos
             ]]>
-        </write>
+        </echo>
     </target>
    
 </project>

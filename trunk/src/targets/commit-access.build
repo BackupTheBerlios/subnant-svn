@@ -17,7 +17,7 @@ $Id$
     </target>
 
     <target name="help">
-        <write>
+        <echo level="Warning">
             <![CDATA[Control access to repository using pre-commit hook 
 
 Options:
@@ -25,7 +25,7 @@ sendmail        set true to email result
 
 Examples:
             ]]>
-        </write>
+        </echo>
     </target>
    
 </project>

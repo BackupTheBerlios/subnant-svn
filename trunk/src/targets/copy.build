@@ -16,7 +16,7 @@ $Id$
     </target>
 
     <target name="help">
-        <write>
+        <echo level="Warning">
             <![CDATA[Copy repositories from one location to another using
 Subnant targets: verify, dump, create, load and verify
 
@@ -44,7 +44,7 @@ subnant copy -D:to-svn-root=/svnroot/dest
 subnant copy -D:to-svn-root=/svnroot/dest -D:repos=repo1,repo2
 subnant copy -D:to-svn-root=/svnroot/dest -D:to-svn-bindir=/tmp/svn2/bin
             ]]>
-        </write>
+        </echo>
     </target>
    
 </project>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" ?>
+<?xml version="1.0" ?>
 <!--
 Copyright (C) 2005 Simon McKenna
 
@@ -14,7 +14,7 @@ $Id$
     <!-- Default target -->
     <target name="help">
         <if test="${subnant::get-targets-count()==1}">
-            <write>
+            <echo level="Warning">
                 <![CDATA[Subversion administration using NAnt
 Copyright (C) 2005 Simon McKenna   
 http://subnant.berlios.de
@@ -28,7 +28,7 @@ subnant help test
 subnant test
 subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
                 ]]>
-            </write>
+            </echo>
         </if>   
     </target>
 
@@ -91,13 +91,30 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
         <nant buildfile="targets/test.build" target="${subnant::get-target()}"/>
     </target>
 
+    <!-- Final targets -->
+    <target name="success">
+        <property name="subject" value="Success"/>
+        <call target="mail"/>
+        <record name="${nant-output}" action="Close"/>
+    </target>
+
+    <target name="failure">
+        <property name="subject" value="FAILURE"/>
+        <property name="attach-output" value="true"/>
+        <if test="${property::exists('subnant-output')}">
+            <echo file="${subnant-output}" append="true" message="Failure running Subnant, details attached"/>
+        </if>
+        <record name="${nant-output}" action="Close"/>
+        <call target="mail"/>
+    </target>
+
     <!-- Sub targets -->
     <target name="init">
-        <property name="starttime" value="${datetime::now()}"/>
-        <tstamp property="startstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
-        <property name="nant.onsuccess"  value="success"/>
-        <property name="nant.onfailure"  value="failure"/>
-        <property name="subnant-root" value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"
+        <tstamp property="tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
+        <property name="starttime"      value="${datetime::now()}"/>
+        <property name="nant.onsuccess" value="success"/>
+        <property name="nant.onfailure" value="failure"/>
+        <property name="subnant-root"   value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"
             unless="${property::exists('subnant-root')}"/>
         <!-- Assign default config file unless config already defined from command-line option -->
         <property name="config" value="${path::combine(subnant-root,'conf/subnant.config')}"
@@ -106,20 +123,36 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
         <!-- Assign default Subversion directory unless already defined from command-line option -->
         <xmlpeek file="${config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}"/>
         <!-- Verify Subversion directory is valid if set -->
-        <if test="${string::get-length(svn-bindir)&gt;0 and directory::exists(svn-bindir)!=true}">
-            <fail message="Subversion binary directory doesn't exist: ${svn-bindir}"/>
-        </if>
-        <!-- Load NAntContrib assembly to create and control log file -->
-        <xmlpeek file="${config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir" unless="${property::exists('nantcontrib-bindir')}"/>
-        <loadtasks assembly="${nantcontrib-bindir}/NAnt.Contrib.Tasks.dll" />
+        <fail if="${string::get-length(svn-bindir)&gt;0 and directory::exists(svn-bindir)!=true}"
+            message="Subversion binary directory doesn't exist: ${svn-bindir}"/>
+        <!-- Load NAntContrib to create and control log file -->
+        <xmlpeek file="${config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir"
+            unless="${property::exists('nantcontrib-bindir')}"/>
+        <loadtasks assembly="${nantcontrib-bindir}/NAnt.Contrib.Tasks.dll"/>
         <!-- Define file used for standard NAnt build log -->
-        <property name="nant-output" value="${path::combine(subnant-root,'logs/subnant-'+startstamp+'.log')}"/>
+        <property name="nant-output" value="${path::combine(subnant-root,'logs/subnant-'+tstamp+'.log')}"/>
         <record name="${nant-output}" level="Info" action="Start"/>
         <!-- Define file used for Subnant output (used in emails) -->
-        <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+startstamp)}"/>
+        <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+tstamp)}"/>
         <!-- Define file used for <exec> task output (used for diff, etc) -->
-        <property name="exec-output"    value="${path::combine(path::get-temp-path(),'exec-output'+startstamp)}"/>
+        <property name="exec-output" value="${path::combine(path::get-temp-path(),'exec-output'+tstamp)}"/>
         <echo file="${subnant-output}" append="false" message="Subnant started ${datetime::to-string(starttime)}"/>
+        <!-- If not displaying help cycle logs by maximum file age defined in config -->
+        <if test="${subnant::get-target()!='help'}">
+            <xmlpeek file="${config}" xpath="/configuration/logs-max-age" property="logs-max-age" unless="${property::exists('logs-max-age')}"/>
+            <foreach item="File" property="logfile" if="${logs-max-age!='false' and logs-max-age&gt;='0'}">
+                <in>
+                    <items>
+                        <include name="${path::combine(subnant-root,'logs/*.log')}"/>
+                        <exclude name="${nant-output}"/>
+                    </items>
+                </in>
+                <do>
+                    <delete file="${logfile}"
+                        if="${file::get-last-write-time(logfile) &lt; (datetime::now()-timespan::from-days(logs-max-age))}"/>
+                </do>
+            </foreach>
+        </if>
     </target>
 
     <target name="init-repos">
@@ -147,7 +180,7 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
         <property name="svnlook" value="${path::combine(svn-bindir,'svnlook')}"/>
     </target>
 
-    <target name="verify-repos-exists">
+    <target name="verify-repos-exists" if="${subnant::get-target()!='help'}">
         <!-- Verify repositories exist if command-line parameter given -->
         <if test="${property::exists('repos')}">
             <if test="${string::get-length(repos)==0}">
@@ -165,7 +198,7 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
         </if>
     </target>
 
-    <target name="verify-wc-exists">
+    <target name="verify-wc-exists" if="${subnant::get-target()!='help'}">
         <!-- Verify current directory or wc option is a working copy -->
         <fail if="${string::get-length(wc)==0}" message="Option wc was defined but no value set"/>
         <foreach item="String" in="${wc}" delim="," property="path">
@@ -175,7 +208,7 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
         </foreach>
     </target>
 
-    <target name="build-repos-list">
+    <target name="build-repos-list" if="${subnant::get-target()!='help'}">
         <!-- Build list of all repositories under svn-root if command-line option not set -->
         <ifnot test="${property::exists('repos')}">
             <property name="repos" value=""/>
@@ -209,7 +242,7 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
         <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail_tolist"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail_prefix"/>
-        <write>Sending mail to ${mail_tolist}</write>
+        <echo level="Warning">Sending mail to ${mail_tolist}</echo>
         <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_tolist}"
           subject="${mail_prefix} ${subject}" message="${message}">
             <attachments>
@@ -219,35 +252,6 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
     </target>
 
     <!-- Custom tasks -->
-    <script language="C#">
-        <imports>
-            <import namespace="System.Xml"/>
-        </imports>
-        <!-- Subnant writes normal output to console instead of build log -->
-        <code>
-            <![CDATA[
-            [TaskName("write")]
-            public class write : Task
-            {
-                private string _contents;
-                public string Contents
-                {
-                    get { return _contents; }
-                    set { _contents = value; }
-                }
-                protected override void InitializeTask( XmlNode taskNode )
-                {
-                    Contents = Project.ExpandProperties( taskNode.InnerText, Location );
-                }
-                protected override void ExecuteTask()
-                {
-                    Console.Out.WriteLine( Contents );
-                }
-            }
-            ]]>
-        </code>
-    </script>   
-
     <!-- Some Subversion tasks require a URI encoded path -->
     <script language="C#" prefix="path">
         <code>
@@ -262,7 +266,7 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
         </code>
     </script>
 
-    <!-- Function used to determine whether to call help or default target -->
+    <!-- Function to determine whether to call help or default target -->
     <script language="C#" prefix="subnant">
         <code>
             <![CDATA[
@@ -282,7 +286,7 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
         </code>
     </script>
 
-    <!-- Simple function to return count of build targets, as help should display subnant
+    <!-- Function to return count of build targets, as help should display subnant
          usage (if their is only one build target) rather than the main targets help -->
     <script language="C#" prefix="subnant">
         <code>
@@ -295,21 +299,5 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
             ]]>
         </code>
     </script>
-
-    <target name="success">
-        <property name="subject" value="Success"/>
-        <call target="mail"/>
-        <record name="${nant-output}" action="Close"/>
-    </target>
-
-    <target name="failure">
-        <property name="subject" value="FAILURE"/>
-        <property name="attach-output" value="true"/>
-        <if test="${property::exists('subnant-output')}">
-            <echo file="${subnant-output}" append="true" message="Failure running Subnant, details attached"/>
-        </if>
-        <record name="${nant-output}" action="Close"/>
-        <call target="mail"/>
-    </target>
 
 </project>

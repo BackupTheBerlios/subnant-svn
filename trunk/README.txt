@@ -11,9 +11,11 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 
-All installations currently require NAnt and NAntContrib installed along
-with the .NET or Mono runtime.  Tested on NAnt and NAntContrib 0.85rc2
-on .NET 1.1 and Mono 1.1.4 under Windows XP SP1 and SuSE 9.2
+
+Prerequisites:
+
+  * Any .NET (1.1+) or Mono (1.1.4+) runtime
+  * NAnt and NAntContrib 0.85rc2+
 
 
 Windows Installation:
@@ -36,7 +38,7 @@ Linux Installation:
   nant install
 
 
-Common setup:
+Setup:
 
   // Create config file by cloning example
   cd ../conf
@@ -55,8 +57,8 @@ Repository targets:
 
   * create
 
-    Create one or more repositories using configuration in subnant.config and
-    (optionally) setup hook scripts and configuration files
+    Create one or more repositories using configuration in subnant.config
+    and setup hook scripts and configuration files if defined
 
 
   * verify
@@ -66,18 +68,21 @@ Repository targets:
 
   * dump
 
-    Dump some or all repositories under svn-root and (optionally) compress
+    Dump some or all repositories under svn-root
 
 
   * load
 
-    Loads some or all repositories from svn-dumps to svn-root
+    Load some or all repositories from svn-dumps to svn-root
 
 
   * copy
 
-    Copy one or more repositories by chaining Subnant targets: verify, dump, create,
-    load and verify.  Allows different Subversion binaries on destination repository
+    Copy one or more repositories by chaining Subnant targets:
+    verify -> dump -> create -> load -> verify
+
+    Allows for different Subversion binaries to be used on destination
+    repository targets (create, load and verify)
 
 
 Repository hook targets:
@@ -127,7 +132,7 @@ Using hook targets:
     // Turn on hooks in subnant.config
     [edit /subnant/conf/subnant.config]
 
-    // Create hook script by cloning example
+    // Create hook scripts by cloning example
     cd /subnant/hooks
     copy post-commit.bat.example post-commit.bat
 

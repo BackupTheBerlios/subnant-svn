@@ -36,8 +36,8 @@ $Id$
             <property name="propval"  value="${bugtraq_logregex}"/>
             <!-- dont set logregex if nothing entered -->
             <call target="propset" if="${string::get-length(bugtraq_logregex)!=0}"/>
-            <echo file="${subnant-output}" message="Set bugtraq properties in ${path}"/>
-            <write>Set bugtraq properties in ${path}</write>
+            <echo file="${subnant-output}" message="Set bugtraq properties in ${path}" append="true"/>
+            <echo level="Warning">Set bugtraq properties in ${path}</echo>
         </foreach>
     </target>
    
@@ -71,7 +71,7 @@ $Id$
     </target>
 
     <target name="help">
-        <write>
+        <echo level="Warning">
             <![CDATA[Set bugtraq properties using svn
 
 If wc not set, assume current directory is working copy
@@ -83,7 +83,7 @@ Examples:
 subnant bugtraq
 subnant bugtraq -D:wc=/project1,"/project 2"
             ]]>
-        </write>
+        </echo>
     </target>
 
 </project>

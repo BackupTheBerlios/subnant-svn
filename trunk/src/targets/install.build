@@ -13,22 +13,22 @@ $Id$
 
     <target name="install-windows" if="${platform::is-win32()}">
         <echo file="${wrapper}" append="false">@echo off</echo>
-        <echo file="${wrapper}" append="true">nant -quiet -nologo -buildfile:"${subnant-root}\src\subnant.build" %*</echo>
-        <write>Created ${wrapper} wrapper script</write>
-        <write>Searching environment path for ${install-bindir}</write>
+        <echo file="${wrapper}" append="true">nant -emacs -indent:-4 -quiet -nologo -buildfile:"${subnant-root}\src\subnant.build" %*</echo>
+        <echo level="Warning">Created ${wrapper} wrapper script</echo>
+        <echo level="Warning">Searching environment path for ${install-bindir}</echo>
         <if test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}">
-            <write>Found in path, subnant command should be available</write>
+            <echo level="Warning">Found in path, subnant command should be available</echo>
         </if>
         <ifnot test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}">
-            <write>Not found, please add ${install-bindir} to your environment path</write>
+            <echo level="Warning">Not found, please add ${install-bindir} to your environment path</echo>
         </ifnot>
     </target>
    
     <target name="install-linux" if="${platform::is-unix()}">
         <echo file="${wrapper}" append="false">#!/bin/sh</echo>
-        <echo file="${wrapper}" append="true">nant -quiet -nologo -buildfile:${subnant-root}/src/subnant.build $@</echo>
+        <echo file="${wrapper}" append="true">nant -emacs -indent:-4 -quiet -nologo -buildfile:${subnant-root}/src/subnant.build $@</echo>
         <exec program="chmod" commandline="a+x ${path::combine(install-bindir, 'subnant')}"/>
-        <write>Created ${wrapper} wrapper script</write>
+        <echo level="Warning">Created ${wrapper} wrapper script</echo>
     </target>
     
     <target name="init" depends="init-windows,init-linux">
@@ -48,7 +48,7 @@ $Id$
     </target>
 
     <target name="help">
-        <write>
+        <echo level="Warning">
             <![CDATA[Create subnant wrapper script
 
 Installation involves creating a shortcut to running Subnant under NAnt,
@@ -65,7 +65,7 @@ Examples:
 nant install
 nant install -D:install-prefix="E:\Subnant"
             ]]>
-        </write>
+        </echo>
     </target>
    
 </project>

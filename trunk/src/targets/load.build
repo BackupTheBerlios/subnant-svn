@@ -16,7 +16,7 @@ $Id$
     </target>
 
     <target name="help">
-        <write>
+        <echo level="Warning">
             <![CDATA[Load repositories from dumps using svnadmin
 
 If repos not set, all dumps under dump-root are loaded
@@ -33,7 +33,7 @@ subnant load
 subnant load -D:dumps=repo1-repos,repo2-repos
 subnant load -D:dumps=repo1-repos -D:dump-root=/svnroot/dumps
             ]]>
-        </write>
+        </echo>
     </target>
    
 </project>

@@ -2,6 +2,10 @@
 
 <configuration description="Settings for Subnant">
 
+    <logs-max-age
+        description="Maximum number of days Subnant keeps its logs"
+        conditional="false (forever) or number of days to keep logs">30</logs-max-age>
+
     <nantcontrib-bindir
         description="Location of NAntContrib binary files"
         conditional="If empty assume NAntContrib already in environment path">C:\Program Files\NAntContrib\bin</nantcontrib-bindir>

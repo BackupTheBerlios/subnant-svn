@@ -16,7 +16,7 @@ $Id$
         <ifnot test="${property::exists('target')}">
             <!-- Test bdb repository -->
             <if test="${no-bdb!='true'}">
-                <write>Testing bdb repository and working copy...</write>
+                <echo level="Warning">Testing bdb repository and working copy...</echo>
                 <property name="repos"   value="${test-repo-bdb}"/>
                 <property name="fs-type" value="bdb"/>
                 <property name="wc"      value="${test-wc-bdb}"/>
@@ -24,7 +24,7 @@ $Id$
             </if>
             <!-- Test fsfs repository -->
             <if test="${no-fsfs!='true'}">
-                <write>Testing fsfs repository and working copy...</write>
+                <echo level="Warning">Testing fsfs repository and working copy...</echo>
                 <property name="repos"   value="${test-repo-fsfs}"/>
                 <property name="fs-type" value="fsfs"/>
                 <property name="wc"      value="${test-wc-fsfs}"/>
@@ -32,7 +32,7 @@ $Id$
             </if>
         </ifnot>
         <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep=='true'}"/>
-        <write>Test complete</write>
+        <echo level="Warning">Test complete</echo>
     </target>
 
     <target name="test-all">
@@ -54,7 +54,7 @@ $Id$
             <arg value="${uri}"/>
             <arg value="."/>
         </exec>
-        <write>Checked out repository ${path::get-file-name(repos)} into ${wc}</write>
+        <echo level="Warning">Checked out repository ${path::get-file-name(repos)} into ${wc}</echo>
     </target>
 
     <target name="commit-workingcopy">
@@ -62,7 +62,7 @@ $Id$
             <arg value="commit"/>
             <arg value="-m '${test-message}'"/>
         </exec>
-        <write>Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} with log ${test-message}</write>
+        <echo level="Warning">Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} with log ${test-message}</echo>
     </target>
 
     <target name="search-log">
@@ -72,7 +72,7 @@ $Id$
         </exec>
         <loadfile file="${exec-output}" property="test-output"/>
         <if test="${string::contains(test-output,test-message)}">
-            <write>Found log ${test-message} in repository</write>
+            <echo level="Warning">Found log ${test-message} in repository</echo>
         </if>
         <ifnot test="${string::contains(test-output,test-message)}">
             <fail>Did not find log ${test-message} in repository</fail>
@@ -104,7 +104,7 @@ $Id$
     </target>
 
     <target name="help">
-        <write>
+        <echo level="Warning">
             <![CDATA[Call Subnant targets in a test environment
 
 If no target is set, all main targets are tested
@@ -121,7 +121,7 @@ subnant test
 subnant test -D:target=create,verify,dump
 subnant test -D:keep=true -D:no-bdb=true
             ]]>
-        </write>
+        </echo>
     </target>
    
 </project>
