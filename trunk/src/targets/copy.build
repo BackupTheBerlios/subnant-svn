@@ -31,7 +31,7 @@ to-svn-root     destination repository root directory
    
 Options:
 repos           comma separated list of repositories to move
-svn-root        override subnant.config with source repository root directory
+svn-root        source repository root directory
 svn-bindir      source repository subversion binary directory
 to-svn-bindir   destination repository subversion binary directory
 delete-source   remove source repositories after copy 'true' or 'false' 

@@ -33,55 +33,67 @@ subnant verify dump -D:repos=repo1,repo2
     </target>
 
     <!-- Repository targets -->
-    <target name="create" depends="init,init-repository" description="Create repositories">
+    <target name="create" description="Create repositories"
+        depends="init,init-repos,init-svnadmin">
         <nant buildfile="targets/create.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="dump" depends="init,init-repository" description="Dump repositories">
+    <target name="dump" description="Dump repositories"
+        depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
         <nant buildfile="targets/dump.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="verify" depends="init,init-repository" description="Verify repositories">
+    <target name="verify" description="Verify repositories"
+        depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
         <nant buildfile="targets/verify.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="load" depends="init,init-repository" description="Load repositories">
+    <target name="load" description="Load repositories"
+        depends="init,init-repos,init-svnadmin">
         <nant buildfile="targets/load.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="copy" depends="init,init-repository" description="Copy repositories">
+    <target name="copy" description="Copy repositories"
+        depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
         <nant buildfile="targets/verify.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Repository hooks targets -->
-    <target name="commit-access" depends="init,init-repository" description="Control access to repository using pre-commit hook">
+    <target name="commit-access" description="Control access to repository using pre-commit hook"
+        depends="init,init-repos">
         <nant buildfile="targets/commit-access.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="commit-email" depends="init,init-repository" description="Generate email from commits using post-commit hook">
+    <target name="commit-email" description="Generate email from commits using post-commit hook"
+        depends="init,init-repos">
         <nant buildfile="targets/commit-email.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Working copy targets -->
-    <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in working copy">
+    <target name="bugtraq" description="Set bugtraq props in working copy"
+        depends="init,init-wc,init-svn,verify-wc-exists">
         <nant buildfile="targets/bugtraq.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Other targets -->
-    <target name="install" depends="init" description="Create 'subnant' wrapper script">
+    <target name="install" description="Create 'subnant' wrapper script"
+        depends="init">
         <nant buildfile="targets/install.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="config" depends="init,init-repository" description="Show configuration">
+    <target name="config" description="Show configuration"
+        depends="init,init-repos">
         <nant buildfile="targets/config.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets">
+    <target name="test" description="Test main targets"
+        depends="init,init-repos,init-wc,init-svn,init-svnadmin,init-svnlook">
         <nant buildfile="targets/test.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Sub targets -->
     <target name="init">
+        <property name="subnant-srcdir" value="${path::get-directory-name(project::get-buildfile-path())}"/>
         <property name="nant.onsuccess" value="success"/>
         <property name="nant.onfailure" value="failure"/>
         <tstamp property="startstamp" pattern="HHmmss"/>
@@ -93,26 +105,103 @@ subnant verify dump -D:repos=repo1,repo2
         <property name="config" value="${path::combine(project::get-buildfile-path(),'../../conf/subnant.config')}"
             unless="${property::exists('config')}"/>
         <fail unless="${file::exists(config)}" message="Could not find ${path::get-file-name(config)}"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-bindir" property="svn-bindir"/>
+        <!-- Assign default Subversion directory unless already defined from command-line option -->
+        <xmlpeek file="${config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}"/>
+        <!-- Verify Subversion directory is valid if set -->
+        <if test="${string::get-length(svn-bindir)!=0 and directory::exists(svn-bindir)!=true}">
+            <echo file="${log-file}" message="Subversion binary directory doesn't exist: ${svn-bindir}" append="true"/>
+            <fail message="Subversion binary directory doesn't exist: ${svn-bindir}"/>
+        </if>
     </target>
 
-    <target name="init-repository">
+    <target name="init-repos">
         <!-- Assign svn-root unless already defined from command-line property -->
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/svn-root" property="svn-root" unless="${property::exists('svn-root')}"/>
-        <fail unless="${directory::exists(svn-root)}" message="Repository root directory doesn't exist: ${svn-root}"/>
+        <ifnot test="${directory::exists(svn-root)}">
+            <echo file="${log-file}" message="Repository root directory doesn't exist: ${svn-root}" append="true"/>
+            <fail message="Repository root directory doesn't exist: ${svn-root}"/>
+        </ifnot>
     </target>
 
-    <target name="init-workingcopy">
+    <target name="init-wc">
         <!-- Assign wc unless already defined from command-line option -->
         <property name="wc" value="${directory::get-current-directory()}" unless="${property::exists('wc')}"/>
+    </target>
+
+    <target name="init-svn">
+        <property name="svn" value="${path::combine(svn-bindir,'svn')}"/>
+    </target>
+
+    <target name="init-svnadmin">
+        <property name="svnadmin" value="${path::combine(svn-bindir,'svnadmin')}"/>
+    </target>
+
+    <target name="init-svnlook">
+        <property name="svnlook" value="${path::combine(svn-bindir,'svnlook')}"/>
+    </target>
+
+    <target name="verify-repos-exists">
+        <!-- Verify repositories exist if command-line parameter given -->
+        <if test="${property::exists('repos')}">
+            <if test="${string::get-length(repos)==0}">
+                <echo file="${log-file}" message="Property 'repos' was defined but no value set" append="true"/>
+                <fail message="Property 'repos' was defined but no value set"/>
+            </if>
+            <foreach item="String" in="${repos}" delim="," property="repo">
+                <ifnot test="${directory::exists(path::combine(svn-root,repo)) and file::exists(path::combine(svn-root,path::combine(repo,'db/fs-type')))}">
+                    <echo file="${log-file}" message="Can't find repository '${repo}' under ${svn-root}" append="true"/>
+                    <fail message="Can't find repository '${repo}' under ${svn-root}"/>
+                </ifnot>
+                <loadfile file="${path::combine(svn-root,path::combine(repo,'db/fs-type'))}" property="fs-type-test"/>
+                <ifnot test="${string::contains(fs-type-test,'bdb') or string::contains(fs-type-test,'fsfs')}">
+                    <echo file="${log-file}" message="'${repo}' is not a 'bdb' or 'fsfs' type of repository" append="true"/>
+                    <fail message="'${repo}' is not a 'bdb' or 'fsfs' type of repository"/>
+                </ifnot>
+            </foreach>
+        </if>
+    </target>
+
+    <target name="verify-wc-exists">
+        <!-- Verify current directory or 'wc' option is a working copy -->
+        <fail if="${string::get-length(wc)==0}" message="Option 'wc' was defined but no value set"/>
+        <foreach item="String" in="${wc}" delim="," property="path">
+            <ifnot test="${file::exists(path::combine(path,'.svn/format')) or file::exists(path::combine(path,'_svn/format'))}">
+                <echo file="${log-file}" message="Could not find working copy in '${path}'" append="true"/>
+                <fail message="Could not find working copy in '${path}'"/>
+            </ifnot>
+        </foreach>
+    </target>
+
+    <target name="build-repos-list">
+        <!-- Build list of all repositories under svn-root if command-line option not set -->
+        <ifnot test="${property::exists('repos')}">
+            <property name="repos" value=""/>
+            <foreach item="Folder" in="${svn-root}" property="repo">
+                <do>
+                    <property name="fs-type-test" value=""/>
+                    <loadfile file="${path::combine(repo,'db/fs-type')}" property="fs-type-test" failonerror="false"/>
+                    <if test="${string::contains(fs-type-test,'bdb') or string::contains(fs-type-test,'fsfs')}">
+                        <property name="repos" value="${repos+repo+','}"/>
+                    </if>
+                </do>
+            </foreach>
+            <!-- Trim trailing comma -->
+            <if test="${string::get-length(repos)>0}">
+                <property name="repos" value="${string::substring(repos,0,string::get-length(repos)-1)}"/>
+            </if>
+            <ifnot test="${string::get-length(repos)>0}">
+                <echo file="${log-file}" message="No repositories found under ${svn-root}" append="true"/>
+                <fail message="No repositories found under ${svn-root}"/>
+            </ifnot>
+        </ifnot>
     </target>
 
     <target name="success">
         <!-- Send success mail message if 'true' in subnant.config/configuration/mail/target/<target> -->
         <property name="searchon" value="true"/>
-        <call target="mailtarget" unless="${target::has-executed('help')}"/>
+        <call target="mail-target" unless="${target::has-executed('help')}"/>
         <if test="${property::exists('sendmail') and sendmail=='true'}">
-            <property name="subject" value="SUCCESS"/>
+            <property name="subject" value="Success"/>
             <call target="mail"/>
         </if>
     </target>
@@ -120,7 +209,7 @@ subnant verify dump -D:repos=repo1,repo2
     <target name="failure">
         <!-- Send failure mail message if 'true|onfail' in subnant.config/configuration/mail/target/<target> -->
         <property name="searchon" value="true|onfail"/>
-        <call target="mailtarget" unless="${target::has-executed('help')}"/>
+        <call target="mail-target" unless="${target::has-executed('help')}"/>
         <if test="${property::exists('sendmail') and sendmail=='true'}">
             <property name="subject"       value="FAILURE"/>
             <property name="attach-output" value="true"/>
@@ -128,7 +217,7 @@ subnant verify dump -D:repos=repo1,repo2
         </if>
     </target>
 
-    <target name="mailtarget">
+    <target name="mail-target">
         <property name="sendmail" value="false"/>
         <fail unless="${property::exists('config')}" message="Email not sent as config file not yet set"/>
         <!-- Read mail target settings -->
@@ -244,6 +333,6 @@ subnant verify dump -D:repos=repo1,repo2
             ]]>
         </code>
     </script>
-
+  
 </project>
    

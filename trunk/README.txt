@@ -1,7 +1,7 @@
 
 Subnant
 
-Subversion administration using NAnt on .NET or Mono runtime
+Subversion administration using NAnt on .NET or Mono
 http://subnant.berlios.de
 
 Thanks to the Subversion scripts used as inspiration

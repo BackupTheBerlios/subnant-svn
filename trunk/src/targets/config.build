@@ -27,7 +27,7 @@ bdb-txn-nosync  ${bdb-txn-nosync}
 Repository dump settings:
 
 dump-root       ${dump-root}
-incrementally   ${incrementally}
+incremental     ${incremental}
 deltas          ${deltas}
 
    
@@ -60,7 +60,7 @@ warnifnoissue   ${bugtraq_warnifnoissue}
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-log-keep"    property="bdb-log-keep"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-txn-nosync"  property="bdb-txn-nosync"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-dumps/dump-root"       property="dump-root"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-dumps/incrementally"   property="incrementally"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-dumps/incremental"     property="incremental"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-dumps/deltas"          property="deltas"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"                 property="mail_from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"                 property="mail_host"/>
@@ -87,8 +87,8 @@ warnifnoissue   ${bugtraq_warnifnoissue}
         <!-- Ready repository dump settings -->
         <property name="dump-root"     value="${dump-root}" unless="${string::get-length(dump-root)==0}"/>
         <property name="dump-root"     value="[Not set]"    if="${string::get-length(dump-root)==0}"/>
-        <property name="incrementally" value="[Enabled]"    if="${string::trim(string::to-lower(incrementally))=='true'}"/>
-        <property name="incrementally" value="[Disabled]"   unless="${incrementally=='[Enabled]'}"/>
+        <property name="incremental"   value="[Enabled]"    if="${string::trim(string::to-lower(incremental))=='true'}"/>
+        <property name="incremental"   value="[Disabled]"   unless="${incremental=='[Enabled]'}"/>
         <property name="deltas"        value="[Enabled]"    if="${string::trim(string::to-lower(deltas))=='true'}"/>
         <property name="deltas"        value="[Disabled]"   unless="${deltas=='[Enabled]'}"/>
         <!-- Ready mail target settings -->

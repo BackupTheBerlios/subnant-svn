@@ -27,29 +27,29 @@ $Id$
             <property name="wc"      value="${test-wc-fsfs}"/>
             <call target="test-all"/>
         </ifnot>
-        <delete dir="${test-root}" if="${directory::exists(test-root)}"/>
+        <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep-test=='true'}"/>
         <write>Test complete</write>
     </target>
 
     <target name="init">
-        <tstamp property="test-date" pattern="HHmmss"/>
-        <property name="test-root" value="${path::combine(path::get-temp-path(),'subnant-test')}"/>
+        <tstamp property="test-date" pattern="yyyyMMdd-HHmmss"/>
+        <property name="keep-test" value="false" unless="${property::exists('keep-test') and string::to-lower(keep-test)=='true'}"/>
+        <property name="test-root" value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),test-date)}"/>
         <mkdir dir="${test-root}" unless="${directory::exists(test-root)}"/>
     </target>
 
     <target name="init-repository">
         <property name="svn-root"       value="${test-root}"/>
-        <property name="test-repo-bdb"  value="${'repo-bdb-'+test-date}"/>
-        <property name="test-repo-fsfs" value="${'repo-fsfs-'+test-date}"/>
-        <property name="test-dumps"     value="${path::combine(test-root,'repo-dumps-'+test-date)}"/>
+        <property name="test-repo-bdb"  value="repo-bdb"/>
+        <property name="test-repo-fsfs" value="repo-fsfs"/>
+        <property name="test-dumps"     value="${path::combine(test-root,'repo-dumps')}"/>
         <mkdir dir="${test-dumps}" unless="${directory::exists(test-dumps)}"/>
+        <property name="dump-root" value="${test-dumps}"/>
     </target>
 
     <target name="init-workingcopy">
-        <property name="svn"          value="${path::combine(svn-bindir,'svn')}"/>
-        <property name="svnlook"      value="${path::combine(svn-bindir,'svnlook')}"/>
-        <property name="test-wc-bdb"  value="${path::combine(test-root,'wc-bdb-'+test-date)}"/>
-        <property name="test-wc-fsfs" value="${path::combine(test-root,'wc-fsfs-'+test-date)}"/>
+        <property name="test-wc-bdb"  value="${path::combine(test-root,'wc-bdb')}"/>
+        <property name="test-wc-fsfs" value="${path::combine(test-root,'wc-fsfs')}"/>
         <property name="test-message" value="${'Log message for test '+test-date}"/>
     </target>
 
@@ -57,14 +57,16 @@ $Id$
         <write>
             <![CDATA[Call Subnant targets in a test environment
 
-If no target is passed, all main targets are tested
+If no target is set, all main targets are tested
 
 Options:
 target          comma separated list of test targets
+keep-test       set 'true' to keep data created by test
 
 Examples:
 subnant test
 subnant test -D:target=create,verify,dump
+subnant test -D:keep-test=true
             ]]>
         </write>
     </target>

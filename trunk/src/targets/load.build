@@ -23,13 +23,13 @@ If 'repos' option not passed, all dumps under 'svn-dumps' are loaded
 
 Options:
 dumps           comma separated list of repository dumps to load
-dump-root       override subnant.config with repository dump directory
-svn-root        override subnant.config with source repository root directory
-svn-bindir      source repository subversion binary directory
+dump-root       repository dump directory
+svn-root        repository root directory
+svn-bindir      Subversion binary directory
 
 Examples:
 subnant load
-subnant load -D:dumps=repo1.dump,repo2.dump
+subnant load -D:dumps=repo1-repos,repo2-repos
 subnant load -D:dumps=repo1.backup.dump -D:dump-root=/svnroot/dumps/backups
             ]]>
         </write>

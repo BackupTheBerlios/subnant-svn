@@ -28,9 +28,12 @@
         <dump-root
             description="Root location of repository dumps"
             conditional="Must exist in file system">/svnroot/dumps</dump-root>
-        <incrementally
+        <compress
+            description="Compress dump files"
+            conditional="'true' or 'false'">true</compress>
+        <incremental
             description="Dump incrementally"
-            conditional="'true' or 'false'">false</incrementally>
+            conditional="'true' or 'false'">false</incremental>
         <deltas
             description="Use deltas in dump output"
             conditional="'true' or 'false'">false</deltas>
@@ -40,7 +43,7 @@
             <!-- <example-repo>0</example-repo> -->
         </last-highest-revision>
     </svn-dumps>
-    
+
     <mail description="Email settings">
         <from description="Email sent from this address">subnant@example.com</from>
         <host description="Host used to send email">localhost</host>
@@ -81,6 +84,9 @@
         <warnifnoissue
             description="Warn on empty issue number"
             conditional="'true' or 'false'">false</warnifnoissue>
+        <logregex
+            description="One or two regular expressions, separated by a newline"
+            conditional="Valid regex"></logregex>
     </bugtraq>
 
 </configuration>

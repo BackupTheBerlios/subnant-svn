@@ -10,22 +10,77 @@ $Id$
 <project name="dump" default="dump">
 
     <target name="dump" depends="init">
-        <echo file="${log-file}" append="true" message="Dumped repository"/>
+        <foreach item="String" delim="," in="${repos}" property="repo">
+            <call target="init-dump-file"/>
+            <exec program="${dump}" failonerror="true" append="false">
+                <arg value="${svnadmin}"/>
+                <arg value="${path::combine(svn-root,repo)}"/>
+                <arg value="${dump-file}"/>
+                <arg value="--incremental" if="${incremental=='true'}"/>
+                <arg value="--deltas"      if="${deltas=='true'}"/>
+            </exec>
+            <echo file="${log-file}" message="Dumped repository '${path::get-file-name(repo)}'" append="true"/>
+            <write>Dumped repository '${path::get-file-name(repo)}'</write>
+            <call target="compress-dump-file"/>
+        </foreach>
     </target>
 
-    <target name="init">
+    <target name="init" depends="init-windows,init-linux">
+        <!-- Read dump properties from config unless set from command-line -->
+        <xmlpeek file="${config}" xpath="/configuration/svn-dumps/dump-root"    
+            property="dump-root" unless="${property::exists('dump-root')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-dumps/incremental"
+            property="incremental" unless="${property::exists('incremental')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-dumps/deltas"
+            property="deltas" unless="${property::exists('deltas')}"/>
+        <!-- Verify dump directory is valid -->
+        <if test="${string::get-length(svn-bindir)!=0 and directory::exists(svn-bindir)!=true}">
+            <echo file="${log-file}" message="Subversion binary directory doesn't exist: ${svn-bindir}" append="true"/>
+            <fail message="Subversion binary directory doesn't exist: ${svn-bindir}"/>
+        </if>
+        <!-- Ready properties -->
+        <property name="incremental" value="${string::trim(string::to-lower(incremental))}"/>
+        <property name="deltas"      value="${string::trim(string::to-lower(deltas))}"/>
+    </target>
+
+    <target name="init-windows" if="${platform::is-win32()}">
+        <property name="dump" value="${path::combine(subnant-srcdir,'inc\dump.bat')}"/>
+    </target>
+
+    <target name="init-linux" if="${platform::is-unix()}">
+        <property name="dump" value="{path::combine(subnant-srcdir,'inc/dump.sh')}"/>
     </target>
 
     <target name="help">
         <write>
-            <![CDATA[Executes: 
+            <![CDATA[Dump repositories using svnadmin
+
+If 'repos' not set, dump all repositories under 'svn-root'
 
 Options:
-option          description
+repos           comma separated list of repositories under 'svn-root'
+rev             dump revision number (or X:Y for range)
+dump-root       repository dump directory
+svn-root        repository root directory
+svn-bindir      subversion binary directory
+compress        set 'true' to compress dump file
+incremental     set 'true' for svnadmin --incremental switch
+deltas          set 'true' for svnamdin --deltas switch
 
 Examples:
+subnant dump
+subnant dump -D:repos=repo1,repo2
+subnant dump -D:svn-root=/svnroot/repos -D:compress=true
             ]]>
         </write>
     </target>
-   
+
+    <target name="init-dump-file">
+        <property name="dump-file" value="${path::combine(dump-root,path::get-file-name(repo)+'-repos')}"/>
+    </target>
+
+    <target name="compress-dump-file">
+        <write>::To-Do:: Compress dump...</write>   
+    </target>
+
 </project>

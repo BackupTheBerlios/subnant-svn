@@ -32,21 +32,16 @@ $Id$
             <property name="propval"  value="${bugtraq_warnifnoissue}"/>
             <!-- warnifnoissue is false by default -->
             <call target="propset" if="${bugtraq_warnifnoissue=='true'}"/>
+            <property name="propname" value="bugtraq:logregex"/>
+            <property name="propval"  value="${bugtraq_logregex}"/>
+            <!-- dont set logregex if nothing entered -->
+            <call target="propset" if="${string::get-length(bugtraq_logregex)!=0}"/>
             <echo file="${log-file}" message="Set bugtraq properties in '${path}'"/>
             <write>Set bugtraq properties in '${path}'</write>
         </foreach>
     </target>
    
     <target name="init">
-        <property name="svn" value="${path::combine(svn-bindir,'svn')}"/>
-        <!-- Verify current directory or 'wc' option is a working copy -->
-        <fail if="${string::get-length(wc)==0}" message="Option 'wc' was defined but no value set"/>
-        <foreach item="String" in="${wc}" delim="," property="path">
-            <ifnot test="${file::exists(path::combine(path,'.svn/format')) or file::exists(path::combine(path,'_svn/format'))}">
-                <echo file="${log-file}" message="Could not find working copy in '${path}'" append="true"/>
-                <fail message="Could not find working copy in '${path}'"/>
-            </ifnot>
-        </foreach>
         <!-- Read bugtraq properties from config -->
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/message"       property="bugtraq_message"/>
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/append"        property="bugtraq_append"/>
@@ -54,6 +49,7 @@ $Id$
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/label"         property="bugtraq_label"/>
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/number"        property="bugtraq_number"/>
         <xmlpeek file="${config}" xpath="/configuration/bugtraq/warnifnoissue" property="bugtraq_warnifnoissue"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/logregex"      property="bugtraq_logregex"/>
         <!-- Ready properties -->
         <property name="bugtraq_append"        value="${string::trim(string::to-lower(bugtraq_append))}"/>
         <property name="bugtraq_number"        value="${string::trim(string::to-lower(bugtraq_number))}"/>
@@ -79,7 +75,7 @@ $Id$
         <write>
             <![CDATA[Set bugtraq properties
 
-If 'wc' not passed, assumes current directory is working copy
+If 'wc' not set, assume current directory is working copy
 
 Options:
 wc              comma separated list of working copies to set

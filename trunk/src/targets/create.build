@@ -3,13 +3,13 @@
 Copyright (C) 2005 Simon McKenna
 
 Licensed under the GNU General Public License
-http://www.gnu.org/copyleft/gpl.html
+http://www.gnu.org/copyleft/gpl.html <http://www.gnu.org/copyleft/gpl.html> 
 
 $Id$ 
 -->
 <project name="create" default="create">
 
-    <target name="create" depends="init" description="Create Subversion repositories">
+    <target name="create" depends="init">
         <foreach item="String" delim="," in="${repos}" property="repo">
             <property name="repo" value="${string::trim(repo)}"/>
             <exec program="${svnadmin}" failonerror="true" output="${output-file}" append="true">
@@ -24,6 +24,8 @@ $Id$
             </exec>
             <echo file="${log-file}" message="Created repository '${repo}'"/>
             <write>Created ${fs-type} repository '${repo}' under ${svn-root}</write>
+            <call target="copy-repos-conf"  unless="${property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true'}"/>
+            <call target="copy-repos-hooks" unless="${property::exists('no-hooks') and string::to-lower(no-hooks)=='true'}"/>
         </foreach>
     </target>
 
@@ -32,7 +34,6 @@ $Id$
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/fs-type"    property="fs-type"    unless="${property::exists('fs-type')}"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/config-dir" property="config-dir" unless="${property::exists('config-dir')}"/>
         <!-- Ready properties -->
-        <property name="svnadmin"   value="${path::combine(svn-bindir,'svnadmin')}"/>
         <property name="fs-type"    value="${string::trim(string::to-lower(fs-type))}"/>
         <property name="config-dir" value="${string::trim(config-dir)}"/>
         <!-- Verify properties -->
@@ -48,6 +49,29 @@ $Id$
             <fail if="${bdb-log-keep!='true' and bdb-log-keep!='false'}" message="bdb-log-keep ${bdb-log-keep} must be 'true' or 'false'"/>
             <fail if="${bdb-txn-nosync!='true' and bdb-txn-nosync!='false'}" message="bdb-txn-nosync ${bdb-txn-nosync} must be 'true' or 'false'"/>
         </if>
+        <!-- Define Subnant root directory to find /conf and /hooks -->
+        <property name="subnant-root" value="${directory::get-parent-directory(directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path())))}"/>
+        <!-- Define file extension based upon operating sytem -->
+        <property name="file-ext" value=".bat" if="${platform::is-win32()}"/>
+        <property name="file-ext" value=".sh"  if="${platform::is-unix()}"/>
+        <fail unless="${property::exists('file-ext')}" message="Unknown operating sytem (only Linux and Windows supported)"/>
+    </target>
+
+    <target name="copy-repos-conf">
+        <property name="svnserve-conf" value="${path::combine(subnant-root,'conf/svnserve.conf')}"/>
+        <if test="${file::exists(svnserve-conf)}">
+            <copy file="${svnserve-conf}" overwrite="true"
+                todir="${path::combine(svn-root,repo+'/conf')}"/>
+        </if>
+    </target>
+
+    <target name="copy-repos-hooks">
+        <property name="pre-commit-hook"  value="${path::combine(subnant-root,'hooks/pre-commit'+file-ext)}"/>
+        <property name="post-commit-hook" value="${path::combine(subnant-root,'hooks/post-commit'+file-ext)}"/>
+        <copy file="${pre-commit-hook}" if="${file::exists(pre-commit-hook)}"
+            todir="${path::combine(svn-root,repo+'/hooks')}"/>
+        <copy file="${post-commit-hook}" if="${file::exists(post-commit-hook)}"
+            todir="${path::combine(svn-root,repo+'/hooks')}"/>
     </target>
 
     <target name="help">
@@ -55,21 +79,25 @@ $Id$
             <![CDATA[Create repositories using svnadmin
 
 If no options are passed, use values in subnant.config
+and copy (if found) subnant/conf/svnserve.conf and any
+subnant/hooks/* appropriate for your operating system
 
 Required:   
-repos           comma separated list of repositories under 'svn-root'
+repos           comma separated list of repositories to create
    
 Options:
-svn-root        override subnant.config with new repository root directory
-svn-bindir      override subnant.config with new subversion binary directory
-fs-type         type of repository 'bdb' or 'fsfs'
+svn-root        repository root directory (must already exist)
+svn-bindir      Subversion binary directory (must already exist)
+fs-type         type of repository to create 'bdb' or 'fsfs'
 config-dir      read user configuration files from this directory
 bdb-log-keep    automatic log file removal [Berkeley DB] 'true' or 'false'
 bdb-txn-nosync  fsync at transaction commit [Berkeley DB] 'true' or 'false'
+no-svnserve     set 'true' to not copy subnant/conf/svnserve.conf
+no-hooks        set 'true' to not copy subnant/hooks/
 
 Examples:
 subnant create -D:repos=repo1,repo2
-subnant create -D:repos=repo1 -D:svn-root=/svnroot
+subnant create -D:repos=repo1 -D:svn-root=/svnroot/repos
 subnant create -D:repos=repo1 -D:fs-type=fsfs
             ]]>
         </write>
