@@ -7,119 +7,18 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="subnant" default="usage" basedir=".">
+<project name="subnant" default="help" basedir=".">
 
-    <description>Subversion adminstration using NAnt</description>
-
-    <!-- Repository targets -->
-    <target name="create" depends="init,init-repository" description="Create repositories">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/create.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/create.build" target="create"/>
-        </ifnot>
-    </target>
-
-    <target name="dump" depends="init,init-repository" description="Dump repositories">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/dump.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/dump.build" target="dump"/>
-        </ifnot>
-    </target>
-
-    <target name="verify" depends="init,init-repository" description="Verify repositories">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/verify.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/verify.build" target="verify"/>
-        </ifnot>
-    </target>
-
-    <target name="load" depends="init,init-repository" description="Load repositories">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/load.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/load.build" target="verify"/>
-        </ifnot>
-    </target>
-
-    <target name="copy" depends="init,init-repository" description="Copy repositories">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/verify.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/verify.build" target="verify"/>
-        </ifnot>
-    </target>
-
-    <!-- Repository hooks targets -->
-    <target name="commit-access" depends="init,init-repository" description="Control access to repository using pre-commit hook">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/commit-access.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/commit-access.build" target="commit-access"/>
-        </ifnot>
-    </target>
-
-    <target name="commit-email" depends="init,init-repository" description="Generate email from commits using post-commit hook">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/commit-email.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/commit-email.build" target="commit-email"/>
-        </ifnot>
-    </target>
-
-    <!-- Working copy targets -->
-    <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in working copy">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/bugtraq.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/bugtraq.build" target="bugtraq"/>
-        </ifnot>
-    </target>
-
-    <!-- Other targets -->
-    <target name="config" depends="init,init-repository" description="Show configuration">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/config.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/config.build" target="config"/>
-        </ifnot>
-    </target>
-
-    <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/test.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/test.build" target="test"/>
-        </ifnot>
-    </target>
-
-    <target name="install" depends="init" description="Create 'subnant' wrapper script">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/install.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/install.build" target="install"/>
-        </ifnot>
-    </target>
+    <description>Subversion administration using NAnt</description>
 
     <!-- Default target -->
-    <target name="usage">
-<write><![CDATA[Subversion adminstration using NAnt
+    <target name="help">
+        <if test="${subnant::get-targets-count()==1}">
+            <write>
+                <![CDATA[Subversion administration using NAnt
 Copyright (C) 2005 Simon McKenna   
 http://subnant.berlios.de
-   
+
 Usage: subnant <target> -D:<option>
 
 Examples:
@@ -127,12 +26,61 @@ subnant -projecthelp
 subnant config
 subnant help test
 subnant test
-subnant verify dump -D:repos=repo1,repo2]]></write>
+subnant verify dump -D:repos=repo1,repo2
+                ]]>
+            </write>
+        </if>   
+    </target>
+
+    <!-- Repository targets -->
+    <target name="create" depends="init,init-repository" description="Create repositories">
+        <nant buildfile="targets/create.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="dump" depends="init,init-repository" description="Dump repositories">
+        <nant buildfile="targets/dump.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="verify" depends="init,init-repository" description="Verify repositories">
+        <nant buildfile="targets/verify.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="load" depends="init,init-repository" description="Load repositories">
+        <nant buildfile="targets/load.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="copy" depends="init,init-repository" description="Copy repositories">
+        <nant buildfile="targets/verify.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <!-- Repository hooks targets -->
+    <target name="commit-access" depends="init,init-repository" description="Control access to repository using pre-commit hook">
+        <nant buildfile="targets/commit-access.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="commit-email" depends="init,init-repository" description="Generate email from commits using post-commit hook">
+        <nant buildfile="targets/commit-email.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <!-- Working copy targets -->
+    <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in working copy">
+        <nant buildfile="targets/bugtraq.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <!-- Other targets -->
+    <target name="install" depends="init" description="Create 'subnant' wrapper script">
+        <nant buildfile="targets/install.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="config" depends="init,init-repository" description="Show configuration">
+        <nant buildfile="targets/config.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets">
+        <nant buildfile="targets/test.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Sub targets -->
-    <target name="help"/>
-   
     <target name="init">
         <property name="nant.onsuccess" value="success"/>
         <property name="nant.onfailure" value="failure"/>
@@ -227,6 +175,7 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
         <imports>
             <import namespace="System.Xml"/>
         </imports>
+        <!-- Subnant writes to Console instead of build log -->
         <code>
             <![CDATA[
             [TaskName("write")]
@@ -238,32 +187,66 @@ subnant verify dump -D:repos=repo1,repo2]]></write>
                     get { return _contents; }
                     set { _contents = value; }
                 }
-   
-                protected override void InitializeTask(XmlNode taskNode)
+                protected override void InitializeTask( XmlNode taskNode )
                 {
-                    Contents = Project.ExpandProperties(taskNode.InnerText, Location);
+                    Contents = Project.ExpandProperties( taskNode.InnerText, Location );
                 }
-   
                 protected override void ExecuteTask()
                 {
-                    Console.Out.WriteLine(Contents);
+                    Console.Out.WriteLine( Contents );
+                }
+            }
+            ]]>
+        </code>
+    </script>   
+
+    <!-- Some Subversion tasks require a URI encoded path -->
+    <script language="C#" prefix="path">
+        <code>
+            <![CDATA[
+            [Function("to-uri")]
+            public string pathToUriToString( String Path )
+            {
+                Uri pathToUri = new Uri( Path );
+                return pathToUri.ToString();
+            }
+            ]]>
+        </code>
+    </script>
+
+    <!-- Function used to determine whether to call 'help' or default target -->
+    <script language="C#" prefix="subnant">
+        <code>
+            <![CDATA[
+            [Function("get-target")]
+            public string getSubnantTarget()
+            {
+                if (Project.BuildTargets.Contains("help"))
+                {
+                    return "help";
+                }
+                else
+                {
+                    return Project.CurrentTarget.Name;
                 }
             }
             ]]>
         </code>
     </script>
 
-    <script language="C#" prefix="path">
+    <!--
+    Simple function to return count of build targets, as 'help' should display subnant usage,
+    rather than the main targets 'help' if their is only one build target.
+    -->
+    <script language="C#" prefix="subnant">
         <code>
-             <![CDATA[
-             [Function("to-uri")]
-             public string pathToUriToString(String Path)
-             {
-                 Uri pathToUri = new Uri(Path);
-                 return pathToUri.ToString();
-             }
-             ]]>
-         </code>
-     </script>
-  
+            <![CDATA[
+            [Function("get-targets-count")]
+            public int getSubnantTargetsCount()
+            {
+                return Project.BuildTargets.Count;
+            }
+            ]]>
+        </code>
+    </script>
 </project>
