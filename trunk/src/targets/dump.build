@@ -90,7 +90,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[dump: usage: subnant dump [-D:options=<value>]
+            <![CDATA[dump: usage: subnant dump [-D:option=value]
 
 Dump repositories using svnadmin
 

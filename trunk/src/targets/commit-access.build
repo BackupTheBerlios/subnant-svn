@@ -18,7 +18,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[commit-access: usage: subnant commit-access [-D:options=<value>]
+            <![CDATA[commit-access: usage: subnant commit-access [-D:option=value]
 
 Control access to repository using pre-commit hook 
 

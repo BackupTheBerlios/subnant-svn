@@ -29,7 +29,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[load: usage: subnant load -D:dumps=<dumpfile> [-D:options=<value>]
+            <![CDATA[load: usage: subnant load -D:dumps=<dumpfile> [-D:option=value]
 
 Load repositories from dumps using svnadmin
 

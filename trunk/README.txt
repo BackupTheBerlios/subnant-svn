@@ -12,9 +12,22 @@ http://www.gnu.org/copyleft/gpl.html
 $Id$
 
 
-Prerequisites:
+Goals:
 
-  * .NET 1.1+ or Mono 1.1.4+ runtimes
+  * Backup multiple repositiories (hotcopy,verify,dump,compress,email result)
+
+  * Define standard repository configuration (conf,hooks), then make it easy
+    to create repositories to standard, automatically included in backups
+
+  * Make it easy to migrate multiple repositories (backup,create,load,verify)
+
+  * Provide hook-script functionality similar to Subversion's own scripts
+
+
+Pre-requisites:
+
+  * .NET 1.1+ or Mono 1.1.4+ runtime
+
   * NAnt and NAntContrib 0.85rc2+
 
 
@@ -45,13 +58,15 @@ Setup:
   copy subnant.config.example subnant.config
   [edit subnant.config]
 
-  // Run from console or create scheduled task or cron job
+  // Run from console or create scheduled task or cron job,
+  // each main target has help available and can be chained:
   subnant -projecthelp
   subnant config
   subnant help test
   subnant test
   subnant backup -D:sendmail=true
-  subannt verify -D:repos=repo1,repo2
+  subnant create verify dump -D:repos=repo1,repo2
+  subannt migrate -D:to-svn-root=/svn2root -D:to-svn-bindir=/svn2/bin
 
 
 Repository targets:
@@ -84,9 +99,9 @@ Repository targets:
     Load some or all repositories from svn-dumps to svn-root
 
 
-  * copy
+  * migrate
 
-    Copy one or more repositories by chaining Subnant targets:
+    Migrate (copy) one or more repositories by chaining Subnant targets:
     backup -> create -> load -> verify
 
     Allows for different Subversion binary version to be used on destination
@@ -132,7 +147,6 @@ Other targets:
   * test
 
     Tests Subnant using the configuration in subnant.config
-
 
 
 Using hook targets:

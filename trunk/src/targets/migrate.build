@@ -7,9 +7,9 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="copy" default="copy">
+<project name="migrate" default="migrate">
 
-    <target name="copy" depends="init">
+    <target name="migrate" depends="init">
     </target>
 
     <target name="init">
@@ -17,7 +17,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[copy: usage: subnant copy -D:to-svn-root=</path/to-svn-root> [-D:options=<value>]
+            <![CDATA[migrate: usage: subnant migrate -D:to-svn-root=</path/to-svn-root> [-D:option=value]
 
 Copy repositories from one <svn-root> location to another using
 Subnant targets: backup, create, load and verify
@@ -26,21 +26,21 @@ If repos option not set, all repositories under svn-root are copied
 
 Source repositories are not removed unless delete-source is set true
 
-All options that apply to Subnant create target apply to copy target
-   
-Option to-svn-bindir is useful when migrating repositories between
-major Subversion release versions
+All options that apply to Subnant create target apply to migrate target
+
+Allows for different Subversion binary version to be used on destination
+repository targets (create, load and verify) using to-svn-bindir option
 
 Required:   
 to-svn-root     destination repository root directory
-   
+
 Options:
 repos           comma separated list of repositories to move
 svn-root        source repository root directory
 svn-bindir      source repository subversion binary directory
 to-svn-bindir   destination repository subversion binary directory
 delete-source   remove source repositories after copy: true or false 
-   
+
 Examples:
 subnant copy -D:to-svn-root=/svnroot/dest
 subnant copy -D:to-svn-root=/svnroot/dest -D:repos=repo1,repo2
@@ -48,5 +48,5 @@ subnant copy -D:to-svn-root=/svnroot/dest -D:to-svn-bindir=/tmp/svn2/bin
             ]]>
         </echo>
     </target>
-   
+
 </project>

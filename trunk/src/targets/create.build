@@ -71,7 +71,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[create: usage: subnant create -D:repos=<repos> [-D:options=<value>]
+            <![CDATA[create: usage: subnant create -D:repos=<repos> [-D:option=value]
 
 Create repositories using svnadmin
 

@@ -108,7 +108,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[test: usage: subnant test [-D:options=<value>]
+            <![CDATA[test: usage: subnant test [-D:option=value]
 
 Call Subnant targets in a test environment
 

@@ -53,7 +53,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[commit-email: usage: subnant commit-email -D:repos=<repos> -D:rev=<rev> [-D:options=<value>]
+            <![CDATA[commit-email: usage: subnant commit-email -D:repos=<repos> -D:rev=<rev> [-D:option=value]
 
 Email result of svnlook diff on post-commit hook
 

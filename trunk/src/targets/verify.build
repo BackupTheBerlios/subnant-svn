@@ -24,7 +24,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[verify: usage: subnant verify [-D:options=<value>]
+            <![CDATA[verify: usage: subnant verify [-D:option=value]
 
 Verify repositories using svnadmin
 

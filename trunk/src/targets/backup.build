@@ -41,7 +41,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[backup: usage: subnant backup [-D:options=<value>]
+            <![CDATA[backup: usage: subnant backup [-D:option=value]
 
 Backup repositories using svnadmin hotcopy to copy repository
 into (temporary) location, then verify and dump into dump-root

@@ -58,9 +58,9 @@ subnant verify dump -D:repos=repo1,repo2]]>
         <nant buildfile="targets/load.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
-    <target name="copy" description="Copy repositories"
+    <target name="migrate" description="Migrate (copy) repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/verify.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/migrate.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <!-- Repository hooks targets -->
