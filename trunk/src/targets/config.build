@@ -32,8 +32,9 @@ Backup settings:
 
 method              ${backup-method}
 num-hotcopy         ${num-hotcopy}
+verify-hotcopy      ${verify}
 num-dump            ${num-dump}
-compress            ${compress}
+compress-dump       ${compress}
 
 Mail settings:
 
@@ -72,8 +73,9 @@ logregex            ${bugtraq_logregex}
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-txn-nosync"  property="bdb-txn-nosync"/>
         <xmlpeek file="${config}" xpath="/configuration/backup/method"             property="method"/>
         <xmlpeek file="${config}" xpath="/configuration/backup/num-hotcopy"        property="num-hotcopy"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/verify-hotcopy"     property="verify-hotcopy"/>
         <xmlpeek file="${config}" xpath="/configuration/backup/num-dump"           property="num-dump"/>
-        <xmlpeek file="${config}" xpath="/configuration/backup/compress"           property="compress"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/compress-dump"      property="compress-dump"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"                 property="mail_from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"                 property="mail_host"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/tolist"               property="mail_tolist"/>
@@ -111,6 +113,7 @@ logregex            ${bugtraq_logregex}
         <property name="backup-method"   value="${string::trim(string::to-lower(method))}"/>
         <property name="backup-method"   value="[invalid] ${method}"      if="${method!='hotcopy' and method!='dump' and method!='increment'}"/>
         <property name="num-hotcopy"     value="[invalid] ${num-hotcopy}" if="${int::parse(num-hotcopy)&lt;-1}"/>
+        <property name="verify"          value="${string::trim(string::to-lower(verify-hotcopy))}"/>
         <property name="num-dump"        value="[invalid] ${num-dump}"    if="${int::parse(num-dump)&lt;1}"/>
         <property name="level"           value="${string::trim(string::to-lower(compress))}"/>
         <property name="compress"        value="level ${level}"     if="${level!='false' and int::parse(level)&gt;=1 and int::parse(level)&lt;=9}"/>

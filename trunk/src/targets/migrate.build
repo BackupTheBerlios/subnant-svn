@@ -11,7 +11,8 @@ $Id$
 
     <target name="migrate" depends="init">
         <foreach item="String" delim="," in="${migrate-repos}" property="repos">
-            <nant buildfile="backup.build" target="backup"/>
+            <nant buildfile="verify.build" target="verify"/>
+            <nant buildfile="dump.build"   target="dump"/>
             <nant buildfile="create.build" target="create">
                 <properties>
                     <property name="svn-root"   value="${to-svn-root}"/>
@@ -56,7 +57,7 @@ Subnant targets: backup (hotcopy,dump,verify), create, load and verify
 Source repositories are not removed unless delete-source is set true
 
 All options that apply to Subnant targets called by migrate can also
-be passed through, see help in relevant target for option details
+be passed through, see help in relevant target for more details
 
 Required:   
 to-svn-root     destination repository root directory

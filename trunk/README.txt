@@ -14,22 +14,24 @@ $Id$
 
 Goals:
 
-  * Backup multiple repositiories (hotcopy,verify,dump,compress,email result)
+  * Backup multiple repositiories (hotcopy+verify|dump+compress,email result)
 
-  * Migrate multiple repositories (backup,create,load,verify)
+  * Migrate multiple repositories (verify,dump,create,load,verify)
 
   * Define standard repository configuration (conf,hooks), then make it easy
     to create repositories to standard, automatically included in backups
 
   * Provide hook-script functionality similar to Subversion's own scripts,
-    but without the need for 3rd party tools (Perl, Python, sendmail, etc)
+    but without the need for 3rd party tools (Perl,Python,sendmail,etc)
 
 
 Pre-requisites:
 
-  * .NET 1.1+ or Mono 1.1.4+ runtime
+  * .NET 1.1+ or Mono 1.1.5+ runtime
 
   * NAnt and NAntContrib 0.85rc2+
+
+  * Subversion 1.1.3+
 
 
 Windows Installation:
@@ -76,14 +78,19 @@ Run:
   subnant create verify dump -D:repos=repo1,repo2
   subannt migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin
 
+  // Something went wrong?  Run with -debug switch for more info
+  subnant test -debug
+
 
 Repository targets:
 
   * backup
 
-    Backup some or all repositories under svn-root using svnadmin hotcopy
-    to copy into (temporary) location, then call Subnant targets verify and
-    dump for each repository
+    Backup some or all repositories under svn-root using methods:
+
+      hotcopy   : verbatim copy of repository
+      dump      : dump all revisions into portable format
+      increment : dump all revisions since last increment
 
 
   * create

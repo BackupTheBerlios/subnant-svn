@@ -11,32 +11,9 @@ $Id$
 
     <target name="backup" depends="init">
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <call target="hotcopy"/>
-            <if test="${hotcopy-ok=='true'}">
-                <nant buildfile="verify.build" target="verify">
-                    <properties>
-                        <property name="verify-repos"    value="${repo}"/>
-                        <property name="verify-svn-root" value="${hotcopy-root}"/>
-                    </properties>
-                </nant>
-                <loadfile file="${exec-result}" property="verify-result"/>
-                <property name="verify-result" value="${string::trim(verify-result)}"/>
-                <property name="backup-ok" value="false" if="${verify-result!='0'}"/>
-                <if test="${verify-result=='0' and (backup-method=='dump' or backup-method=='increment')}">
-                    <call target="init-dump"/>
-                    <nant buildfile="dump.build" target="dump">
-                        <properties>
-                            <property name="dump-repos"    value="${repo}"/>
-                            <property name="dump-svn-root" value="${hotcopy-root}"/>
-                            <property name="dump-rev" if="${backup-method=='increment'}" value="${dump-highest}:${dump-youngest}"/>
-                        </properties>
-                    </nant>
-                    <loadfile file="${exec-result}" property="dump-result"/>
-                    <property name="dump-result" value="${string::trim(dump-result)}"/>
-                    <property name="backup-ok" value="false" if="${dump-result!='0'}"/>
-                </if>
-                <call target="cycle-hotcopy"/>
-            </if>
+            <call target="hotcopy-method"   if="${backup-method=='hotcopy'}"/>
+            <call target="dump-method"      if="${backup-method=='dump'}"/>
+            <call target="increment-method" if="${backup-method=='increment'}"/>
         </foreach>
         <echo unless="${backup-ok=='true'}" file="${subnant-output}" append="true"
             message="${string::pad-right('Backup complete',60,' ')}(${subnant::get-elapsed-time(backup-started)})"/>
@@ -53,24 +30,30 @@ $Id$
             property="hotcopy-root" unless="${property::exists('hotcopy-root')}"/>
         <xmlpeek file="${config}" xpath="/configuration/backup/method"
             property="method" unless="${property::exists('method')}"/>
-        <xmlpeek file="${config}" xpath="/configuration/backup/compress"
-            property="compress" unless="${property::exists('compress')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/verify-hotcopy"
+            property="verify-hotcopy" unless="${property::exists('verify-hotcopy')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/compress-dump"
+            property="compress-dump" unless="${property::exists('compress-dump')}"/>
         <fail unless="${directory::exists(hotcopy-root)}"
             message="hotcopy-root is invalid or does not exist in filesystem: ${hotcopy-root}"/>
         <property name="backup-method" value="${string::trim(string::to-lower(method))}"/>
         <fail unless="${backup-method=='hotcopy' or backup-method=='dump' or backup-method=='increment'}"
             message="Backup method must be hotcopy or dump or increment"/>
-        <property name="compress-backup" value="${string::trim(string::to-lower(compress))}"/>
+        <property name="verify-backup" value="${string::trim(string::to-lower(verify-hotcopy))}"/>
+        <fail if="${verify-backup!='false' and verify-backup!='true'}"
+            message="verify-hotcopy must be set true or false"/>
+        <property name="compress-backup" value="${string::trim(string::to-lower(compress-dump))}"/>
         <fail if="${compress-backup!='false' and int::parse(compress-backup)&lt;1 and int::parse(compress-backup)&gt;9}"
             message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
     </target>
 
-    <target name="init-dump">
-        <property name="dump-highest"  value=""/>
-        <property name="dump-youngest" value=""/>
+    <target name="init-increment">
+        <echo level="Warning" message="::TODO:: Get highest and youngest"/>
+        <property name="dump-highest"  value="0"/>
+        <property name="dump-youngest" value="0"/>
     </target>
 
-    <target name="hotcopy">
+    <target name="hotcopy-method">
         <property name="hotcopy-started" value="${datetime::get-ticks(datetime::now())}"/>
         <echo level="Warning" message="Hotcopying repository ${repo}"/>
         <delete dir="${path::combine(hotcopy-root,repo)}" if="${directory::exists(path::combine(hotcopy-root,repo))}"/>
@@ -87,36 +70,80 @@ $Id$
         <echo if="${hotcopy-ok=='false'}" file="${subnant-output}" append="true"
             message="${string::pad-right('*** ERROR hotcopying repository '+repo+' ***',60,' ')}"/>
         <property name="backup-ok" if="${hotcopy-ok=='false'}" value="false"/>
+        <if test="${hotcopy-ok=='true'}">
+            <nant buildfile="verify.build" target="verify">
+                <properties>
+                    <property name="verify-repos"    value="${repo}"/>
+                    <property name="verify-svn-root" value="${hotcopy-root}"/>
+                </properties>
+            </nant>
+            <loadfile file="${exec-result}" property="verify-result"/>
+            <property name="verify-result" value="${string::trim(verify-result)}"/>
+            <property name="backup-ok" value="false" if="${verify-result!='0'}"/>
+            <call target="cycle-hotcopy"/>
+        </if>
     </target>
 
     <target name="cycle-hotcopy">
+        <echo level="Warning" message="::TODO:: Cycle hotcopy"/>
+    </target>
+
+    <target name="dump-method">
+        <property name="dump-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <nant buildfile="dump.build" target="dump">
+            <properties>
+                <property name="dump-repos"    value="${repo}"/>
+                <property name="dump-svn-root" value="${svn-root}"/>
+            </properties>
+        </nant>
+        <loadfile file="${exec-result}" property="dump-result"/>
+        <property name="dump-result" value="${string::trim(dump-result)}"/>
+        <property name="backup-ok" value="false" if="${dump-result!='0'}"/>
+        <call target="cycle-dump"/>
     </target>
    
+    <target name="cycle-dump">
+        <echo level="Warning" message="::TODO:: Cycle dump"/>
+    </target>
+
+    <target name="increment-method" depends="init-increment">
+        <property name="increment-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <nant buildfile="dump.build" target="dump">
+            <properties>
+                <property name="dump-repos"    value="${repo}"/>
+                <property name="dump-svn-root" value="${svn-root}"/>
+                <property name="dump-rev"      value="${dump-highest}:${dump-youngest}"/>
+            </properties>
+        </nant>
+        <loadfile file="${exec-result}" property="dump-result"/>
+        <property name="dump-result" value="${string::trim(dump-result)}"/>
+        <property name="backup-ok" value="false" if="${dump-result!='0'}"/>
+    </target>
+
     <target name="help">
         <echo level="Warning">
             <![CDATA[backup: usage: subnant backup [-D:<option>=<value>]
 
-Backup repositories using svnadmin hotcopy, then verify hotcopy,
-then depending upon backup method, dump and compress all revisions,
-or only revisions committed up to and including last increment dump
+Backup repositories using a variety of methods
 
-Methods:   
-hotcopy       verbatim copy of repository, includes all revisions
-dump          dump hotcopy into portable format, includes all revisions
-increment     dump all younger revisions starting from highest revision
-              found in dump-root for repository (ie. only new revisions)
+Methods:
+hotcopy         verbatim copy of repository
+dump            dump all revisions into portable format
+increment       dump all younger revisions starting from highest revision
+                found in dump-root for repository (ie. only new revisions)
 
 Options:
-repos         comma separated list of repositories to backup *
-method        set backup method hotcopy or dump or increment **
-compress      set compression level 1 (lowest) to 9 (highest) **
-svn-root      repository root directory **
-dump-root     repository dump root directory **
-hotcopy-root  repository hotcopy root directory **
-svn-bindir    Subversion binary directory **
-incremental   set true for svnadmin --incremental switch ***
-deltas        set true for svnamdin --deltas switch ***
-sendmail      set true to email result
+repos           comma separated list of repositories to backup *
+method          set backup method hotcopy or dump or increment **
+verify-hotcopy  verify repository hotcopy **
+compress-dump   compress dump at compression level 1 (lowest) to 9 (highest) **
+svn-root        repository root directory **
+hotcopy-root    repository hotcopy root directory **
+dump-root       repository dump root directory **
+svn-bindir      Subversion binary directory **
+incremental     set true for svnadmin --incremental switch ***
+deltas          set true for svnamdin --deltas switch ***
+sendmail        set true to email result
 
 *   If repos not set, all repositories under svn-root are backed up
 **  If option not set, default value in subnant.config is used
@@ -126,7 +153,7 @@ sendmail      set true to email result
 Examples:
 subnant backup
 subnant backup -D:repos=repo1,repo2
-subnant backup -D:dump-root=/svnroot/dumps -D:sendmail=true
+subnant backup -D:method=dump -D:dump-root=/svnroot/dumps -D:sendmail=true
             ]]>
         </echo>
     </target>

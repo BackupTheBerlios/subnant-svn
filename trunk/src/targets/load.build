@@ -10,24 +10,26 @@ $Id$
 <project name="load" default="load">
 
     <target name="load" depends="init">
-        <foreach item="String" delim="," in="${dumps}" property="dump">
+        <foreach item="String" delim="," in="${load-dumps}" property="load">
             <call target="init-load"/>
-            <echo level="Warning" message="Loading repository ${dump}"/>
+            <echo level="Warning" message="Loading repository ${load}"/>
             <exec program="${load}" failonerror="${failonerror}" resultproperty="exec-result">
                 <arg value="${svnadmin}"/>
-                <arg value="${path::combine(svn-root,dump)}"/>
+                <arg value="${path::combine(load-svn-root,dump)}"/>
                 <arg value="${dump-file}"/>
             </exec>
-            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Loaded repository '+dump,60,' ')}(${subnant::get-elapsed-time(load-started)})" append="true"/>
-            <echo if="${exec-result!='0'}" file="${subnant-output}" message="${'*** ERROR loading repository '+dump+' ***'}" append="true"/>
+            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Loaded repository '+load,60,' ')}(${subnant::get-elapsed-time(load-started)})" append="true"/>
+            <echo if="${exec-result!='0'}" file="${subnant-output}" message="${'*** ERROR loading repository '+load+' ***'}" append="true"/>
         </foreach>
     </target>
 
     <target name="init">
+        <property name="load-dumps"    value="${dumps}"    unless="${property::exists('load-dumps')}"/>   
+        <property name="load-svn-root" value="${svn-root}" unless="${property::exists('load-svn-root')}"/>
     </target>
 
     <target name="init-load">
-        <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="load-started"  value="${datetime::get-ticks(datetime::now())}"/>
     </target>
 
     <target name="help">
@@ -36,10 +38,10 @@ $Id$
 
 Load repositories from dumps using svnadmin
 
-If dump ends with .zip extension, will uncompress before loading
+Uncompress before loading if dump has .zip extension 
 
 Required:
-dumps           comma separated list of repository dumps
+dumps           comma separated list of repository dumps to load
 
 Options:
 dump-root       repository dump directory *
