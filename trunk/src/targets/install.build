@@ -34,10 +34,10 @@ $Id$
         <echo file="${wrapper}" append="true">nant -nologo -buildfile:"${subnant.srcdir}\subnant.build" %*</echo>
         <echo>Created '${wrapper}' wrapper script</echo>
         <echo>Searching environment path for '${install.bindir}'</echo>
-        <if test="${string::contains(environment::get-variable('PATH'),install.bindir)}">
+        <if test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install.bindir))}">
             <echo>Found in path, 'subnant' command should be available</echo>
         </if>
-        <ifnot test="${string::contains(environment::get-variable('PATH'),install.bindir)}">
+        <ifnot test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install.bindir))}">
             <echo>Not found, please add '${install.bindir}' to your environment path</echo> -->
         </ifnot>
     </target>
