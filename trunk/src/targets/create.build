@@ -15,8 +15,8 @@ $Id$
             <echo message="Creating repository ${repo} under ${svnroot}"/>
             <exec program="${svnadmin}" failonerror="false" resultproperty="result">
                 <arg value="create"/>
-                <arg value="--bdb-txn-nosync" if="${fs-type=='bdb' and bdb-txn-nosync=='true'}"/>
-                <arg value="--bdb-log-keep"   if="${fs-type=='bdb' and bdb-log-keep=='true'}"/>
+                <arg value="--bdb-txn-nosync" if="${fs-type=='bdb' and bdb-txn-nosync=='yes'}"/>
+                <arg value="--bdb-log-keep"   if="${fs-type=='bdb' and bdb-log-keep=='yes'}"/>
                 <arg value="--config-dir"     if="${string::get-length(config-dir)>0}"/>
                 <arg value="${config-dir}"    if="${string::get-length(config-dir)>0}"/>
                 <arg value="--fs-type"/>
@@ -34,14 +34,14 @@ $Id$
         <xmlpeek file="${subnant.config}" xpath="/subnant/svn_repos/fs-type"        property="fs-type"        unless="${property::exists('fs-type')}"/>
         <!-- Ready properties --> 
         <property name="svnadmin"       value="${path::combine(svn_bindir,'svnadmin')}"/>
-        <property name="bdb-txn-nosync" value="${string::trim(string::to-lower(bdb-txn-nosync))}"/>        
-        <property name="bdb-log-keep"   value="${string::trim(string::to-lower(bdb-log-keep))}"/>        
-        <property name="config-dir"     value="${string::trim(config-dir)}"/>        
-        <property name="fs-type"        value="${string::trim(string::to-lower(fs-type))}"/>        
+        <property name="bdb-txn-nosync" value="${string::trim(string::to-lower(bdb-txn-nosync))}"/>
+        <property name="bdb-log-keep"   value="${string::trim(string::to-lower(bdb-log-keep))}"/>
+        <property name="config-dir"     value="${string::trim(config-dir)}"/>
+        <property name="fs-type"        value="${string::trim(string::to-lower(fs-type))}"/>
         <!-- Verify properties --> 
         <fail if="${property::exists('repos')==false}" message="Can't create repository as 'repos' property not defined"/>
-        <fail if="${bdb-txn-nosync!='true' and bdb-txn-nosync!='false'}" message="bdb-txn-nosync ${bdb-txn-nosync} must be 'true' or 'false'"/>
-        <fail if="${bdb-log-keep!='true' and bdb-log-keep!='false'}" message="bdb-log-keep ${bdb-log-keep} must be 'true' or 'false'"/>
+        <fail if="${bdb-txn-nosync!='yes' and bdb-txn-nosync!='no'}" message="bdb-txn-nosync ${bdb-txn-nosync} must be 'yes' or 'no'"/>
+        <fail if="${bdb-log-keep!='yes' and bdb-log-keep!='no'}" message="bdb-log-keep ${bdb-log-keep} must be 'yes' or 'no'"/>
         <fail if="${string::get-length(config-dir)>=0 and directory::exists(config-dir)==false}" message="config-dir ${config-dir} directory doesn't exist"/>
         <fail if="${fs-type!='bdb' and fs-type!='fsfs'}" message="fs-type must be 'bdb' or 'fsfs'"/>
     </target>   

@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="subnant" default="test" basedir="${nant.project.buildfile}">
+<project name="subnant" default="test" basedir=".">
 
     <description>Subversion adminstration tasks handled using NAnt - http://subnant.berlios.de</description>   
 
@@ -31,7 +31,11 @@ $Id$
         <nant buildfile="targets/dump.build"/>
     </target>
 
-    <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets">
+    <target name="show-config" depends="init,init-repository" description="Show subnant.config with optional -D:config=file.config">
+        <nant buildfile="targets/show-config.build"/>
+    </target>
+
+    <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets with optional -D:target=dump,verify">
         <nant buildfile="targets/test.build"/>
     </target>
 
@@ -41,7 +45,7 @@ $Id$
 
     <target name="init">
         <!-- Assign default config file unless subnant.config already defined as command-line parameter -->
-        <property name="subnant.config" value="${path::combine(nant.project.buildfile,'../../conf/subnant.config')}"
+        <property name="subnant.config" value="${path::combine(project::get-buildfile-path(),'../../conf/subnant.config')}"
             unless="${property::exists('subnant.config')}"/>
         <fail unless="${file::exists(subnant.config)}" message="Could not find ${subnant.config}"/>
         <xmlpeek file="${subnant.config}" xpath="/subnant/svn_bindir" property="svn_bindir"/>

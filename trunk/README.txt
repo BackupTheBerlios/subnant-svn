@@ -19,7 +19,8 @@ as per any normal NAnt build or scheduled task/cron job.  For example:
   [edit subnant.config]
 
   cd ..\src
-  nant -buildfile:subnant.build test
+  nant -buildfile:subnant.build -projecthelp
+  nant test
 
 
 
@@ -55,8 +56,13 @@ Subnant repository targets:
 
   * commit-access
 
-	Provides granular access control to a repository for those
-	using the ra_svn repository access layer (svnserve)
+    Provides granular access control to a repository for those
+    using the ra_svn repository access layer (svnserve)
+
+
+  * show-config
+
+    Display configuration of subnant.config or supplied file.
 
 
   * test
