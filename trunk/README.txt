@@ -84,42 +84,42 @@ Repository targets:
     and setup hook scripts and configuration files if defined
 
 
-  * verify
-
-    Verify some or all repositories under svn-root
-
-
   * dump
 
-    Dump some or all repositories under svn-root
+    Dump and compress some or all repositories under svn-root
 
 
   * load
 
-    Load some or all repositories from svn-dumps to svn-root
+    Uncompress and load some or all repositories from svn-dumps to svn-root
 
 
   * migrate
 
-    Migrate (copy) one or more repositories by chaining Subnant targets:
+    Migrate one or more repositories by chaining Subnant targets:
     backup -> create -> load -> verify
 
     Allows for different Subversion binary version to be used on destination
     repository targets (create, load and verify)
 
 
+  * verify
+
+    Verify some or all repositories under svn-root
+
+
 Repository hook targets:
-
-  * commit-email
-
-    Generates email on post-commit event to addresses defined using
-    Subversion property mail:post-commit
-
 
   * commit-access
 
     Provides granular access control to a repository suitable for those
     using the ra_svn repository access layer (svnserve)
+
+
+  * commit-email
+
+    Generates email on post-commit event to addresses defined using
+    Subversion property mail:post-commit
 
 
 Working copy targets:
@@ -134,14 +134,14 @@ Working copy targets:
 
 Other targets:
 
-  * install
-
-    Create subnant wrapper script
-
-
   * config
 
     Display configuration of subnant.config
+
+
+  * install
+
+    Create subnant wrapper script
 
 
   * test
