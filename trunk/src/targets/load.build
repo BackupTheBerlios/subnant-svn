@@ -10,35 +10,43 @@ $Id$
 <project name="load" default="load">
 
     <target name="load" depends="init">
-        <foreach item="String" delim="," in="${load-dumps}" property="load">
+        <foreach item="String" delim="," in="${load-dumps}" property="load-dump">
             <call target="init-load"/>
-            <echo level="Warning" message="Loading repository ${load}"/>
+            <echo level="Warning" message="Loading repository ${load-repos}"/>
             <exec program="${load}" failonerror="${failonerror}" resultproperty="exec-result">
                 <arg value="${svnadmin}"/>
-                <arg value="${path::combine(load-svn-root,dump)}"/>
-                <arg value="${dump-file}"/>
+                <arg value="${path::combine(load-svn-root,load-repos)}"/>
+                <arg value="${load-dump}"/>
             </exec>
-            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Loaded repository '+load,60,' ')}(${subnant::get-elapsed-time(load-started)})" append="true"/>
-            <echo if="${exec-result!='0'}" file="${subnant-output}" message="${'*** ERROR loading repository '+load+' ***'}" append="true"/>
+            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Loaded repository '+load-repos,60,' ')}(${subnant::get-elapsed-time(load-started)})" append="true"/>
+            <echo if="${exec-result!='0'}" file="${subnant-output}" message="${'*** ERROR loading repository '+load-repos+' ***'}" append="true"/>
         </foreach>
     </target>
 
-    <target name="init">
+    <target name="init" depends="init-windows,init-linux">
+        <fail unless="${property::exists('dumps')}" message="Can't load repository as dumps property not defined"/>
         <property name="load-dumps"    value="${dumps}"    unless="${property::exists('load-dumps')}"/>   
         <property name="load-svn-root" value="${svn-root}" unless="${property::exists('load-svn-root')}"/>
     </target>
 
+    <target name="init-windows" if="${platform::is-win32()}">
+        <property name="load" value="${path::combine(subnant-root,'src\inc\dump.bat')}"/>
+    </target>
+
+    <target name="init-linux" if="${platform::is-unix()}">
+        <property name="load" value="{path::combine(subnant-root,'src/inc/dump.sh')}"/>
+    </target>
+
     <target name="init-load">
         <property name="load-started"  value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="load-repos"    value=""/>
     </target>
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[load: usage: subnant load -D:dumps=<dumpfile> [-D:<option>=<value>]
+            <![CDATA[load: usage: subnant load -D:dumps=<value> [-D:<option>=<value>]
 
-Load repositories from dumps using svnadmin
-
-Uncompress before loading if dump has .zip extension 
+Load repositories from dumps, uncompressing if dump has .zip extension
 
 Required:
 dumps           comma separated list of repository dumps to load

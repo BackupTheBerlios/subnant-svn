@@ -12,20 +12,20 @@ $Id$
     <target name="create" depends="init">
         <foreach item="String" delim="," in="${repos}" property="repo">
             <property name="repo" value="${string::trim(repo)}"/>
-            <echo level="Warning" message="Creating ${fs-type} repository ${repo} under ${svn-root}"/>
+            <echo level="Warning" message="Creating ${create-fs-type} repository ${repo} under ${create-svn-root}"/>
             <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="create-result">
                 <arg value="create"/>
-                <arg value="--bdb-txn-nosync" if="${fs-type=='bdb' and bdb-txn-nosync=='true'}"/>
-                <arg value="--bdb-log-keep"   if="${fs-type=='bdb' and bdb-log-keep=='true'}"/>
-                <arg value="--config-dir"     if="${string::get-length(config-dir)>0}"/>
-                <arg value="${config-dir}"    if="${string::get-length(config-dir)>0}"/>
+                <arg value="--bdb-txn-nosync" if="${create-fs-type=='bdb' and bdb-txn-nosync=='true'}"/>
+                <arg value="--bdb-log-keep"   if="${create-fs-type=='bdb' and bdb-log-keep=='true'}"/>
+                <arg value="--config-dir"     if="${string::get-length(create-config-dir)>0}"/>
+                <arg value="${create-config-dir}"    if="${string::get-length(create-config-dir)>0}"/>
                 <arg value="--fs-type"/>
-                <arg value="${fs-type}"/>
-                <arg value="${path::combine(svn-root,repo)}"/>
+                <arg value="${create-fs-type}"/>
+                <arg value="${path::combine(create-svn-root,repo)}"/>
             </exec>
             <echo file="${exec-result}" message="${create-result}" append="false"/>   
-            <echo if="${create-result=='0'}" file="${subnant-output}" message="Created ${fs-type} repository ${repo} under ${svn-root}" append="true"/>
-            <echo if="${create-result!='0'}" file="${subnant-output}" message="*** ERROR creating ${fs-type} repository ${repo} under ${svn-root} ***" append="true"/>
+            <echo if="${create-result=='0'}" file="${subnant-output}" message="Created ${create-fs-type} repository ${repo} under ${create-svn-root}" append="true"/>
+            <echo if="${create-result!='0'}" file="${subnant-output}" message="*** ERROR creating ${create-fs-type} repository ${repo} under ${create-svn-root} ***" append="true"/>
             <call target="copy-repos-conf"  unless="${create-result!='0' or (property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true')}"/>
             <call target="copy-repos-hooks" unless="${create-result!='0' or (property::exists('no-hooks') and string::to-lower(no-hooks)=='true')}"/>
         </foreach>
@@ -36,14 +36,15 @@ $Id$
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/fs-type"    property="fs-type"    unless="${property::exists('fs-type')}"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/config-dir" property="config-dir" unless="${property::exists('config-dir')}"/>
         <!-- Ready properties -->
-        <property name="fs-type"    value="${string::trim(string::to-lower(fs-type))}"/>
-        <property name="config-dir" value="${string::trim(config-dir)}"/>
+        <property name="create-fs-type"    value="${string::trim(string::to-lower(fs-type))}"/>
+        <property name="create-config-dir" value="${string::trim(config-dir)}"/>
+        <property name="create-svn-root"   value="${svn-root}" unless="${property::exists('create-svn-root')}"/>
         <!-- Verify properties -->
-        <fail if="${property::exists('repos')==false}" message="Can't create repository as repos property not defined"/>
-        <fail if="${fs-type!='bdb' and fs-type!='fsfs'}" message="fs-type must be bdb or fsfs"/>
-        <fail if="${string::get-length(config-dir)>=0 and directory::exists(config-dir)==false}" message="config-dir ${config-dir} doesn't exist"/>
+        <fail unless="${property::exists('repos')}" message="Can't create repository as repos property not defined"/>
+        <fail if="${create-fs-type!='bdb' and create-fs-type!='fsfs'}" message="fs-type must be bdb or fsfs"/>
+        <fail if="${string::get-length(create-config-dir)>=0 and directory::exists(create-config-dir)==false}" message="config-dir ${create-config-dir} doesn't exist"/>
         <!-- Assign, ready and verify bdb properties if needed -->
-        <if test="${fs-type=='bdb'}">
+        <if test="${create-fs-type=='bdb'}">
             <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-log-keep"   property="bdb-log-keep"   unless="${property::exists('bdb-log-keep')}"/>
             <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-txn-nosync" property="bdb-txn-nosync" unless="${property::exists('bdb-txn-nosync')}"/>
             <property name="bdb-log-keep" value="${string::trim(string::to-lower(bdb-log-keep))}"/>
@@ -60,15 +61,15 @@ $Id$
     <target name="copy-repos-conf">
         <property name="svnserve-conf" value="${path::combine(subnant-root,'conf/svnserve.conf')}"/>
         <if test="${file::exists(svnserve-conf)}">
-            <copy file="${svnserve-conf}" overwrite="true" todir="${path::combine(svn-root,repo+'/conf')}"/>
+            <copy file="${svnserve-conf}" overwrite="true" todir="${path::combine(create-svn-root,repo+'/conf')}"/>
         </if>
     </target>
 
     <target name="copy-repos-hooks">
         <property name="pre-commit-hook"  value="${path::combine(subnant-root,'hooks/pre-commit'+file-ext)}"/>
         <property name="post-commit-hook" value="${path::combine(subnant-root,'hooks/post-commit'+file-ext)}"/>
-        <copy file="${pre-commit-hook}"  if="${file::exists(pre-commit-hook)}"  todir="${path::combine(svn-root,repo+'/hooks')}"/>
-        <copy file="${post-commit-hook}" if="${file::exists(post-commit-hook)}" todir="${path::combine(svn-root,repo+'/hooks')}"/>
+        <copy file="${pre-commit-hook}"  if="${file::exists(pre-commit-hook)}"  todir="${path::combine(create-svn-root,repo+'/hooks')}"/>
+        <copy file="${post-commit-hook}" if="${file::exists(post-commit-hook)}" todir="${path::combine(create-svn-root,repo+'/hooks')}"/>
     </target>
 
     <target name="help">

@@ -21,7 +21,7 @@ $Id$
             </nant>
             <nant buildfile="load.build" target="load">
                 <properties>
-                    <property name="dumps"      value="${dump-file}"/>
+                    <property name="dumps"      value="${repos}.dump"/>
                     <property name="svn-root"   value="${to-svn-root}"/>
                     <property name="svn-bindir" value="${to-svn-bindir}"/>
                 </properties>

@@ -115,7 +115,7 @@ sendmail        set true to email result
 *   If repos not set, all repositories under svn-root are dumped
 **  If rev not set, all revisions dumped
 *** If option not set, default value in subnant.config is used
-            
+
 Examples:
 subnant dump
 subnant dump -D:repos=repo1,repo2 -D:sendmail=true
