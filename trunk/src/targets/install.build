@@ -100,15 +100,15 @@ $Id$
     -->
    
     <target name="help">
-        <echo>Create 'subnant' wrapper script</echo>
-        <echo></echo>
-        <echo>Valid options:</echo>
-        <echo>install.prefix : Override operating systems default installation location</echo>
-        <echo>subnant.srcdir : Override location of source directory</echo>
-        <echo></echo>
-        <echo>Examples:</echo>
-        <echo>nant install</echo>
-        <echo>nant install -D:install.prefix="C:\SubNAnt"</echo>
+<echo><![CDATA[Create 'subnant' wrapper script
+
+Valid options:
+install.prefix : Override operating systems default installation location
+subnant.srcdir : Override location of source directory
+
+Examples:
+nant install
+nant install -D:install.prefix="C:\SubNAnt"]]></echo>
     </target>
    
 </project>

@@ -13,6 +13,9 @@ $Id$
 Copyright (C) 2005 Simon McKenna
 http://subnant.berlios.de</description>   
 
+    <property name="nant.onsuccess" value="onsuccess"/>
+    <property name="nant.onfailure" value="onfailure"/>  
+  
     <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in current wc or -D:wc=/path/to/wc">
         <if test="${target::has-executed('help')}">
             <nant buildfile="targets/bugtraq.build" target="help"/>
@@ -95,17 +98,17 @@ http://subnant.berlios.de</description>
     </target>
 
     <target name="usage">
-        <echo>Subversion adminstration tasks handled using NAnt</echo>
-        <echo>Copyright (C) 2005 Simon McKenna</echo>
-        <echo>http://subnant.berlios.de</echo>
-        <echo></echo>
-        <echo>Usage: subnant &lt;target&gt; -D:&lt;options&gt;</echo>
-        <echo></echo>
-        <echo>Examples:</echo>
-        <echo>subnant help config</echo>
-        <echo>subnant config</echo>
-        <echo>subnant test</echo>
-        <echo>subnant verify dump -D:repos=repo1,repo2</echo>
+<echo><![CDATA[Subversion adminstration tasks handled using NAnt
+Copyright (C) 2005 Simon McKenna
+http://subnant.berlios.de
+
+Usage: subnant <target> -D:<option>
+
+Examples:
+subnant help config
+subnant config
+subnant test
+subnant verify dump -D:repos=repo1,repo2]]></echo>
     </target>
    
     <target name="init">
@@ -124,19 +127,29 @@ http://subnant.berlios.de</description>
 
     <target name="init-workingcopy">
         <!-- Assign wc unless already defined from command-line property -->
-        <property name="wc" value="${project::get-current-directory()}" unless="${property::exists('wc')}"/>
+        <property name="wc" value="${directory::get-current-directory()}" unless="${property::exists('wc')}"/>
         <fail unless="${directory::exists(wc)}" message="Working copy directory doesn't exist: ${wc}"/>
     </target>
 
     <target name="help">
-        <!--
-        ::To-Do:: Work out how to display if no main targets passed
-        <description>Display help on main targets</description>
-        <echo>Display help on main targets</echo>
-        <echo></echo>
-        <echo>Examples:</echo>
-        <echo>subnant help verify</echo>
-        -->
+<!-- ::To-Do:: Work out how to display usage if no main targets passed
+<echo><![CDATA[Executes: 
+
+Valid options:
+
+Examples:]]></echo> -->
     </target>
 
+    <target name="onsuccess">
+        <!-- Send successful mail message if required -->
+    </target>
+
+    <target name="onfailure">
+        <!-- Send failure mail message if required -->
+    </target>
+
+    <target name="mail">
+        <!-- -->
+    </target>
+   
 </project>

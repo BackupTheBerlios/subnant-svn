@@ -10,8 +10,7 @@ $Id$
 <project name="config" default="config">
 
     <target name="config" depends="init">
-        <echo><![CDATA[
-Configuration for: ${path::get-file-name(config)}
+<echo><![CDATA[Configuration for: ${path::get-file-name(config)}
 
 Repository settings:
 
@@ -104,16 +103,16 @@ warnifnoissue   ${bugtraq_warnifnoissue}]]></echo>
     </target>   
 
     <target name="help">
-        <echo>Displays configuration settings for SubNAnt</echo>
-        <echo></echo>
-        <echo>If no options are passed, use values defined in subnant.config</echo>
-        <echo></echo>
-        <echo>Valid options:</echo>
-        <echo>config : name of alternative configuration file</echo>
-        <echo></echo>
-        <echo>Examples:</echo>
-        <echo>subnant config</echo>
-        <echo>subnant config -D:config=file</echo>
+<echo><![CDATA[Displays configuration settings for SubNAnt
+
+If no options are passed, use values defined in subnant.config
+
+Valid options:
+config : name of alternative configuration file
+
+Examples:
+subnant config
+subnant config -D:config=file]]></echo>
     </target>
    
 </project>
