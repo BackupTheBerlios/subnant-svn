@@ -6,7 +6,7 @@
         description="Location of Subversion binary files"
         conditional="If empty assume Subversion binaries already in environment path"></svn-bindir>
 
-    <svn-repos description="Repository settings">    
+    <svn-repos description="Repository settings">
         <svn-root
             description="Root location of repositories"
             conditional="Must exist in file system">/svnroot/repos</svn-root>
@@ -55,9 +55,8 @@
             <!-- 'true'   - send email on success or failure                -->
             <!-- 'false'  - send no email (default setting if no value set) -->
             <!-- 'onfail' - send email on failure of target execution       -->
-            <bugtraq>false</bugtraq>
-            <commit-access>false</commit-access>
-            <commit-email>false</commit-email>
+            <commit-access>onfail</commit-access>
+            <commit-email>onfail</commit-email>
             <create>true</create>
             <dump>true</dump>
             <verify>true</verify>
