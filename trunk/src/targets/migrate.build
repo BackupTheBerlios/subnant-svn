@@ -10,9 +10,40 @@ $Id$
 <project name="migrate" default="migrate">
 
     <target name="migrate" depends="init">
+        <foreach item="String" delim="," in="${migrate-repos}" property="repos">
+            <nant buildfile="backup.build" target="backup"/>
+            <nant buildfile="create.build" target="create">
+                <properties>
+                    <property name="svn-root"   value="${to-svn-root}"/>
+                    <property name="svn-bindir" value="${to-svn-bindir}"/>
+                </properties>
+            </nant>
+            <nant buildfile="load.build" target="load">
+                <properties>
+                    <property name="dumps"      value="${dump-file}"/>
+                    <property name="svn-root"   value="${to-svn-root}"/>
+                    <property name="svn-bindir" value="${to-svn-bindir}"/>
+                </properties>
+            </nant>
+            <nant buildfile="verify.build" target="verify">
+                <properties>
+                    <property name="svn-root"   value="${to-svn-root}"/>
+                    <property name="svn-bindir" value="${to-svn-bindir}"/>
+                </properties>
+            </nant>
+        </foreach>
+        <echo file="${subnant-output}" append="true" message="${string::pad-right('Migration complete',60,' ')}(${subnant::get-elapsed-time(migration-started,datetime::now())})"/>
     </target>
 
     <target name="init">
+        <property name="migration-started" value="${datetime::now()}"/>
+        <fail message="to-svn-root not set" unless="${property::exists('to-svn-root')}"/>
+        <fail message="to-svn-root doesn't exist: ${to-svn-root}" unless="${directory::exists(to-svn-root)}"/>
+        <!-- Use default svn-bindir unless specifed, then verify it exists -->
+        <property name="to-svn-bindir" value="${svn-bindir}" unless="${property::exists('to-svn-bindir')}"/>
+        <fail message="to-svn-bindir doesn't exist: ${to-svn-bindir}" unless="${directory::exists(to-svn-bindir)}"/>
+        <!-- Take a copy of repos as repos is used down the chain (create,load,verify) -->
+        <property name="migrate-repos" value="${repos}"/>
     </target>
 
     <target name="help">
