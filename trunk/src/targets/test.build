@@ -15,25 +15,31 @@ $Id$
         </if>
         <ifnot test="${property::exists('target')}">
             <!-- Test bdb repository -->
-            <write>Testing bdb repository and working copy...</write>
-            <property name="repos"   value="${test-repo-bdb}"/>
-            <property name="fs-type" value="bdb"/>
-            <property name="wc"      value="${test-wc-bdb}"/>
-            <call target="test-all"/>
+            <if test="${no-bdb!='true'}">
+                <write>Testing bdb repository and working copy...</write>
+                <property name="repos"   value="${test-repo-bdb}"/>
+                <property name="fs-type" value="bdb"/>
+                <property name="wc"      value="${test-wc-bdb}"/>
+                <call target="test-all"/>
+            </if>
             <!-- Test fsfs repository -->
-            <write>Testing fsfs repository and working copy...</write>
-            <property name="repos"   value="${test-repo-fsfs}"/>
-            <property name="fs-type" value="fsfs"/>
-            <property name="wc"      value="${test-wc-fsfs}"/>
-            <call target="test-all"/>
+            <if test="${no-fsfs!='true'}">
+                <write>Testing fsfs repository and working copy...</write>
+                <property name="repos"   value="${test-repo-fsfs}"/>
+                <property name="fs-type" value="fsfs"/>
+                <property name="wc"      value="${test-wc-fsfs}"/>
+                <call target="test-all"/>
+            </if>
         </ifnot>
-        <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep-test=='true'}"/>
+        <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep=='true'}"/>
         <write>Test complete</write>
     </target>
 
     <target name="init">
         <tstamp property="test-date" pattern="yyyyMMdd-HHmmss"/>
-        <property name="keep-test" value="false" unless="${property::exists('keep-test') and string::to-lower(keep-test)=='true'}"/>
+        <property name="keep"    value="false" unless="${property::exists('keep')    and string::to-lower(keep)=='true'}"/>
+        <property name="no-bdb"  value="false" unless="${property::exists('no-bdb')  and string::to-lower(no-bdb)=='true'}"/>
+        <property name="no-fsfs" value="false" unless="${property::exists('no-fsfs') and string::to-lower(no-fsfs)=='true'}"/>
         <property name="test-root" value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),test-date)}"/>
         <mkdir dir="${test-root}" unless="${directory::exists(test-root)}"/>
     </target>
@@ -51,24 +57,6 @@ $Id$
         <property name="test-wc-bdb"  value="${path::combine(test-root,'wc-bdb')}"/>
         <property name="test-wc-fsfs" value="${path::combine(test-root,'wc-fsfs')}"/>
         <property name="test-message" value="${'Log message for test '+test-date}"/>
-    </target>
-
-    <target name="help">
-        <write>
-            <![CDATA[Call Subnant targets in a test environment
-
-If no target is set, all main targets are tested
-
-Options:
-target          comma separated list of test targets
-keep-test       set true to keep data created by test
-
-Examples:
-subnant test
-subnant test -D:target=create,verify,dump
-subnant test -D:keep-test=true
-            ]]>
-        </write>
     </target>
 
     <target name="test-all">
@@ -115,4 +103,24 @@ subnant test -D:keep-test=true
         </ifnot>
     </target>
 
+    <target name="help">
+        <write>
+            <![CDATA[Call Subnant targets in a test environment
+
+If no target is set, all main targets are tested
+
+Options:
+target          comma separated list of test targets
+keep            set true to keep data created by test
+no-bdb          set true to not test bdb repository
+no-fsfs         set true to not test fsfs repository
+
+Examples:
+subnant test
+subnant test -D:target=create,verify,dump
+subnant test -D:keep=true -D:no-bdb=true
+            ]]>
+        </write>
+    </target>
+   
 </project>
