@@ -10,13 +10,14 @@ $Id$
 <project name="bugtraq" default="bugtraq">
 
     <target name="bugtraq" depends="init">
+        <echo file="${log-file}" append="true" message="Set bugtraq properties on working copy"/>  
     </target>
    
     <target name="init">
     </target>
 
     <target name="help">
-<echo><![CDATA[Set bugtraq properties
+<write><![CDATA[Set bugtraq properties
 
 If 'wc' is not passed, assume current directory is working copy
    
@@ -25,7 +26,7 @@ wc              comma separated list of working copies to set
    
 Examples:
 subnant bugtraq
-subnant bugtraq -D:wc=/project]]></echo>
+subnant bugtraq -D:wc=/project]]></write>
     </target>
        
    

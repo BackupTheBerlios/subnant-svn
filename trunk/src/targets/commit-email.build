@@ -10,18 +10,19 @@ $Id$
 <project name="commit-email" default="commit-email">
 
     <target name="commit-email" depends="init">
+        <echo file="${log-file}" append="true" message="Commit email generated"/>  
     </target>
    
     <target name="init">
     </target>
 
     <target name="help">
-<echo><![CDATA[Executes: 
+<write><![CDATA[Executes: 
 
 Options:
 option          description
    
-Examples:]]></echo>
+Examples:]]></write>
     </target>
    
 </project>

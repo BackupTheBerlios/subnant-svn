@@ -9,22 +9,55 @@ $Id$
 -->
 <project name="subnant" default="usage" basedir=".">
 
-<description>Subversion adminstration using NAnt
-Copyright (C) 2005 Simon McKenna
-http://subnant.berlios.de</description>   
+    <description>Subversion adminstration using NAnt</description>   
 
-    <property name="nant.onsuccess" value="success"/>
-    <property name="nant.onfailure" value="failure"/>  
-
-    <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in current wc or -D:wc=/path/to/wc">
+    <!-- Repository targets -->
+    <target name="create" depends="init,init-repository" description="Create repositories">
         <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/bugtraq.build" target="help"/>
+            <nant buildfile="targets/create.build" target="help"/>
         </if>
         <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/bugtraq.build" target="bugtraq"/>
+            <nant buildfile="targets/create.build" target="create"/>
         </ifnot>
     </target>
 
+    <target name="dump" depends="init,init-repository" description="Dump repositories">
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/dump.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/dump.build" target="dump"/>
+        </ifnot>
+    </target>
+
+    <target name="verify" depends="init,init-repository" description="Verify repositories">
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/verify.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/verify.build" target="verify"/>
+        </ifnot>
+    </target>
+
+    <target name="load" depends="init,init-repository" description="Load repositories">
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/load.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/load.build" target="verify"/>
+        </ifnot>
+    </target>
+
+    <target name="copy" depends="init,init-repository" description="Copy repositories">
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/verify.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/verify.build" target="verify"/>
+        </ifnot>
+    </target>
+
+    <!-- Repository hooks targets -->
     <target name="commit-access" depends="init,init-repository" description="Control access to repository using pre-commit hook">
         <if test="${target::has-executed('help')}">
             <nant buildfile="targets/commit-access.build" target="help"/>
@@ -43,34 +76,18 @@ http://subnant.berlios.de</description>
         </ifnot>
     </target>
 
-    <target name="create" depends="init,init-repository" description="Create repositories -D:repos=repo1,repo2">
+    <!-- Working copy targets -->
+    <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in working copy">
         <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/create.build" target="help"/>
+            <nant buildfile="targets/bugtraq.build" target="help"/>
         </if>
         <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/create.build" target="create"/>
+            <nant buildfile="targets/bugtraq.build" target="bugtraq"/>
         </ifnot>
     </target>
 
-    <target name="dump" depends="init,init-repository" description="Dump repositories with optional -D:repos=repo1,repo2">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/dump.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/dump.build" target="dump"/>
-        </ifnot>
-    </target>
-
-    <target name="verify" depends="init,init-repository" description="Verify repositories with optional -D:repos=repo1,repo2">
-        <if test="${target::has-executed('help')}">
-            <nant buildfile="targets/verify.build" target="help"/>
-        </if>
-        <ifnot test="${target::has-executed('help')}">
-            <nant buildfile="targets/verify.build" target="verify"/>
-        </ifnot>
-    </target>
-
-    <target name="config" depends="init,init-repository" description="Show subnant.config with optional -D:config=file">
+    <!-- Other targets -->
+    <target name="config" depends="init,init-repository" description="Show configuration">
         <if test="${target::has-executed('help')}">
             <nant buildfile="targets/config.build" target="help"/>
         </if>
@@ -79,7 +96,7 @@ http://subnant.berlios.de</description>
         </ifnot>
     </target>
 
-    <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets with optional -D:target=dump,verify">
+    <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets">
         <if test="${target::has-executed('help')}">
             <nant buildfile="targets/test.build" target="help"/>
         </if>
@@ -97,26 +114,35 @@ http://subnant.berlios.de</description>
         </ifnot>
     </target>
 
+    <!-- Default target -->   
     <target name="usage">
-<echo><![CDATA[Subversion adminstration using NAnt
-Copyright (C) 2005 Simon McKenna
+<write><![CDATA[Subversion adminstration using NAnt
+Copyright (C) 2005 Simon McKenna   
 http://subnant.berlios.de
-
+   
 Usage: subnant <target> -D:<option>
 
 Examples:
-subnant -projectinfo
+subnant -projecthelp
 subnant help config
 subnant config
 subnant test
-subnant verify dump -D:repos=repo1,repo2]]></echo>
+subnant verify dump -D:repos=repo1,repo2]]></write>
     </target>
+
+    <!-- Sub targets -->   
+    <target name="help"/>
    
     <target name="init">
+        <property name="nant.onsuccess" value="success"/>
+        <property name="nant.onfailure" value="failure"/>  
+        <tstamp property="starttime" pattern="HHmmss"/>
+        <property name="log-file" value="${path::combine(path::get-temp-path(),'subnant-log'+starttime)}"/>
+        <echo file="${log-file}" append="false" message="Subnant started ${datetime::to-string(datetime::now())}"/>  
         <!-- Assign default config file unless config already defined from command-line property -->
         <property name="config" value="${path::combine(project::get-buildfile-path(),'../../conf/subnant.config')}"
             unless="${property::exists('config')}"/>
-        <fail unless="${file::exists(config)}" message="Could not find ${config}"/>
+        <fail unless="${file::exists(config)}" message="Could not find ${path::get-file-name(config)}"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-bindir" property="svn-bindir"/>
     </target>
 
@@ -132,20 +158,104 @@ subnant verify dump -D:repos=repo1,repo2]]></echo>
         <fail unless="${directory::exists(wc)}" message="Working copy directory doesn't exist: ${wc}"/>
     </target>
 
-    <target name="help"/>
-
     <target name="success">
         <!-- Send success mail message if 'true' in subnant.config/configuration/mail/target/<target> -->
         <property name="searchon" value="true"/>
+        <call target="mailtarget" unless="${target::has-executed('help')}"/>
+        <if test="${property::exists('sendmail') and sendmail=='true'}">   
+            <property name="subject" value="SUCCESS"/>
+            <call target="mail"/>   
+        </if>   
     </target>
 
     <target name="failure">
         <!-- Send failure mail message if 'true|onfail' in subnant.config/configuration/mail/target/<target> -->
-       <property name="searchon" value="true|onfail"/>
+        <property name="searchon" value="true|onfail"/>
+        <call target="mailtarget" unless="${target::has-executed('help')}"/>
+        <if test="${property::exists('sendmail') and sendmail=='true'}">   
+            <property name="subject" value="FAILURE"/>
+            <call target="mail"/>   
+        </if>   
+    </target>
+
+    <target name="mailtarget">
+        <property name="sendmail" value="false"/>
+        <!-- Read mail target settings -->
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/bugtraq"       property="mail_bugtraq"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/commit-access" property="mail_commit-access"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/commit-email"  property="mail_commit-email"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/create"        property="mail_create"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/dump"          property="mail_dump"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/target/verify"        property="mail_verify"/>
+        <!-- Ready mail target settings -->
+        <property name="mail_bugtraq"       value="${string::trim(string::to-lower(mail_bugtraq))}"/>
+        <property name="mail_commit-access" value="${string::trim(string::to-lower(mail_commit-access))}"/>
+        <property name="mail_commit-email"  value="${string::trim(string::to-lower(mail_commit-email))}"/>
+        <property name="mail_create"        value="${string::trim(string::to-lower(mail_create))}"/>
+        <property name="mail_dump"          value="${string::trim(string::to-lower(mail_dump))}"/>
+        <property name="mail_verify"        value="${string::trim(string::to-lower(mail_verify))}"/>
+        <!-- Test for executed targets -->
+        <property name="sendmail" value="true" if="${target::has-executed('bugtraq')       and string::contains(searchon,mail_bugtraq)}"/>
+        <property name="sendmail" value="true" if="${target::has-executed('commit-access') and string::contains(searchon,mail_commit-access)}"/>
+        <property name="sendmail" value="true" if="${target::has-executed('commit-email')  and string::contains(searchon,mail_commit-email)}"/>
+        <property name="sendmail" value="true" if="${target::has-executed('create')        and string::contains(searchon,mail_create)}"/>
+        <property name="sendmail" value="true" if="${target::has-executed('dump')          and string::contains(searchon,mail_dump)}"/>
+        <property name="sendmail" value="true" if="${target::has-executed('verify')        and string::contains(searchon,mail_verify)}"/>
     </target>
 
     <target name="mail">
         <!-- Mail message is culmination of results from all targets executed -->
+        <echo file="${log-file}" append="true" message="Subnant finished ${datetime::to-string(datetime::now())}"/>  
+        <loadfile file="${log-file}" property="message"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/from"      property="mail_from"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/host"      property="mail_host"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/tolist/to" property="mail_tolist"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/prefix"    property="mail_prefix"/>
+        <write>Sending mail to ${mail_tolist}</write>   
+        <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_tolist}"
+          subject="${mail_prefix} ${subject}" message="${message}"/>
     </target>
+
+    <!-- Custom tasks -->
+    <script language="C#">
+        <imports>
+            <import namespace="System.Xml"/>
+        </imports>
+        <code>
+            <![CDATA[
+            [TaskName( "write" )]
+            public class write : Task
+            {
+                private string _contents;
+                public string Contents
+                {
+                    get { return _contents; }
+                    set { _contents = value; }
+                }
+                protected override void InitializeTask( XmlNode taskNode )
+                {
+                    Contents = Project.ExpandProperties( taskNode.InnerText, Location );
+                }
+                protected override void ExecuteTask()
+                {
+                    Console.Out.WriteLine( Contents );
+                }
+            }
+            ]]>
+        </code>
+    </script>   
+
+    <script language="C#" prefix="path">
+        <code>
+             <![CDATA[
+             [Function( "to-uri" )]
+             public static string pathToUriToString( String Path )
+             {
+                 Uri pathToUri = new Uri( Path );
+                 return pathToUri.ToString();
+             }
+             ]]>
+         </code>
+     </script>
    
 </project>

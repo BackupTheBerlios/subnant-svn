@@ -11,11 +11,13 @@ $Id$
 
     <target name="verify" depends="init" description="Verify Subversion repositories">
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <echo>Verifying repository '${path::get-file-name(repo)}'</echo>
+            <write>Verifying repository '${path::get-file-name(repo)}'</write>
             <exec program="${svnadmin}" failonerror="false" resultproperty="result">
                 <arg value="verify"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
-            </exec>   
+            </exec>
+            <echo file="${log-file}" append="true" if="${result=='0'}" message="Verified repository '${path::get-file-name(repo)}'"/>  
+            <echo file="${log-file}" append="true" if="${result!='0'}" message="Failed to verify repository '${path::get-file-name(repo)}'"/>  
         </foreach>
     </target>
 
@@ -57,7 +59,7 @@ $Id$
     </target>
 
     <target name="help">
-<echo><![CDATA[Verify repositories using svnadmin
+<write><![CDATA[Verify repositories using svnadmin
 
 If no options are passed, verify all repositories under 'svn-root'
 
@@ -69,7 +71,7 @@ svn-bindir      override subnant.config with new subversion binary directory
 Examples:
 subnant verify
 subnant verify -D:repos=repo1,repo2
-subnant verify -D:svn-root=/tmp/svnroot]]></echo>
+subnant verify -D:svn-root=/tmp/svnroot]]></write>
     </target>
    
 </project>

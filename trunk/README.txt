@@ -1,5 +1,7 @@
 
-Subnant - Subversion adminstration using NAnt on .NET or Mono runtime
+Subnant
+
+Subversion adminstration using NAnt on .NET or Mono runtime
 http://subnant.berlios.de
 
 Thanks to the Subversion scripts used as inspiration
@@ -17,7 +19,7 @@ Installation example:
   svn export svn://svn.berlios.de/subnant/trunk /subnant
 
   // Use NAnt to install 'subnant' wrapper script to execute:
-  // nant -nologo -buildfile:"/subnant/src/subnant.build"
+  // nant -quiet -nologo -buildfile:"/subnant/src/subnant.build"
   cd /subnant/src
   nant install
 
@@ -117,4 +119,4 @@ Using hook targets:
     copy post-commit.bat.example post-commit.bat
 
     // Create new repository (or copy into existing repository)
-	subnant create -D:repos=hooktest
+    subnant create -D:repos=hooktest

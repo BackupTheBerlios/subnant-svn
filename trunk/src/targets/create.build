@@ -12,7 +12,7 @@ $Id$
     <target name="create" depends="init" description="Create Subversion repositories">
         <foreach item="String" delim="," in="${repos}" property="repo">
             <property name="repo" value="${string::trim(repo)}"/>        
-            <echo>Creating ${fs-type} repository '${repo}' under ${svn-root}</echo>
+            <write>Creating ${fs-type} repository '${repo}' under ${svn-root}</write>
             <exec program="${svnadmin}" failonerror="false" resultproperty="result">
                 <arg value="create"/>
                 <arg value="--bdb-txn-nosync" if="${fs-type=='bdb' and bdb-txn-nosync=='true'}"/>
@@ -23,6 +23,8 @@ $Id$
                 <arg value="${fs-type}"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
+            <echo file="${log-file}" append="true" if="${result=='0'}" message="Created repository '${repo}'"/>  
+            <echo file="${log-file}" append="true" if="${result!='0'}" message="Failed to create repository '${repo}'"/>  
         </foreach>
     </target>
 
@@ -50,7 +52,7 @@ $Id$
     </target>   
 
     <target name="help">
-<echo><![CDATA[Create repositories using svnadmin
+<write><![CDATA[Create repositories using svnadmin
 
 If no options are passed, use values defined in subnant.config
 
@@ -68,7 +70,7 @@ bdb-txn-nosync  fsync at transaction commit [Berkeley DB] 'true' or 'false'
 Examples:
 subnant create -D:repos=repo1,repo2
 subnant create -D:repos=repo1 -D:svn-root=/svnroot
-subnant create -D:repos=repo1 -D:fs-type=fsfs]]></echo>
+subnant create -D:repos=repo1 -D:fs-type=fsfs]]></write>
     </target>
    
 </project>

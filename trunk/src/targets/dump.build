@@ -10,18 +10,19 @@ $Id$
 <project name="dump" default="dump">
 
     <target name="dump" depends="init">
+        <echo file="${log-file}" append="true" message="Dumped repository"/>  
     </target>
 
     <target name="init">
     </target>
 
     <target name="help">
-<echo><![CDATA[Executes: 
+<write><![CDATA[Executes: 
 
 Options:
 option          description
 
-Examples:]]></echo>
+Examples:]]></write>
     </target>
    
 </project>

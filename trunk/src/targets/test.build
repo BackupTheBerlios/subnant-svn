@@ -60,29 +60,16 @@ $Id$
         <delete dir="${wc}" if="${directory::exists(wc)}"/>   
         <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>   
         <property name="uri" value='${path::to-uri(path::combine(svn-root,repos))}'/>
-        <echo>Checking out repository '${repos}' into ${wc}</echo>
-        <exec program="${svn}" workingdir="${wc}" failonerror="false" resultproperty="result">
+        <write>Checking out repository '${repos}' into ${wc}</write>
+        <exec program="${svn}" workingdir="${wc}" failonerror="true" resultproperty="result">
             <arg value="checkout"/>
             <arg value="${uri}"/>
             <arg value="."/>
         </exec>
     </target>   
 
-    <script language="C#" prefix="path">
-         <code>
-            <![CDATA[
-              [Function("to-uri")]
-              public static string UriToString(String Path)
-              {
-                  Uri pathUri = new Uri(Path);
-                  return pathUri.ToString();
-              }
-            ]]>
-          </code>
-      </script>
-  
     <target name="help">
-<echo><![CDATA[Executes targets in a test environment
+<write><![CDATA[Executes targets in a test environment
 
 If no target is passed, all main targets are tested
    
@@ -91,7 +78,7 @@ target          comma separated list of test targets
 
 Examples:
 subnant test
-subnant test -D:target=create,verify,dump]]></echo>
+subnant test -D:target=create,verify,dump]]></write>
     </target>
    
 </project>

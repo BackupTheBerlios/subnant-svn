@@ -16,7 +16,7 @@ $Id$
     </target>
 
     <target name="help">
-<echo><![CDATA[Load repositories from dump files using svnadmin
+<write><![CDATA[Load repositories from dump files using svnadmin
 
 If 'repos' option not supplied, all dumps under 'svn-dumps' are loaded
 
@@ -29,7 +29,7 @@ svn-bindir      source repository subversion binary directory
 Examples:
 subnant load
 subnant load -D:dumps=repo1.dump,repo2.dump
-subnant load -D:dumps=repo1.backup.dump -D:dump-root=/svnroot/dumps/backups]]></echo>
+subnant load -D:dumps=repo1.backup.dump -D:dump-root=/svnroot/dumps/backups]]></write>
     </target>
    
 </project>
