@@ -35,14 +35,14 @@ Subnant repository targets:
 
   * verify
 
-    Verifies all repositories found directly under <svn_repos> or
+    Verifies all repositories found directly under <svn-root> or
     verify single repository if <repos> property is set as parameter.
     An (optional) email is sent detailing actions and processing time.
 
 
   * dump
 
-    Dumps all repositories found directly under <svn_repos> or
+    Dumps all repositories found directly under <svn-root> or
     dump single repository if <repos> property is set as parameter.
     An (optional) email is sent detailing actions and processing time.
 
@@ -60,7 +60,7 @@ Subnant repository targets:
     using the ra_svn repository access layer (svnserve)
 
 
-  * show-config
+  * config
 
     Display configuration of subnant.config or supplied file.
 

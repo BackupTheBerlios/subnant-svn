@@ -12,38 +12,41 @@ $Id$
     <target name="create" depends="init" description="Create Subversion repositories">
         <foreach item="String" delim="," in="${repos}" property="repo">
             <property name="repo" value="${string::trim(repo)}"/>        
-            <echo message="Creating repository ${repo} under ${svnroot}"/>
+            <echo message="Creating ${fs-type} repository ${repo} under ${svn-root}"/>
             <exec program="${svnadmin}" failonerror="false" resultproperty="result">
                 <arg value="create"/>
-                <arg value="--bdb-txn-nosync" if="${fs-type=='bdb' and bdb-txn-nosync=='yes'}"/>
-                <arg value="--bdb-log-keep"   if="${fs-type=='bdb' and bdb-log-keep=='yes'}"/>
+                <arg value="--bdb-txn-nosync" if="${fs-type=='bdb' and bdb-txn-nosync=='true'}"/>
+                <arg value="--bdb-log-keep"   if="${fs-type=='bdb' and bdb-log-keep=='true'}"/>
                 <arg value="--config-dir"     if="${string::get-length(config-dir)>0}"/>
                 <arg value="${config-dir}"    if="${string::get-length(config-dir)>0}"/>
                 <arg value="--fs-type"/>
                 <arg value="${fs-type}"/>
-                <arg value="${path::combine(svnroot,repo)}"/>
+                <arg value="${path::combine(svn-root,repo)}"/>
             </exec>   
         </foreach>
     </target>
 
     <target name="init">
         <!-- Assign config values to properties so long as they haven't been passed as a command-line parameter --> 
-        <xmlpeek file="${subnant.config}" xpath="/subnant/svn_repos/bdb-txn-nosync" property="bdb-txn-nosync" unless="${property::exists('bdb-txn-nosync')}"/>
-        <xmlpeek file="${subnant.config}" xpath="/subnant/svn_repos/bdb-log-keep"   property="bdb-log-keep"   unless="${property::exists('bdb-log-keep')}"/>
-        <xmlpeek file="${subnant.config}" xpath="/subnant/svn_repos/config-dir"     property="config-dir"     unless="${property::exists('config-dir')}"/>
-        <xmlpeek file="${subnant.config}" xpath="/subnant/svn_repos/fs-type"        property="fs-type"        unless="${property::exists('fs-type')}"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/fs-type"        property="fs-type"        unless="${property::exists('fs-type')}"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/config-dir"     property="config-dir"     unless="${property::exists('config-dir')}"/>
         <!-- Ready properties --> 
-        <property name="svnadmin"       value="${path::combine(svn_bindir,'svnadmin')}"/>
-        <property name="bdb-txn-nosync" value="${string::trim(string::to-lower(bdb-txn-nosync))}"/>
-        <property name="bdb-log-keep"   value="${string::trim(string::to-lower(bdb-log-keep))}"/>
-        <property name="config-dir"     value="${string::trim(config-dir)}"/>
+        <property name="svnadmin"       value="${path::combine(svn-bindir,'svnadmin')}"/>
         <property name="fs-type"        value="${string::trim(string::to-lower(fs-type))}"/>
+        <property name="config-dir"     value="${string::trim(config-dir)}"/>
         <!-- Verify properties --> 
         <fail if="${property::exists('repos')==false}" message="Can't create repository as 'repos' property not defined"/>
-        <fail if="${bdb-txn-nosync!='yes' and bdb-txn-nosync!='no'}" message="bdb-txn-nosync ${bdb-txn-nosync} must be 'yes' or 'no'"/>
-        <fail if="${bdb-log-keep!='yes' and bdb-log-keep!='no'}" message="bdb-log-keep ${bdb-log-keep} must be 'yes' or 'no'"/>
-        <fail if="${string::get-length(config-dir)>=0 and directory::exists(config-dir)==false}" message="config-dir ${config-dir} directory doesn't exist"/>
         <fail if="${fs-type!='bdb' and fs-type!='fsfs'}" message="fs-type must be 'bdb' or 'fsfs'"/>
+        <fail if="${string::get-length(config-dir)>=0 and directory::exists(config-dir)==false}" message="config-dir ${config-dir} directory doesn't exist"/>
+        <!-- Assign, ready and verify bdb properties if needed --> 
+        <if test="${fs-type=='bdb'}"> 
+            <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/bdb-log-keep"   property="bdb-log-keep"   unless="${property::exists('bdb-log-keep')}"/>
+            <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/bdb-txn-nosync" property="bdb-txn-nosync" unless="${property::exists('bdb-txn-nosync')}"/>
+            <property name="bdb-log-keep"   value="${string::trim(string::to-lower(bdb-log-keep))}"/>
+            <property name="bdb-txn-nosync" value="${string::trim(string::to-lower(bdb-txn-nosync))}"/>
+            <fail if="${bdb-log-keep!='true' and bdb-log-keep!='false'}" message="bdb-log-keep ${bdb-log-keep} must be 'true' or 'false'"/>
+            <fail if="${bdb-txn-nosync!='true' and bdb-txn-nosync!='false'}" message="bdb-txn-nosync ${bdb-txn-nosync} must be 'true' or 'false'"/>
+        </if>   
     </target>   
    
 </project>

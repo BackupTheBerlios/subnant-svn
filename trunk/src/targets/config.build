@@ -1,0 +1,106 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$ 
+-->
+<project name="config" default="config">
+
+    <target name="config">
+
+        <!-- Get all properties except for svn-bindir and svn-root which are defined in init and init-repository -->
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/fs-type"         property="fs-type"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/config-dir"      property="config-dir"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/bdb-log-keep"    property="bdb-log-keep"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/bdb-txn-nosync"  property="bdb-txn-nosync"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-dumps"                 property="svn-dumps"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/mail/from"                 property="mail_from"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/mail/host"                 property="mail_host"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/mail/tolist/to"            property="mail_tolist"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/mail/prefix"               property="mail_prefix"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/mail/target/bugtraq"       property="mail_bugtraq"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/mail/target/commit-access" property="mail_commit-access"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/mail/target/commit-email"  property="mail_commit-email"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/mail/target/create"        property="mail_create"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/mail/target/dump"          property="mail_dump"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/mail/target/verify"        property="mail_verify"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/bugtraq/message"           property="bugtraq_message"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/bugtraq/append"            property="bugtraq_append"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/bugtraq/url"               property="bugtraq_url"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/bugtraq/label"             property="bugtraq_label"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/bugtraq/number"            property="bugtraq_number"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/bugtraq/warnifnoissue"     property="bugtraq_warnifnoissue"/>
+        <!-- Ready repository properties -->
+        <property name="bindir"         value="[Not set]"    if="${string::get-length(svn-bindir)==0}"/>
+        <property name="bindir"         value="${svn-bindir}" unless="${string::get-length(svn-bindir)==0}"/>
+        <property name="config-dir"     value="[Not set]"    if="${string::get-length(config-dir)==0}"/>
+        <property name="bdb-log-keep"   value="[Enabled]"    if="${string::trim(string::to-lower(bdb-log-keep))=='true'}"/>
+        <property name="bdb-log-keep"   value="[Disabled]"   unless="${bdb-log-keep=='[Enabled]'}"/>
+        <property name="bdb-txn-nosync" value="[Enabled]"    if="${string::trim(string::to-lower(bdb-txn-nosync))=='true'}"/>
+        <property name="bdb-txn-nosync" value="[Disabled]"   unless="${bdb-txn-nosync=='[Enabled]'}"/>
+        <!-- Ready mail target properties -->
+        <property name="mail_bugtraq"       value="${string::trim(string::to-lower(mail_bugtraq))}"/>
+        <property name="mail_commit-access" value="${string::trim(string::to-lower(mail_commit-access))}"/>
+        <property name="mail_commit-email"  value="${string::trim(string::to-lower(mail_commit-email))}"/>
+        <property name="mail_create"        value="${string::trim(string::to-lower(mail_create))}"/>
+        <property name="mail_dump"          value="${string::trim(string::to-lower(mail_dump))}"/>
+        <property name="mail_verify"        value="${string::trim(string::to-lower(mail_verify))}"/>
+        <!-- Test for 'true' targets -->
+        <property name="mail_targets" value=""/>
+        <property name="mail_targets" value="${mail_targets+'bugtraq,'}"       if="${mail_bugtraq=='true'}"/>
+        <property name="mail_targets" value="${mail_targets+'commit-access,'}" if="${mail_commit-access=='true'}"/>
+        <property name="mail_targets" value="${mail_targets+'commit-email,'}"  if="${mail_commit-email=='true'}"/>
+        <property name="mail_targets" value="${mail_targets+'create,'}"        if="${mail_create=='true'}"/>
+        <property name="mail_targets" value="${mail_targets+'dump,'}"          if="${mail_dump=='true'}"/>
+        <property name="mail_targets" value="${mail_targets+'verify,'}"        if="${mail_verify=='true'}"/>
+        <!-- Test for 'onfail' targets -->
+        <property name="mail_targets" value="${mail_targets+'bugtraq (onfail),'}"       if="${mail_bugtraq=='onfail'}"/>
+        <property name="mail_targets" value="${mail_targets+'commit-access (onfail),'}" if="${mail_commit-access=='onfail'}"/>
+        <property name="mail_targets" value="${mail_targets+'commit-email (onfail),'}"  if="${mail_commit-email=='onfail'}"/>
+        <property name="mail_targets" value="${mail_targets+'create (onfail),'}"        if="${mail_create=='onfail'}"/>
+        <property name="mail_targets" value="${mail_targets+'dump (onfail),'}"          if="${mail_dump=='onfail'}"/>
+        <property name="mail_targets" value="${mail_targets+'verify (onfail),'}"        if="${mail_verify=='onfail'}"/>
+        <!-- Trim trailing comma if required -->
+        <if test="${string::substring(mail_targets,string::get-length(mail_targets)-1,1)==','}">
+            <property name="mail_targets" value="${string::substring(mail_targets,0,string::get-length(mail_targets)-1)}"/>
+        </if>   
+        <!-- Print what we found -->
+        <echo><![CDATA[
+Configuration for: ${path::get-file-name(subnant.config)}
+
+Repository settings:
+
+svn-bindir      ${bindir}
+svn-root         ${svn-root}
+fs-type         ${fs-type}
+config-dir      ${config-dir}
+bdb-log-keep    ${bdb-log-keep}
+bdb-txn-nosync  ${bdb-txn-nosync}
+
+svn-dumps       ${svn-dumps}
+
+   
+Mail settings:
+
+from            ${mail_from}
+host            ${mail_host}
+tolist          ${mail_tolist}
+subject prefix  ${mail_prefix}
+mail targets    ${mail_targets}
+
+
+Bugtraq settings:
+
+message         ${bugtraq_message}
+append          ${bugtraq_append}
+url             ${bugtraq_url}
+label           ${bugtraq_label}
+number          ${bugtraq_number}
+warnifnoissue   ${bugtraq_warnifnoissue}]]></echo>
+
+    </target>
+
+</project>

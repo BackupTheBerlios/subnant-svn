@@ -31,8 +31,8 @@ $Id$
         <nant buildfile="targets/dump.build"/>
     </target>
 
-    <target name="show-config" depends="init,init-repository" description="Show subnant.config with optional -D:config=file.config">
-        <nant buildfile="targets/show-config.build"/>
+    <target name="config" depends="init,init-repository" description="Show subnant.config with optional -D:config=file.config">
+        <nant buildfile="targets/config.build"/>
     </target>
 
     <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets with optional -D:target=dump,verify">
@@ -48,12 +48,12 @@ $Id$
         <property name="subnant.config" value="${path::combine(project::get-buildfile-path(),'../../conf/subnant.config')}"
             unless="${property::exists('subnant.config')}"/>
         <fail unless="${file::exists(subnant.config)}" message="Could not find ${subnant.config}"/>
-        <xmlpeek file="${subnant.config}" xpath="/subnant/svn_bindir" property="svn_bindir"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-bindir" property="svn-bindir"/>
     </target>
 
     <target name="init-repository">
-        <xmlpeek file="${subnant.config}" xpath="/subnant/svn_repos/svnroot" property="svnroot"/>
-        <fail unless="${directory::exists(svnroot)}" message="Repository root directory doesn't exist: ${svnroot}"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/svn-root" property="svn-root"/>
+        <fail unless="${directory::exists(svn-root)}" message="Repository root directory doesn't exist: ${svn-root}"/>
     </target>
 
     <target name="init-workingcopy">
