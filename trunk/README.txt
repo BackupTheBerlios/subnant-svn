@@ -10,18 +10,20 @@ http://svn.collab.net/viewcvs/svn/trunk/tools/hook-scripts/
 
 Checkout or extract SubNAnt into local filesystem, copy subnant.conf.default
 to subnant.conf and configure to your environment, then run subnant.build
-as per any normal NAnt build, or from a scheduled task or cron job.
-
-example installation:
+as per any normal NAnt build or as scheduled task/cron job.  For example:
 
   svn checkout svn://svn.berlios.de/subnant/trunk c:\subnant
+
   cd c:\subnant\conf
-  copy subnant.conf.default subnant.conf   [edit subnant.conf]
+  copy subnant.conf.default subnant.conf   
+  [edit subnant.conf]
+
   cd ..\src
-  nant /f:subnant.build test
+  nant -buildfile:subnant.build test verify dump
 
 
-List of supported tasks, use option -projecthelp for more information
+
+List of supported tasks, use option -projecthelp on each task for help.
 
 Repository tasks:
 
@@ -34,23 +36,23 @@ Repository tasks:
 
   * verify.build
 
-    Verifies all repositories found directly under <svnroot>, or
+    Verifies all repositories found directly under <svnroot> or
     verify single repository if <repos> property is set as parameter.
-    An (optional) email is send detailing actions done and time taken.
+    An (optional) email is sent detailing actions and processing time.
 
 
   * dump.build
 
-    Dumps all repositories found directly under <svnroot>, or
-    dump single repository if <repos> property is set as parameter
-    An (optional) email is send detailing actions done and time taken.
+    Dumps all repositories found directly under <svnroot> or
+    dump single repository if <repos> property is set as parameter.
+    An (optional) email is sent detailing actions and processing time.
 
 
   * commit-email.build
 
     Generates Email(s) on post-commit event to addresses defined using
     Subversion property mail:post-commit from specified location in
-    repository structure  (see subnant.conf <mail.post-commit> property)
+    repository structure. (see subnant.conf <mail.post-commit> property)
 
 
   * commit-control-access.build
@@ -58,6 +60,7 @@ Repository tasks:
 	Provides granular access control to a repository for those
 	using the ra_svn repository access layer (svnserve)
 	
+
 
 Working copy tasks:
 

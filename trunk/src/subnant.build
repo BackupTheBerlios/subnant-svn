@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+
+<!-- $Id$ -->
+
+<project name="subnant" default="test">
+
+    <target name="test"/>
+
+</project>
