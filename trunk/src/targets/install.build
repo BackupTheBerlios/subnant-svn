@@ -32,13 +32,13 @@ $Id$
     <target name="install-windows" if="${platform::is-win32()}">
         <echo file="${wrapper}" append="false">@echo off</echo>
         <echo file="${wrapper}" append="true">nant -quiet -nologo -buildfile:"${subnant.srcdir}\subnant.build" %*</echo>
-        <write>Created '${wrapper}' wrapper script</write>
-        <write>Searching environment path for '${install.bindir}'</write>
+        <write>Created ${wrapper} wrapper script</write>
+        <write>Searching environment path for ${install.bindir}</write>
         <if test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install.bindir))}">
-            <write>Found in path, 'subnant' command should be available</write>
+            <write>Found in path, subnant command should be available</write>
         </if>
         <ifnot test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install.bindir))}">
-            <write>Not found, please add '${install.bindir}' to your environment path</write>
+            <write>Not found, please add ${install.bindir} to your environment path</write>
         </ifnot>
     </target>
    
@@ -46,12 +46,12 @@ $Id$
         <echo file="${wrapper}" append="false">#!/bin/sh</echo>
         <echo file="${wrapper}" append="true">nant -quiet -nologo -buildfile:"${subnant.srcdir}/subnant.build" $@</echo>
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'subnant')}"/>
-        <write>Created '${wrapper}' wrapper script</write>
+        <write>Created ${wrapper} wrapper script</write>
     </target>
     
     <target name="help">
         <write>
-            <![CDATA[Create 'subnant' wrapper script
+            <![CDATA[Create subnant wrapper script
 
 Options:
 install.prefix  override operating systems default installation location
@@ -59,7 +59,7 @@ subnant.srcdir  override location of source directory
 
 Examples:
 nant install
-nant install -D:install.prefix="C:\Subnant"
+nant install -D:install.prefix="E:\Subnant"
             ]]>
         </write>
     </target>

@@ -22,8 +22,8 @@ $Id$
                 <arg value="${fs-type}"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
-            <echo file="${log-file}" message="Created repository '${repo}'"/>
-            <write>Created ${fs-type} repository '${repo}' under ${svn-root}</write>
+            <echo file="${log-file}" message="Created repository ${repo}" append="true"/>
+            <write>Created ${fs-type} repository ${repo} under ${svn-root}</write>
             <call target="copy-repos-conf"  unless="${property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true'}"/>
             <call target="copy-repos-hooks" unless="${property::exists('no-hooks') and string::to-lower(no-hooks)=='true'}"/>
         </foreach>
@@ -80,25 +80,25 @@ $Id$
 
 If no options are passed, use values in subnant.config
 and copy (if found) subnant/conf/svnserve.conf and any
-subnant/hooks/* appropriate for your operating system
+subnant/hooks/* appropriate for your operating system.
 
 Required:   
-repos           comma separated list of repositories to create
+repos           comma separated list of repositories
    
 Options:
 svn-root        repository root directory (must already exist)
 svn-bindir      Subversion binary directory (must already exist)
-fs-type         type of repository to create 'bdb' or 'fsfs'
+fs-type         type of repository to create: bdb or 'fsfs
 config-dir      read user configuration files from this directory
-bdb-log-keep    automatic log file removal [Berkeley DB] 'true' or 'false'
-bdb-txn-nosync  fsync at transaction commit [Berkeley DB] 'true' or 'false'
-no-svnserve     set 'true' to not copy subnant/conf/svnserve.conf
-no-hooks        set 'true' to not copy subnant/hooks/
+bdb-log-keep    [Berkeley DB] automatic log file removal : true or false
+bdb-txn-nosync  [Berkeley DB] fsync at transaction commit: true or false
+no-svnserve     set true to not copy subnant/conf/svnserve.conf
+no-hooks        set true to not copy subnant/hooks/
 
 Examples:
 subnant create -D:repos=repo1,repo2
 subnant create -D:repos=repo1 -D:svn-root=/svnroot/repos
-subnant create -D:repos=repo1 -D:fs-type=fsfs
+subnant create verify -D:repos=repo1 -D:fs-type=fsfs -D:no-hooks=true
             ]]>
         </write>
     </target>

@@ -61,7 +61,7 @@ If no target is set, all main targets are tested
 
 Options:
 target          comma separated list of test targets
-keep-test       set 'true' to keep data created by test
+keep-test       set true to keep data created by test
 
 Examples:
 subnant test
@@ -90,7 +90,7 @@ subnant test -D:keep-test=true
             <arg value="${uri}"/>
             <arg value="."/>
         </exec>
-        <write>Checked out repository '${repos}' into ${wc}</write>
+        <write>Checked out repository ${repos} into ${wc}</write>
     </target>
 
     <target name="commit-workingcopy">
@@ -98,7 +98,7 @@ subnant test -D:keep-test=true
             <arg value="commit"/>
             <arg value="-m '${test-message}'"/>
         </exec>
-        <write>Committed '${repos}' with log '${test-message}'</write>
+        <write>Committed ${repos} with ${test-message}</write>
     </target>
 
     <target name="search-log">
@@ -108,10 +108,10 @@ subnant test -D:keep-test=true
         </exec>
         <loadfile file="${output-file}" property="test-output"/>
         <if test="${string::contains(test-output,test-message)}">
-            <write>Found '${test-message}' in repository log</write>
+            <write>${test-message} found in repository log</write>
         </if>
         <ifnot test="${string::contains(test-output,test-message)}">
-            <fail>Log '${test-message}' not found in repository</fail>
+            <fail>${test-message} not found in repository log</fail>
         </ifnot>
     </target>
 

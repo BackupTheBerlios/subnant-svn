@@ -36,7 +36,7 @@ $Id$
             <property name="propval"  value="${bugtraq_logregex}"/>
             <!-- dont set logregex if nothing entered -->
             <call target="propset" if="${string::get-length(bugtraq_logregex)!=0}"/>
-            <echo file="${log-file}" message="Set bugtraq properties in '${path}'"/>
+            <echo file="${log-file}" message="Set bugtraq properties in ${path}"/>
             <write>Set bugtraq properties in ${path}</write>
         </foreach>
     </target>
@@ -55,7 +55,7 @@ $Id$
         <property name="bugtraq_number"        value="${string::trim(string::to-lower(bugtraq_number))}"/>
         <property name="bugtraq_warnifnoissue" value="${string::trim(string::to-lower(bugtraq_warnifnoissue))}"/>
         <property name="bugtraq_url"           value="${string::trim(bugtraq_url)}"/>
-        <!-- xmlpeek doesn't like CDATA, so search for start and end tags, if found remove from end of url -->
+        <!-- xmlpeek doesn't like CDATA, so search for start and end tags, if found remove from url -->
         <if test="${string::substring(bugtraq_url,1,8)=='![CDATA[' and string::substring(bugtraq_url,string::get-length(bugtraq_url)-3,2)==']]'}">
             <property name="bugtraq_url" value="${string::substring(bugtraq_url,9,string::get-length(bugtraq_url)-12)}"/>
         </if>
@@ -72,9 +72,9 @@ $Id$
 
     <target name="help">
         <write>
-            <![CDATA[Set bugtraq properties
+            <![CDATA[Set bugtraq properties using svn
 
-If 'wc' not set, assume current directory is working copy
+If wc not set, assume current directory is working copy
 
 Options:
 wc              comma separated list of working copies to set

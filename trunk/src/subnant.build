@@ -76,7 +76,7 @@ subnant verify dump -D:repos=repo1,repo2
     </target>
 
     <!-- Other targets -->
-    <target name="install" description="Create 'subnant' wrapper script"
+    <target name="install" description="Create subnant wrapper script"
         depends="init">
         <nant buildfile="targets/install.build" target="${subnant::get-target()}"/>
     </target>
@@ -154,20 +154,19 @@ subnant verify dump -D:repos=repo1,repo2
                 </ifnot>
                 <loadfile file="${path::combine(svn-root,path::combine(repo,'db/fs-type'))}" property="fs-type-test"/>
                 <ifnot test="${string::contains(fs-type-test,'bdb') or string::contains(fs-type-test,'fsfs')}">
-                    <echo file="${log-file}" message="'${repo}' is not a 'bdb' or 'fsfs' type of repository" append="true"/>
-                    <fail message="'${repo}' is not a 'bdb' or 'fsfs' type of repository"/>
+                    <echo file="${log-file}" message="'${repo}' is not a bdb or fsfs type of repository" append="true"/>
+                    <fail message="'${repo}' is not a bdb or fsfs type of repository"/>
                 </ifnot>
             </foreach>
         </if>
     </target>
 
     <target name="verify-wc-exists">
-        <!-- Verify current directory or 'wc' option is a working copy -->
-        <fail if="${string::get-length(wc)==0}" message="Option 'wc' was defined but no value set"/>
+        <!-- Verify current directory or wc option is a working copy -->
+        <fail if="${string::get-length(wc)==0}" message="Option wc was defined but no value set"/>
         <foreach item="String" in="${wc}" delim="," property="path">
             <ifnot test="${file::exists(path::combine(path,'.svn/format')) or file::exists(path::combine(path,'_svn/format'))}">
-                <echo file="${log-file}" message="Could not find working copy in '${path}'" append="true"/>
-                <fail message="Could not find working copy in '${path}'"/>
+                <fail message="Could not find working copy in ${path}"/>
             </ifnot>
         </foreach>
     </target>
@@ -197,7 +196,7 @@ subnant verify dump -D:repos=repo1,repo2
     </target>
 
     <target name="success">
-        <!-- Send success mail message if 'true' in subnant.config/configuration/mail/target/<target> -->
+        <!-- Send success mail message if true in subnant.config/configuration/mail/target/<target> -->
         <property name="searchon" value="true"/>
         <call target="mail-target" unless="${target::has-executed('help')}"/>
         <if test="${property::exists('sendmail') and sendmail=='true'}">
@@ -245,7 +244,7 @@ subnant verify dump -D:repos=repo1,repo2
         <loadfile file="${log-file}" property="message"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"      property="mail_from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"      property="mail_host"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/tolist/to" property="mail_tolist"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/tolist"    property="mail_tolist"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/prefix"    property="mail_prefix"/>
         <write>Sending mail to ${mail_tolist}</write>
         <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_tolist}"
@@ -300,7 +299,7 @@ subnant verify dump -D:repos=repo1,repo2
         </code>
     </script>
 
-    <!-- Function used to determine whether to call 'help' or default target -->
+    <!-- Function used to determine whether to call help or default target -->
     <script language="C#" prefix="subnant">
         <code>
             <![CDATA[
@@ -320,8 +319,8 @@ subnant verify dump -D:repos=repo1,repo2
         </code>
     </script>
 
-    <!-- Simple function to return count of build targets, as 'help' should display subnant
-    usage (if their is only one build target) rather than the main targets 'help' -->
+    <!-- Simple function to return count of build targets, as help should display subnant
+         usage (if their is only one build target) rather than the main targets help -->
     <script language="C#" prefix="subnant">
         <code>
             <![CDATA[

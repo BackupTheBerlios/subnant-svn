@@ -15,8 +15,8 @@ $Id$
                 <arg value="verify"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
-            <echo file="${log-file}" message="Verified repository '${path::get-file-name(repo)}'" append="true"/>
-            <write>Verified repository '${path::get-file-name(repo)}'</write>
+            <echo file="${log-file}" message="Verified repository ${path::get-file-name(repo)}" append="true"/>
+            <write>Verified repository ${path::get-file-name(repo)}</write>
         </foreach>
     </target>
 
@@ -24,10 +24,10 @@ $Id$
         <write>
             <![CDATA[Verify repositories using svnadmin
 
-If 'repos' not set, verifies all repositories under 'svn-root'
+If repos not set, verifies all repositories under svn-root
 
 Options:
-repos           comma separated list of repositories under 'svn-root'
+repos           comma separated list of repositories under svn-root
 svn-root        repository root directory
 svn-bindir      Subversion binary directory
 

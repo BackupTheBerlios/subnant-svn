@@ -18,7 +18,7 @@ Installation example:
   // Export, checkout or extract Subnant into local filesystem
   svn export svn://svn.berlios.de/subnant/trunk /subnant
 
-  // Use NAnt to install 'subnant' wrapper script to execute:
+  // Use NAnt to install subnant wrapper script to execute:
   // nant -quiet -nologo -buildfile:"/subnant/src/subnant.build"
   cd /subnant/src
   nant install
@@ -46,19 +46,19 @@ Repository targets:
 
   * verify
 
-    Verify some or all repositories under 'svn-root' with (optional)
+    Verify some or all repositories under svn-root with (optional)
     email sent detailing result and processing time
 
 
   * dump
 
-    Dumps some or all repositories under 'svn-root' with (optional)
+    Dumps some or all repositories under svn-root with (optional)
     compression and email sent detailing result and processing time.
 
 
   * load
 
-    Loads some or all repositories from 'svn-dumps' to 'svn-root'
+    Loads some or all repositories from svn-dumps to svn-root
 
 
   * copy
@@ -96,7 +96,7 @@ Other targets:
 
   * install
 
-    Creates a 'subnant' wrapper script
+    Creates a subnant wrapper script
 
 
   * config
