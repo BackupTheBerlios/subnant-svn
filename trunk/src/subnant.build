@@ -11,8 +11,7 @@ $Id$
 
 <description>Subversion adminstration tasks handled using NAnt
 Copyright (C) 2005 Simon McKenna
-http://subnant.berlios.de
-</description>   
+http://subnant.berlios.de</description>   
 
     <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in current wc or -D:wc=/path/to/wc">
         <if test="${target::has-executed('help')}">

@@ -3,7 +3,7 @@ SubNAnt - http://subnant.berlios.de
 
 Subversion adminstration tasks handled using NAnt on .NET or Mono runtime
 
-Thanks to the Subversion scripts used as a basis for Subnant:
+Thanks to the Subversion scripts used as inspiration:
 http://svn.collab.net/viewcvs/svn/trunk/tools/hook-scripts/
 
 $Id$
@@ -11,7 +11,7 @@ $Id$
 
 Installation example:
 
-  // Export or checkout Subnant into local filesystem
+  // Export, checkout or extract Subnant into local filesystem
   svn export svn://svn.berlios.de/subnant/trunk /subnant
 
   // Create subnant shortcut
@@ -32,36 +32,33 @@ Subnant repository targets:
 
   * create
 
-    Create a repository using properties defined in subnant.conf.
-    Will also (optionally) copy appropriate hook scripts for your environment,
-    as well as standard configuration files (eg. repos/conf/svnserve.conf)
+    Create one or more repositories using configuration in subnant.config,
+    and (optionally) setup hook scripts and configuration files.
 
 
   * verify
 
-    Verifies all repositories found directly under <svn-root> or
-    verify single repository if <repos> property is set as parameter.
-    An (optional) email is sent detailing actions and processing time.
+    Verify some or all repositories under <svn-root> with (optional)
+    email sent detailing result and processing time.
 
 
   * dump
 
-    Dumps all repositories found directly under <svn-root> or
-    dump single repository if <repos> property is set as parameter.
-    An (optional) email is sent detailing actions and processing time.
+    Dumps some or all repositories under <svn-root> with (optional)
+    email sent detailing result and processing time.
 
 
   * commit-email
 
-    Generates Email(s) on post-commit event to addresses defined using
-    Subversion property mail:post-commit from specified path in
+    Generates email on post-commit event to addresses defined using
+    Subversion property mail:post-commit from pre-defined path in
     repository structure.
 
 
   * commit-access
 
     Provides granular access control to a repository for those
-    using the ra_svn repository access layer (svnserve)
+    using the ra_svn repository access layer (svnserve).
 
 
 Subnant working copy targets:
@@ -83,13 +80,12 @@ Other Subnant targets:
 
   * config
 
-    Display configuration of subnant.config or supplied file.
+    Display subnant.config configuration.
 
 
   * test
 
-    Tests Subnant by calling targets: create, verify and dump on a temporary
-    repository using the configuration defined in subnant.config.
+    Tests Subnant using the configuration in subnant.config.
 
 
 
@@ -105,4 +101,3 @@ Using hooks:
     // Create new repository (or copy into existing repository)
     cd /subnant/src
 	subnant create -D:repos=hooktest
-
