@@ -52,9 +52,9 @@
         <target
             description="Email sent on success and/or failure of target execution"
             conditional="'true' or 'false' or 'onfail'">
-            <!-- 'true'   - send email on success or failure                -->
-            <!-- 'false'  - send no email (default setting if no value set) -->
-            <!-- 'onfail' - send email on failure of target execution       -->
+            <!-- 'true'   - send email on success or failure          -->
+            <!-- 'false'  - send no email (default if no value set)   -->
+            <!-- 'onfail' - send email on failure of target execution -->
             <commit-access>onfail</commit-access>
             <commit-email>onfail</commit-email>
             <create>true</create>
