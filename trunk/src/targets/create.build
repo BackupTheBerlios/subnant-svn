@@ -28,8 +28,8 @@ $Id$
 
     <target name="init">
         <!-- Assign config values to properties so long as they haven't been passed as a command-line parameter --> 
-        <xmlpeek file="${config}" xpath="/subnant/svn-repos/fs-type"        property="fs-type"        unless="${property::exists('fs-type')}"/>
-        <xmlpeek file="${config}" xpath="/subnant/svn-repos/config-dir"     property="config-dir"     unless="${property::exists('config-dir')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/fs-type"        property="fs-type"        unless="${property::exists('fs-type')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/config-dir"     property="config-dir"     unless="${property::exists('config-dir')}"/>
         <!-- Ready properties --> 
         <property name="svnadmin"       value="${path::combine(svn-bindir,'svnadmin')}"/>
         <property name="fs-type"        value="${string::trim(string::to-lower(fs-type))}"/>
@@ -40,8 +40,8 @@ $Id$
         <fail if="${string::get-length(config-dir)>=0 and directory::exists(config-dir)==false}" message="config-dir ${config-dir} directory doesn't exist"/>
         <!-- Assign, ready and verify bdb properties if needed --> 
         <if test="${fs-type=='bdb'}"> 
-            <xmlpeek file="${config}" xpath="/subnant/svn-repos/bdb-log-keep"   property="bdb-log-keep"   unless="${property::exists('bdb-log-keep')}"/>
-            <xmlpeek file="${config}" xpath="/subnant/svn-repos/bdb-txn-nosync" property="bdb-txn-nosync" unless="${property::exists('bdb-txn-nosync')}"/>
+            <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-log-keep"   property="bdb-log-keep"   unless="${property::exists('bdb-log-keep')}"/>
+            <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-txn-nosync" property="bdb-txn-nosync" unless="${property::exists('bdb-txn-nosync')}"/>
             <property name="bdb-log-keep"   value="${string::trim(string::to-lower(bdb-log-keep))}"/>
             <property name="bdb-txn-nosync" value="${string::trim(string::to-lower(bdb-txn-nosync))}"/>
             <fail if="${bdb-log-keep!='true' and bdb-log-keep!='false'}" message="bdb-log-keep ${bdb-log-keep} must be 'true' or 'false'"/>
