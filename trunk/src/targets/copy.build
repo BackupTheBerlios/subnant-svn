@@ -17,17 +17,19 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[Copy repositories from one location to another using
-Subnant targets: verify, dump, create, load and verify
+            <![CDATA[copy: usage: subnant copy -D:to-svn-root=</path/to-svn-root> [-D:options=<value>]
 
-If repos option not set, all repositories under svn-root are copied.
+Copy repositories from one <svn-root> location to another using
+Subnant targets: backup, create, load and verify
 
-Source repositories are not removed unless delete-source is set true.
+If repos option not set, all repositories under svn-root are copied
 
-All options that apply to Subnant create target apply to copy target.
+Source repositories are not removed unless delete-source is set true
+
+All options that apply to Subnant create target apply to copy target
    
 Option to-svn-bindir is useful when migrating repositories between
-major Subversion release versions.
+major Subversion release versions
 
 Required:   
 to-svn-root     destination repository root directory

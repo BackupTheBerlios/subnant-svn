@@ -18,7 +18,9 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[Control access to repository using pre-commit hook 
+            <![CDATA[commit-access: usage: subnant commit-access [-D:options=<value>]
+
+Control access to repository using pre-commit hook 
 
 Options:
 sendmail        set true to email result

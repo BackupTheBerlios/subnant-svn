@@ -19,7 +19,7 @@ $Id$
 Copyright (C) 2005 Simon McKenna
 http://subnant.berlios.de
 
-Usage: subnant <target> -D:<option>
+Usage: subnant <target> [-D:option=<value>]
 
 Examples:
 subnant -projecthelp
@@ -90,23 +90,6 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true]]>
         <nant buildfile="targets/test.build" target="${subnant::get-target()}"/>
     </target>
 
-    <!-- Final targets -->
-    <target name="success">
-        <property name="subject" value="Success"/>
-        <call target="mail"/>
-        <record name="${nant-output}" action="Close"/>
-    </target>
-
-    <target name="failure">
-        <property name="subject" value="FAILURE"/>
-        <property name="attach-output" value="true"/>
-        <if test="${property::exists('subnant-output')}">
-            <echo file="${subnant-output}" append="true" message="Failure running Subnant, details attached"/>
-        </if>
-        <record name="${nant-output}" action="Close"/>
-        <call target="mail"/>
-    </target>
-
     <!-- Sub targets -->
     <target name="init">
         <tstamp property="tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
@@ -135,7 +118,8 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true]]>
         <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+tstamp)}"/>
         <!-- Define file used for <exec> task output (used for diff, etc) -->
         <property name="exec-output" value="${path::combine(path::get-temp-path(),'exec-output'+tstamp)}"/>
-        <echo file="${subnant-output}" append="false" message="Subnant started ${datetime::to-string(starttime)}"/>
+        <echo file="${subnant-output}" append="false">Subnant started ${datetime::to-string(starttime)}
+</echo>
         <!-- If not displaying help cycle logs by maximum file age defined in config -->
         <if test="${subnant::get-target()!='help'}">
             <xmlpeek file="${config}" xpath="/configuration/logs-max-age" property="logs-max-age" unless="${property::exists('logs-max-age')}"/>
@@ -230,12 +214,32 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true]]>
         </ifnot>
     </target>
 
+    <!-- Final targets -->
+    <target name="success">
+        <property name="subject" value="Success"/>
+        <call target="mail"/>
+        <record name="${nant-output}" action="Close"/>
+    </target>
+
+    <target name="failure">
+        <property name="subject" value="FAILURE"/>
+        <property name="attach-output" value="true"/>
+        <if test="${property::exists('subnant-output')}">
+            <echo file="${subnant-output}" append="true" message="Failure running Subnant (log attached)"/>
+        </if>
+        <record name="${nant-output}" action="Close"/>
+        <call target="mail"/>
+    </target>
+
     <target name="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))=='true'}">
         <fail unless="${property::exists('config')}" message="Email not sent as config file not yet set"/>
         <!-- Mail message is culmination of results from all targets executed -->
         <property name="stoptime" value="${datetime::now()}"/>
-        <echo file="${subnant-output}" append="true"
-            message="Subnant finished ${datetime::to-string(stoptime)} (${timespan::to-string(datetime::parse(stoptime)-datetime::parse(starttime))})"/>
+        <property name="buildtime" value="${timespan::get-total-seconds(datetime::parse(stoptime)-datetime::parse(starttime))}"/>
+        <property name="buildsecs" value="second"  if="${int::parse(buildtime)==1}"/>
+        <property name="buildsecs" value="seconds" unless="${property::exists('buildsecs')}"/>
+        <echo file="${subnant-output}" append="true">
+${string::pad-right('Subnant finished '+datetime::to-string(stoptime),50,' ')}(${buildtime} ${buildsecs})</echo>
         <loadfile file="${subnant-output}" property="message"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail_from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>

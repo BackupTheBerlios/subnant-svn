@@ -9,46 +9,67 @@ $Id$
 -->
 <project name="commit-email" default="commit-email">
 
-    <target name="commit-email" depends="init">
-        <echo file="${subnant-output}" append="true" message="::TODO:: Commit email"/>
-        <echo level="Warning">Commit email</echo>
+    <target name="commit-email" depends="init,search-repo,exec-svnlook-diff">
+        <loadfile file="${subnant-output}" property="message"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail_from"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail_prefix"/>
+        <echo level="Warning">Sending post-commit mail to ${mail_post-commit}</echo>
+        <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_post-commit}"
+          subject="${subject}">
+            <files>
+                <include name="${exec-output}"/>
+            </files>
+        </mail>
+        <echo file="${subnant-output}" append="true" message="Post-commit email on repository ${repo}"/>
+        <echo level="Warning">Post-commit email on repository ${repo}</echo>
     </target>
 
     <target name="init">
-        <!-- repos gets verified in subnant.build::verify-repos-exists, but rev doesn't -->
-        <fail unless="${property::exists(rev)}" message="rev not set"/>
+        <fail unless="${property::exists('repos')}" message="repos not set"/>
+        <fail unless="${property::exists('rev')}"   message="rev not set"/>
+        <property name="repo"          value="${path::get-file-name(repos)}"/>
+        <property name="subject"       value="[${repo} commit] rev ${rev}"/>
+        <property name="arg_revoption" value="--revision"/>
+        <property name="arg_revision"  value="${rev}"/>
     </target>
 
     <target name="search-repo">
+         <echo level="Warning">::TODO:: Get mail:post-commit addresses</echo>
+         <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail_tolist"/>
+         <property name="mail_post-commit" value="${mail_tolist}"/>
     </target>
 
-    <target name="build-diff">
+    <target name="exec-svnlook-diff">
         <exec program="${svnlook}" failonerror="true" output="${exec-output}" append="false">
             <arg value="diff"/>
-            <arg value="${path::combine(svn-root,repos)}"/>
-            <arg value="--revision ${rev}"/>
+            <arg value="${repos}"/>
+            <arg value="${arg_revoption}"/>
+            <arg value="${arg_revision}"/>
             <arg value="--no-diff-delete" if="${property::exists('no-diff-delete') and string::trim(string::to-lower(no-diff-delete))=='true'}"/>
         </exec>
-        <loadfile file="${exec-output}" property="diff"/>
+        <fail unless="${file::exists(exec-output)}" message="svnlook output file not found: ${exec-output}"/>
     </target>
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[Email result of svnlook diff on post-commit hook
+            <![CDATA[commit-email: usage: subnant commit-email -D:repos=<repos> -D:rev=<rev> [-D:options=<value>]
+
+Email result of svnlook diff on post-commit hook
 
 Finds email addresses using Subversion property mail:post-commit
 on effected file or parent directories.
 
 Required:
-repos            name of repository
-rev              valid revision number
+repos            full path to repository
+rev              revision number (must exist in repository)
 
 Options:
 no-diff-deleted  set true to not print differences for deleted files
 sendmail         set true to email result
 
 Examples:
-subnant commit-email -D:repos=repo1 -D:rev=1
+subnant commit-email -D:repos=/path/to/repo1 -D:rev=1
             ]]>
         </echo>
     </target>

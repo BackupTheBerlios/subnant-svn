@@ -72,7 +72,9 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[Set bugtraq properties using svn
+            <![CDATA[bugtraq: usage: subnant bugtraq [-D:wc=/path/to/wc]
+
+Set bugtraq properties using svn
 
 If wc not set, assume current directory is working copy
 

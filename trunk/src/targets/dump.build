@@ -12,33 +12,37 @@ $Id$
     <target name="dump" depends="init">
         <foreach item="String" delim="," in="${repos}" property="repo">
             <call target="init-dump-file"/>
-            <echo level="Warning">Dumping repository ${path::get-file-name(repo)}</echo>
+            <echo level="Warning">Dumping repository ${path::get-file-name(repo)} ${string::trim(arg_revoption+' '+arg_revision+' '+arg_incremental+' '+arg_deltas)}</echo>
+            <property name="execstart" value="${datetime::now()}"/>
             <exec program="${dump}" failonerror="true" append="false">
                 <arg value="${svnadmin}"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
                 <arg value="${dump-file}"/>
-<!-- ::TODO:: Add -revision switch using rev option -->
-<!--            <arg value="-revision"    if="${rev!='false'}"/> -->
-                <arg value="--incremental" if="${incremental=='true'}"/>
-                <arg value="--deltas"      if="${deltas=='true'}"/>
+                <arg value="${arg_revoption}"/>
+                <arg value="${arg_revision}"/>
+                <arg value="${arg_incremental}"/>
+                <arg value="${arg_deltas}"/>
             </exec>
-            <echo file="${subnant-output}" message="Dumped repository ${path::get-file-name(repo)}" append="true"/>
-            <call target="compress-dump-file" if="${compress!='false' and int::parse(compress)&gt;=0 and int::parse(compress)&lt;=9}"/>
+            <property name="exectime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(execstart))}"/>
+            <echo file="${subnant-output}" message="${string::pad-right('Dumped repository '+path::get-file-name(repo),50,' ')}(${exectime})" append="true"/>
+            <call target="compress-dump-file" if="${compress!='false'}"/>
         </foreach>
     </target>
 
     <target name="compress-dump-file">
-        <echo level="Warning">Compressing ${path::get-file-name(repo)}</echo>
+        <echo level="Warning">Compressing ${path::get-file-name(dump-file)}</echo>
         <zip zipfile="${dump-file}.zip" failonerror="true" ziplevel="${compress}" comment="Subversion repository dump">
             <fileset>
                 <include name="${dump-file}"/>   
             </fileset>
         </zip>
         <delete file="${dump-file}"/>
-        <echo file="${subnant-output}" message="Compressed ${path::get-file-name(repo)}" append="true"/>
+        <echo file="${subnant-output}" message="Compressed ${path::get-file-name(dump-file)}" append="true"/>
     </target>
 
     <target name="init" depends="init-windows,init-linux">
+        <!-- dump all revisions unless told not to, so rev is false by default -->
+        <property name="rev" value="false" unless="${property::exists('rev')}"/>
         <!-- Read dump properties from config unless set from command-line -->
         <xmlpeek file="${config}" xpath="/configuration/svn-dumps/dump-root"    
             property="dump-root" unless="${property::exists('dump-root')}"/>
@@ -49,40 +53,51 @@ $Id$
         <xmlpeek file="${config}" xpath="/configuration/svn-dumps/deltas"
             property="deltas" unless="${property::exists('deltas')}"/>
         <!-- Verify dump directory is valid -->
-        <if test="${string::get-length(svn-bindir)!=0 and directory::exists(svn-bindir)!=true}">
+        <if test="${string::get-length(svn-bindir)&gt;0 and directory::exists(svn-bindir)!=true}">
             <fail message="Subversion binary directory doesn't exist: ${svn-bindir}"/>
         </if>
         <!-- Ready properties -->
         <property name="compress"    value="${string::trim(string::to-lower(compress))}"/>
         <property name="incremental" value="${string::trim(string::to-lower(incremental))}"/>
         <property name="deltas"      value="${string::trim(string::to-lower(deltas))}"/>
+        <property name="arg_revision"    value=""/>
+        <property name="arg_revoption"   value=""/>
+        <property name="arg_incremental" value=""/>
+        <property name="arg_deltas"      value=""/>
+        <property name="arg_revision"    value="${rev}"        if="${rev!='false'}"/>
+        <property name="arg_revoption"   value="--revision"    if="${rev!='false'}"/>
+        <property name="arg_incremental" value="--incremental" if="${incremental=='true'}"/>
+        <property name="arg_deltas"      value="--deltas"      if="${deltas=='true'}"/>
         <!-- Verify properties -->
         <fail if="${compress!='false' and int::parse(compress)&lt;1 and int::parse(level)&gt;9}"
             message="compress option must be set false or compression level 1 (lowest) to 9 (highest)"/>
     </target>
 
     <target name="init-windows" if="${platform::is-win32()}">
-        <property name="dump"    value="${path::combine(subnant-root,'src\inc\dump.bat')}"/>
+        <property name="dump" value="${path::combine(subnant-root,'src\inc\dump.bat')}"/>
     </target>
 
     <target name="init-linux" if="${platform::is-unix()}">
-        <property name="dump"    value="{path::combine(subnant-root,'src/inc/dump.sh')}"/>
+        <property name="dump" value="{path::combine(subnant-root,'src/inc/dump.sh')}"/>
     </target>
 
     <target name="init-dump-file">
-        <property name="dump-file" value="${path::combine(dump-root,path::get-file-name(repo)+'-repos')}"/>
+        <property name="dump-file" if="${rev=='false'}" value="${path::combine(dump-root,path::get-file-name(repo)+'.dumpfile')}"/>
+        <property name="dump-file" if="${rev!='false'}" value="${path::combine(dump-root,path::get-file-name(repo)+string::replace(arg_revision,':','-')+'.dumpfile')}"/>
     </target>
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[Dump repositories using svnadmin
+            <![CDATA[dump: usage: subnant dump [-D:options=<value>]
+
+Dump repositories using svnadmin
 
 If repos not set, dump all repositories under svn-root
 
 Options:
 repos           comma separated list of repositories under svn-root
 rev             dump revision number (or X:Y for range)
-dump-root       repository dump directory
+dump-root       repository dump root directory
 svn-root        repository root directory
 svn-bindir      subversion binary directory
 compress        set compression level 1 (lowest) to 9 (highest)

@@ -49,13 +49,12 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[Create subnant wrapper script
+            <![CDATA[install: usage: nant install [-D:options=<value>]
+
+Create subnant wrapper script
 
 Installation involves creating a shortcut to running Subnant under NAnt,
 it does not copy or move existing files.
-
-You can modify the subnant script as required, however the email system
-uses the subnant.log to send reports, so keep the log if possible.
 
 Options:
 install-prefix   override operating systems default installation location

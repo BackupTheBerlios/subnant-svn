@@ -17,7 +17,8 @@ $Id$
             <!-- Test bdb repository -->
             <if test="${no-bdb!='true'}">
                 <echo level="Warning">Testing bdb repository and working copy...</echo>
-                <property name="repos"   value="${test-repo-bdb}"/>
+                <echo file="${subnant-output}" message="Testing bdb repository and working copy..." append="true"/>
+                <property name="repos"   value="test-repo-bdb"/>
                 <property name="fs-type" value="bdb"/>
                 <property name="wc"      value="${test-wc-bdb}"/>
                 <call target="test-all"/>
@@ -25,7 +26,8 @@ $Id$
             <!-- Test fsfs repository -->
             <if test="${no-fsfs!='true'}">
                 <echo level="Warning">Testing fsfs repository and working copy...</echo>
-                <property name="repos"   value="${test-repo-fsfs}"/>
+                <echo file="${subnant-output}" message="Testing fsfs repository and working copy..." append="true"/>
+                <property name="repos"   value="test-repo-fsfs"/>
                 <property name="fs-type" value="fsfs"/>
                 <property name="wc"      value="${test-wc-fsfs}"/>
                 <call target="test-all"/>
@@ -33,6 +35,7 @@ $Id$
         </ifnot>
         <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep=='true'}"/>
         <echo level="Warning">Test complete</echo>
+        <echo file="${subnant-output}" message="Test complete" append="true"/>
     </target>
 
     <target name="test-all">
@@ -90,8 +93,6 @@ $Id$
 
     <target name="init-repository">
         <property name="svn-root"       value="${test-root}"/>
-        <property name="test-repo-bdb"  value="repo-bdb"/>
-        <property name="test-repo-fsfs" value="repo-fsfs"/>
         <property name="test-dumps"     value="${path::combine(test-root,'repo-dumps')}"/>
         <mkdir dir="${test-dumps}" unless="${directory::exists(test-dumps)}"/>
         <property name="dump-root" value="${test-dumps}"/>
@@ -105,7 +106,9 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[Call Subnant targets in a test environment
+            <![CDATA[test: usage: subnant test [-D:options=<value>]
+
+Call Subnant targets in a test environment
 
 If no target is set, all main targets are tested
 

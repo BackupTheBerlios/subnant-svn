@@ -12,17 +12,21 @@ $Id$
     <target name="verify">
         <foreach item="String" delim="," in="${repos}" property="repo">
             <echo level="Warning">Verifying repository ${path::get-file-name(repo)}</echo>
+            <property name="execstart" value="${datetime::now()}"/>
             <exec program="${svnadmin}" failonerror="true">
                 <arg value="verify"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
-            <echo file="${subnant-output}" message="Verified repository ${path::get-file-name(repo)}" append="true"/>
+            <property name="exectime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(execstart))}"/>
+            <echo file="${subnant-output}" message="${string::pad-right('Verified repository '+path::get-file-name(repo),50,' ')}(${exectime})" append="true"/>
         </foreach>
     </target>
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[Verify repositories using svnadmin
+            <![CDATA[verify: usage: subnant verify [-D:options=<value>]
+
+Verify repositories using svnadmin
 
 If repos not set, verifies all repositories under svn-root
 

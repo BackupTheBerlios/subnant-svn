@@ -103,7 +103,9 @@ logregex        ${bugtraq_logregex}
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[Displays configuration settings for Subnant
+            <![CDATA[config: usage: subnant config [-D:options=<value>]
+
+Displays configuration settings for Subnant
 
 If no options are passed, use values in subnant.config
 

@@ -10,6 +10,18 @@ $Id$
 <project name="load" default="load">
 
     <target name="load" depends="init">
+        <foreach item="String" delim="," in="${dumps}" property="dump">
+            <call target="init-dump-file"/>
+            <echo level="Warning">Loading repository ${path::get-file-name(dump)}</echo>
+            <property name="execstart" value="${datetime::now()}"/>
+            <exec program="${load}" failonerror="true" append="false">
+                <arg value="${svnadmin}"/>
+                <arg value="${path::combine(svn-root,dump)}"/>
+                <arg value="${dump-file}"/>
+            </exec>
+            <property name="exectime" value="${timespan::get-total-seconds(datetime::parse(datetime::now())-datetime::parse(execstart))}"/>
+            <echo file="${subnant-output}" message="${string::pad-right('Loaded repository '+path::get-file-name(dump),50,' ')}(${exectime})" append="true"/>
+        </foreach>
     </target>
 
     <target name="init">
@@ -17,21 +29,24 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[Load repositories from dumps using svnadmin
+            <![CDATA[load: usage: subnant load -D:dumps=<dumpfile> [-D:options=<value>]
 
-If repos not set, all dumps under dump-root are loaded
+Load repositories from dumps using svnadmin
+
+If dumpfile ends with .zip extension then uncompresses before loading
+
+Required:
+dumps           comma separated list of repository dumps
 
 Options:
-dumps           comma separated list of repository dumps
 dump-root       repository dump directory
 svn-root        repository root directory
 svn-bindir      Subversion binary directory
 sendmail        set true to email result
 
 Examples:
-subnant load
-subnant load -D:dumps=repo1-repos,repo2-repos
-subnant load -D:dumps=repo1-repos -D:dump-root=/svnroot/dumps
+subnant load -D:dumps=repo1.dumpfile.zip,repo2.dumpfile
+subnant load -D:dumps=repo1.dumpfile -D:dump-root=/svnroot/dumps
             ]]>
         </echo>
     </target>
