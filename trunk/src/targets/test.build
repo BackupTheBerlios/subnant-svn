@@ -9,18 +9,86 @@ $Id$
 -->
 <project name="test" default="test">
 
-    <target name="test" depends="init">
+    <target name="test" depends="init,init-repository,init-workingcopy">
+        <if test="${property::exists('target')}">
+            <call target="create-workingcopy" if="$({property::exists('target')==false) or ({property::exists('target')==true and string::contains('bugtraq'))}"/>
+        </if>
+        <ifnot test="${property::exists('target')}">
+            <!-- Test bdb repository -->
+            <property name="repos"   value="${test-repo-bdb}"/>
+            <property name="fs-type" value="bdb"/>
+            <property name="wc"      value="${test-wc-bdb}"/>
+            <nant buildfile="create.build"  target="create"/>
+            <call target="create-workingcopy"/>
+            <nant buildfile="bugtraq.build" target="bugtraq"/>
+            <nant buildfile="verify.build"  target="verify"/>
+            <nant buildfile="dump.build"    target="dump"/>
+            <!-- Test fsfs repository -->
+            <property name="repos"   value="${test-repo-fsfs}"/>
+            <property name="fs-type" value="fsfs"/>
+            <property name="wc"      value="${test-wc-fsfs}"/>
+            <nant buildfile="create.build"  target="create"/>
+            <call target="create-workingcopy"/>
+            <nant buildfile="bugtraq.build" target="bugtraq"/>
+            <nant buildfile="verify.build"  target="verify"/>
+            <nant buildfile="dump.build"    target="dump"/>
+        </ifnot>
     </target>
 
     <target name="init">
+        <tstamp property="test-date" pattern="HHmmss"/>
+        <property name="test-root" value="${path::combine(path::get-temp-path(),'subnant-test')}"/>
+        <mkdir dir="${test-root}" unless="${directory::exists(test-root)}"/>   
+        <property name="svn" value="${path::combine(svn-bindir,'svn')}"/>
     </target>
 
+    <target name="init-repository">
+        <property name="svn-root"      value="${test-root}"/>
+        <property name="test-repo-bdb"  value="${'repo-bdb-'+test-date}"/>
+        <property name="test-repo-fsfs" value="${'repo-fsfs-'+test-date}"/>
+    </target>
+
+    <target name="init-workingcopy">
+        <property name="test-wc-bdb" value="${path::combine(test-root,'wc-bdb-'+test-date)}"/>
+        <property name="test-wc-fsfs" value="${path::combine(test-root,'wc-fsfs-'+test-date)}"/>
+    </target>
+
+    <target name="create-workingcopy">
+        <delete dir="${wc}" if="${directory::exists(wc)}"/>   
+        <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>   
+        <property name="uri" value='${path::to-uri(path::combine(svn-root,repos))}'/>
+        <echo message="Checking out repository '${repos}' into ${wc}"/>
+        <exec program="${svn}" workingdir="${wc}" failonerror="false" resultproperty="result">
+            <arg value="checkout"/>
+            <arg value="${uri}"/>
+            <arg value="."/>
+        </exec>
+    </target>   
+
+    <script language="C#" prefix="path">
+         <code>
+            <![CDATA[
+              [Function("to-uri")]
+              public static string UriToString(String Path)
+              {
+                  Uri pathUri = new Uri(Path);
+                  return pathUri.ToString();
+              }
+            ]]>
+          </code>
+      </script>
+  
     <target name="help">
-<echo><![CDATA[Executes: 
+<echo><![CDATA[Executes targets in a test environment
 
+If no target is passed, all main targets are tested
+   
 Valid options:
+target          comma separated list of test targets
 
-Examples:]]></echo>
+Examples:
+subnant test
+subnant test -D:target=create,verify,dump]]></echo>
     </target>
    
 </project>
