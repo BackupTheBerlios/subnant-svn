@@ -62,9 +62,9 @@ $Id$
 If no options are passed, verify all repositories under <svn-root>
 
 Valid options:
-repos      : comma separated list of repositories under <svn-root>
-svn-root   : override subnant.config with new repository root directory
-svn-bindir : override subnant.config with new subversion binary directory
+repos           comma separated list of repositories under <svn-root>
+svn-root        override subnant.config with new repository root directory
+svn-bindir      override subnant.config with new subversion binary directory
 
 Examples:
 subnant verify

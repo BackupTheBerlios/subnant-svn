@@ -16,11 +16,14 @@ $Id$
     </target>
 
     <target name="help">
-<echo><![CDATA[Executes: 
+<echo><![CDATA[Executes: Sets bugtraq properties
 
 Valid options:
-
-Examples:]]></echo>
+wc              comma separated list of working copies to set
+   
+Examples:
+subnant bugtraq
+subnant bugtraq -D:wc=/project]]></echo>
     </target>
    
 </project>

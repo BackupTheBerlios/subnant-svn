@@ -19,6 +19,7 @@ $Id$
 <echo><![CDATA[Executes: 
 
 Valid options:
+option          description
 
 Examples:]]></echo>
     </target>

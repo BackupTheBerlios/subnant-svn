@@ -57,7 +57,7 @@ $Id$
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'subnant')}"/>
         <echo>Created SubNAnt script '${wrapper}'</echo>
     </target>
-
+   
     <!-- Lifted from Ian MacLean - http://contextfree.blogspot.com/ (awaiting approval)
     <script language="C#">
         <imports>
@@ -103,8 +103,8 @@ $Id$
 <echo><![CDATA[Create 'subnant' wrapper script
 
 Valid options:
-install.prefix : Override operating systems default installation location
-subnant.srcdir : Override location of source directory
+install.prefix  override operating systems default installation location
+subnant.srcdir  override location of source directory
 
 Examples:
 nant install

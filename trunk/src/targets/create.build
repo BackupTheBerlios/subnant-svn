@@ -12,7 +12,7 @@ $Id$
     <target name="create" depends="init" description="Create Subversion repositories">
         <foreach item="String" delim="," in="${repos}" property="repo">
             <property name="repo" value="${string::trim(repo)}"/>        
-            <echo message="Creating ${fs-type} repository ${repo} under ${svn-root}"/>
+            <echo message="Creating ${fs-type} repository '${repo}' under ${svn-root}"/>
             <exec program="${svnadmin}" failonerror="false" resultproperty="result">
                 <arg value="create"/>
                 <arg value="--bdb-txn-nosync" if="${fs-type=='bdb' and bdb-txn-nosync=='true'}"/>
@@ -55,13 +55,13 @@ $Id$
 If no options are passed, use values defined in subnant.config
 
 Valid options:
-repos          : comma separated list of repositories under <svn-root>
-svn-root       : override subnant.config with new repository root directory
-svn-bindir     : override subnant.config with new subversion binary directory
-fs-type        : type of repository 'bdb' or 'fsfs'
-config-dir     : read user configuration files from this directory
-bdb-log-keep   : automatic log file removal [Berkeley DB] 'true' or 'false'
-bdb-txn-nosync : fsync at transaction commit [Berkeley DB] 'true' or 'false'
+repos           comma separated list of repositories under <svn-root>
+svn-root        override subnant.config with new repository root directory
+svn-bindir      override subnant.config with new subversion binary directory
+fs-type         type of repository 'bdb' or 'fsfs'
+config-dir      read user configuration files from this directory
+bdb-log-keep    automatic log file removal [Berkeley DB] 'true' or 'false'
+bdb-txn-nosync  fsync at transaction commit [Berkeley DB] 'true' or 'false'
 
 Examples:
 subnant create -D:repos=repo1,repo2
