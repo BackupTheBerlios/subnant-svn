@@ -141,6 +141,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             <xmlpeek file="${config}" xpath="/configuration/logs/max-age" property="logs-max-age"/>
             <xmlpeek file="${config}" xpath="/configuration/logs/archive" property="archive"/>
             <property name="archive" value="${string::trim(string::to-lower(archive))}"/>
+            <property name="archive" value="${string::trim(string::to-lower(archive))}"/>
             <foreach item="File" property="log-file" if="${logs-max-age!='false' and logs-max-age&gt;='0'}">
                 <in>
                     <items>
@@ -152,7 +153,9 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
                     <if test="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-max-age))}">
                         <zip if="${archive=='true'}" zipfile="${path::combine(logdir,'archive.zip')}" failonerror="false" ziplevel="9" comment="Subnant logs">
                             <fileset>
+                                <!--<include name="${archived-logs}"/> ::TODO:: Append zip? Or unzip to temp and re-add? -->
                                 <include name="${log-file}"/>
+                                <exclude name="${nant-output}"/>
                             </fileset>
                         </zip>
                         <delete file="${log-file}"/>
