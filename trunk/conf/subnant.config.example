@@ -2,10 +2,6 @@
 
 <configuration description="Settings for Subnant">
 
-    <logs-max-age
-        description="Number of days Subnant should keep logs"
-        conditional="false (forever) or number of days to keep logs">7</logs-max-age>
-
     <nantcontrib-bindir
         description="Location of NAntContrib binary files"
         conditional="If empty assume NAntContrib already in environment path">C:\Program Files\NAntContrib\bin</nantcontrib-bindir>
@@ -13,6 +9,15 @@
     <svn-bindir
         description="Location of Subversion binary files"
         conditional="If empty assume Subversion binaries already in environment path"></svn-bindir>
+
+	<logs description="Log settings">
+	    <logdir
+	        description="Location where Subnant log files are stored"
+	        conditional="If empty use default directory (subnant/logs)"></logdir>
+	    <maximum-age
+	        description="Number of days Subnant keeps logs"
+	        conditional="false (forever) or number of days to keep logs (0 = never)">7</maximum-age>
+	</logs>
 
     <svn-repos description="Repository settings">
         <svn-root
@@ -38,7 +43,7 @@
             conditional="Must exist in file system">/svnroot/dumps</dump-root>
         <compress
             description="Compress dump files"
-            conditional="false or compression level 1 (lowest) to 9 (highest)">6</compress>
+            conditional="false or compression level 1 (lowest) to 9 (highest)">false</compress>
         <incremental
             description="Dump incrementally"
             conditional="true or false">false</incremental>
@@ -80,7 +85,7 @@
             conditional="true or false">false</warnifnoissue>
         <logregex
             description="One or two regular expressions, separated by a newline"
-            conditional="Valid regex"></logregex>
+            conditional="Valid regex (if empty property is not set)"></logregex>
     </bugtraq>
 
 </configuration>
