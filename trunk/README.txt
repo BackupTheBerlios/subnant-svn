@@ -27,7 +27,7 @@ Subnant repository targets:
 
   * create
 
-    Creates a repository using properties defined in subnant.conf.
+    Create a repository using properties defined in subnant.conf.
     Will also (optionally) copy appropriate hook scripts for your environment,
     as well as standard configuration files (eg. repos/conf/svnserve.conf)
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$ 
+-->
+<project name="commit-control-access" default="commit-control-access">
+
+    <target name="commit-control-access">
+    </target>
+   
+    <target name="init">
+    </target>
+   
+</project>

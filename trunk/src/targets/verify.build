@@ -1,0 +1,49 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$ 
+-->
+<project name="verify" default="verify">
+
+    <description>Verify Subversion repositories</description>
+
+    <target name="verify" depends="init">
+        <foreach item="String" delim="," in="${repos}" property="repo">
+            <echo message="Verifying repository ${repo}"/>
+            <exec program="${svnadmin}" failonerror="false" resultproperty="result">
+                <arg value="verify"/>
+                <arg value="${path::combine(svnroot,repo)}"/>
+            </exec>   
+            <echo message="Result: ${result}"/>
+        </foreach>
+    </target>
+
+    <target name="init">
+        <!-- Ready properties --> 
+        <property name="svnadmin" value="${path::combine(svn_bindir,'svnadmin')}"/>
+        <!-- Verify that repository exists if command-line parameter given -->
+        <if test="${property::exists('repos')}">
+            <foreach item="String" in="${repos}" delim="," property="repo">
+                <fail if="${directory::exists(path::combine(svnroot,repo))==false}" message="Can't find repository ${repo} under ${svnroot}"/>
+            </foreach>
+        </if>   
+        <!-- Build list of repositories if command-line parameter not given -->
+        <ifnot test="${property::exists('repos')}">
+            <property name="repos" value=""/>
+            <!-- Build comma separated list of directories under svnroot -->
+            <foreach item="Folder" in="${svnroot}" property="repo">
+                <do>
+                    <property name="repos" value="${repos+repo+','}"/>
+                </do>
+            </foreach>
+            <!-- Trim trailing comma -->
+            <property name="repos" value="${string::substring(repos,0,string::get-length(repos)-1)}"/>
+        </ifnot>   
+    </target>
+   
+</project>
+   

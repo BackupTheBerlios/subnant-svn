@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (c) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$ 
+-->
+<project name="bugtraq" default="bugtraq">
+
+    <target name="bugtraq">
+    </target>
+   
+    <target name="init">
+    </target>
+   
+</project>

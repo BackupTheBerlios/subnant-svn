@@ -1,9 +1,58 @@
 <?xml version="1.0" ?>
+<!--
+Copyright (c) 2005 Simon McKenna
 
-<!-- $Id$ -->
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
 
+$Id$ 
+-->
 <project name="subnant" default="test">
 
-    <target name="test"/>
+    <description>Subversion adminstration tasks handled using NAnt - http://subnant.berlios.de</description>   
+
+    <target name="bugtraq" depends="init,init-workingcopy">
+        <nant buildfile="targets/bugtraq.build"/>
+    </target>
+
+    <target name="commit-control-access" depends="init,init-repository">
+        <nant buildfile="targets/commit-control-access.build"/>
+    </target>
+
+    <target name="commit-email" depends="init,init-repository">
+        <nant buildfile="targets/commit-email.build"/>
+    </target>
+
+    <target name="create" depends="init,init-repository">
+        <nant buildfile="targets/create.build"/>
+    </target>
+
+    <target name="dump" depends="init,init-repository">
+        <nant buildfile="targets/dump.build"/>
+    </target>
+
+    <target name="test" depends="init,init-workingcopy,init-repository">
+        <nant buildfile="targets/test.build"/>
+    </target>
+
+    <target name="verify" depends="init,init-repository">
+        <nant buildfile="targets/verify.build"/>
+    </target>
+
+    <target name="init">
+        <!-- Assign default config file unless subnant.config already defined as command-line parameter -->
+        <property name="subnant.config" value="${path::combine(project::get-buildfile-path(),'../../conf/subnant.config')}"
+            unless="${property::exists('subnant.config')}"/>
+        <fail unless="${file::exists(subnant.config)}" message="Could not find ${subnant.config}"/>
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn_bindir" property="svn_bindir"/>
+    </target>
+
+    <target name="init-repository">
+        <xmlpeek file="${subnant.config}" xpath="/subnant/svn_repos/svnroot" property="svnroot"/>
+        <fail unless="${directory::exists(svnroot)}" message="Repository root directory doesn't exist: ${svnroot}"/>
+    </target>
+
+    <target name="init-workingcopy">
+    </target>
 
 </project>
