@@ -14,7 +14,7 @@ $Id$
 
 Prerequisites:
 
-  * Any .NET (1.1+) or Mono (1.1.4+) runtime
+  * .NET 1.1+ or Mono 1.1.4+ runtimes
   * NAnt and NAntContrib 0.85rc2+
 
 
@@ -31,10 +31,10 @@ Windows Installation:
 Linux Installation:
 
   // Export, checkout or extract Subnant into local filesystem
-  svn export svn://svn.berlios.de/subnant/trunk /usr/local/share/subnant
+  svn export svn://svn.berlios.de/subnant/trunk /usr/local/subnant
 
   // Use NAnt to install subnant wrapper script
-  cd /usr/local/share/subnant/src
+  cd /usr/local/subnant/src
   nant install
 
 
@@ -50,10 +50,18 @@ Setup:
   subnant config
   subnant help test
   subnant test
-  subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true
+  subnant backup -D:sendmail=true
+  subannt verify -D:repos=repo1,repo2
 
 
 Repository targets:
+
+  * backup
+
+    Backup some or all repositories under svn-root using svnadmin hotcopy
+    to copy into temporary location, then call Subnant targets verify and
+    dump for each repository
+
 
   * create
 
@@ -79,9 +87,9 @@ Repository targets:
   * copy
 
     Copy one or more repositories by chaining Subnant targets:
-    verify -> dump -> create -> load -> verify
+    backup -> create -> load -> verify
 
-    Allows for different Subversion binaries to be used on destination
+    Allows for different Subversion binary version to be used on destination
     repository targets (create, load and verify)
 
 
@@ -89,14 +97,14 @@ Repository hook targets:
 
   * commit-email
 
-    Generates email on post-commit event to addresses defined using Subversion
-    property mail:post-commit
+    Generates email on post-commit event to addresses defined using
+    Subversion property mail:post-commit
 
 
   * commit-access
 
-    Provides granular access control to a repository suitable for those using the
-    ra_svn repository access layer (svnserve)
+    Provides granular access control to a repository suitable for those
+    using the ra_svn repository access layer (svnserve)
 
 
 Working copy targets:
@@ -129,12 +137,12 @@ Other targets:
 
 Using hook targets:
 
-    // Turn on hooks in subnant.config
-    [edit /subnant/conf/subnant.config]
-
     // Create hook scripts by cloning example
-    cd /subnant/hooks
+    cd subnant/hooks
     copy post-commit.bat.example post-commit.bat
+
+    // Run test to check post-commit email is being sent
+    subnant test
 
     // Create new repository (or copy hook script into repos/conf)
     subnant create -D:repos=hooktest
