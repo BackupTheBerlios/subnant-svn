@@ -8,20 +8,24 @@ http://svn.collab.net/viewcvs/svn/trunk/tools/hook-scripts/
 
 $Id$
 
-Export or checkout Subnant into local filesystem, copy subnant.config.example
-to subnant.config and configure to your environment.  Then run subnant.build
-as per any normal NAnt build or scheduled task/cron job.  For example:
 
-  svn export svn://svn.berlios.de/subnant/trunk c:\subnant
+Installation example:
 
-  cd c:\subnant\conf
+  // Export or checkout Subnant into local filesystem
+  svn export svn://svn.berlios.de/subnant/trunk /subnant
+
+  // Create subnant shortcut
+  cd /subnant/src
+  nant install
+
+  // Create config file by cloning example
+  cd /subnant/conf
   copy subnant.config.example subnant.config
   [edit subnant.config]
 
-  cd ..\src
-  nant -buildfile:subnant.build -projecthelp
-  nant test
-
+  // Run as NAnt build (or create scheduled task/cron job)
+  subnant -projecthelp
+  subnant config
 
 
 Subnant repository targets:
@@ -60,6 +64,23 @@ Subnant repository targets:
     using the ra_svn repository access layer (svnserve)
 
 
+Subnant working copy targets:
+
+  * bugtraq
+
+    Sets bugtraq: properties defined in subnant.config.
+
+    For information about bug tracking integration with Subversion:
+    http://tortoisesvn.tigris.org/docs/TortoiseSVN_en/ch04s10.html
+
+
+Other Subnant targets:
+
+  * install
+
+    Creates a wrapper script.
+
+
   * config
 
     Display configuration of subnant.config or supplied file.
@@ -71,11 +92,17 @@ Subnant repository targets:
     repository using the configuration defined in subnant.config.
 
 
-Subnant working copy targets:
 
-  * bugtraq
+Using hooks:
 
-    Sets bugtraq: properties defined in subnant.config.
+    // Turn on hooks in subnant.config
+    [edit /subnant/conf/subnant.config]
 
-    For information about bug tracking integration with Subversion:
-    http://tortoisesvn.tigris.org/docs/TortoiseSVN_en/ch04s10.html
+    // Create hook script by cloning example
+    cd /subnant/hooks
+    copy post-commit.bat.example post-commit.bat
+
+    // Create new repository (or copy into existing repository)
+    cd /subnant/src
+	subnant create -D:repos=hooktest
+

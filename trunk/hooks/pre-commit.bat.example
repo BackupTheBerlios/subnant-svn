@@ -36,6 +36,7 @@ REM  Note that 'pre-commit' must be executable by the user(s) who will
 REM  invoke it (typically the user httpd runs as), and that user must
 REM  have filesystem-level permission to access the repository.
 REM
-REM  See http://subnant.berlios.de for complete list of possible targets
+REM
+REM Goto http://subnant.berlios.de for more information on command below
 
-nant /f:"%SUBNANT_HOME%\src\subnant.build" commit-access -D:repos="%1" -D:txn="%2"
+subnant commit-access -D:repos="%1" -D:txn="%2"

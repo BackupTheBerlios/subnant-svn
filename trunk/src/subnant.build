@@ -1,62 +1,143 @@
 <?xml version="1.0" ?>
 <!--
-Copyright (c) 2005 Simon McKenna
+Copyright (C) 2005 Simon McKenna
 
 Licensed under the GNU General Public License
 http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="subnant" default="test" basedir=".">
+<project name="subnant" default="usage" basedir=".">
 
-    <description>Subversion adminstration tasks handled using NAnt - http://subnant.berlios.de</description>   
+<description>Subversion adminstration tasks handled using NAnt
+Copyright (C) 2005 Simon McKenna
+http://subnant.berlios.de
+</description>   
 
     <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in current wc or -D:wc=/path/to/wc">
-        <nant buildfile="targets/bugtraq.build"/>
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/bugtraq.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/bugtraq.build" target="bugtraq"/>
+        </ifnot>
     </target>
 
     <target name="commit-access" depends="init,init-repository" description="Control access to repository using pre-commit hook">
-        <nant buildfile="targets/commit-access.build"/>
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/commit-access.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/commit-access.build" target="commit-access"/>
+        </ifnot>
     </target>
 
     <target name="commit-email" depends="init,init-repository" description="Generate email from commits using post-commit hook">
-        <nant buildfile="targets/commit-email.build"/>
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/commit-email.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/commit-email.build" target="commit-email"/>
+        </ifnot>
     </target>
 
     <target name="create" depends="init,init-repository" description="Create repositories -D:repos=repo1,repo2">
-        <nant buildfile="targets/create.build"/>
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/create.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/create.build" target="create"/>
+        </ifnot>
     </target>
 
     <target name="dump" depends="init,init-repository" description="Dump repositories with optional -D:repos=repo1,repo2">
-        <nant buildfile="targets/dump.build"/>
-    </target>
-
-    <target name="config" depends="init,init-repository" description="Show subnant.config with optional -D:config=file.config">
-        <nant buildfile="targets/config.build"/>
-    </target>
-
-    <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets with optional -D:target=dump,verify">
-        <nant buildfile="targets/test.build"/>
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/dump.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/dump.build" target="dump"/>
+        </ifnot>
     </target>
 
     <target name="verify" depends="init,init-repository" description="Verify repositories with optional -D:repos=repo1,repo2">
-        <nant buildfile="targets/verify.build"/>
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/verify.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/verify.build" target="verify"/>
+        </ifnot>
     </target>
 
+    <target name="config" depends="init,init-repository" description="Show subnant.config with optional -D:config=file">
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/config.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/config.build" target="config"/>
+        </ifnot>
+    </target>
+
+    <target name="test" depends="init,init-workingcopy,init-repository" description="Test main targets with optional -D:target=dump,verify">
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/test.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/test.build" target="test"/>
+        </ifnot>
+    </target>
+
+    <target name="install" depends="init" description="Create 'subnant' wrapper script">
+        <if test="${target::has-executed('help')}">
+            <nant buildfile="targets/install.build" target="help"/>
+        </if>
+        <ifnot test="${target::has-executed('help')}">
+            <nant buildfile="targets/install.build" target="install"/>
+        </ifnot>
+    </target>
+
+    <target name="usage">
+        <echo>Subversion adminstration tasks handled using NAnt</echo>
+        <echo>Copyright (C) 2005 Simon McKenna</echo>
+        <echo>http://subnant.berlios.de</echo>
+        <echo></echo>
+        <echo>Usage: subnant &lt;target&gt; -D:&lt;options&gt;</echo>
+        <echo></echo>
+        <echo>Examples:</echo>
+        <echo>subnant help config</echo>
+        <echo>subnant config</echo>
+        <echo>subnant test</echo>
+        <echo>subnant verify dump -D:repos=repo1,repo2</echo>
+    </target>
+   
     <target name="init">
-        <!-- Assign default config file unless subnant.config already defined as command-line parameter -->
-        <property name="subnant.config" value="${path::combine(project::get-buildfile-path(),'../../conf/subnant.config')}"
-            unless="${property::exists('subnant.config')}"/>
-        <fail unless="${file::exists(subnant.config)}" message="Could not find ${subnant.config}"/>
-        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-bindir" property="svn-bindir"/>
+        <!-- Assign default config file unless config already defined from command-line property -->
+        <property name="config" value="${path::combine(project::get-buildfile-path(),'../../conf/subnant.config')}"
+            unless="${property::exists('config')}"/>
+        <fail unless="${file::exists(config)}" message="Could not find ${config}"/>
+        <xmlpeek file="${config}" xpath="/subnant/svn-bindir" property="svn-bindir"/>
     </target>
 
     <target name="init-repository">
-        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/svn-root" property="svn-root"/>
+        <!-- Assign svn-root unless already defined from command-line property -->
+        <xmlpeek file="${config}" xpath="/subnant/svn-repos/svn-root" property="svn-root" unless="${property::exists('svn-root')}"/>
         <fail unless="${directory::exists(svn-root)}" message="Repository root directory doesn't exist: ${svn-root}"/>
     </target>
 
     <target name="init-workingcopy">
+        <!-- Assign wc unless already defined from command-line property -->
+        <property name="wc" value="${project::get-current-directory()}" unless="${property::exists('wc')}"/>
+        <fail unless="${directory::exists(wc)}" message="Working copy directory doesn't exist: ${wc}"/>
+    </target>
+
+    <target name="help">
+        <!--
+        ::To-Do:: Work out how to display if no main targets passed
+        <description>Display help on main targets</description>
+        <echo>Display help on main targets</echo>
+        <echo></echo>
+        <echo>Examples:</echo>
+        <echo>subnant help verify</echo>
+        -->
     </target>
 
 </project>

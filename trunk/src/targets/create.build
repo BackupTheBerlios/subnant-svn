@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!--
-Copyright (c) 2005 Simon McKenna
+Copyright (C) 2005 Simon McKenna
 
 Licensed under the GNU General Public License
 http://www.gnu.org/copyleft/gpl.html
@@ -28,8 +28,8 @@ $Id$
 
     <target name="init">
         <!-- Assign config values to properties so long as they haven't been passed as a command-line parameter --> 
-        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/fs-type"        property="fs-type"        unless="${property::exists('fs-type')}"/>
-        <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/config-dir"     property="config-dir"     unless="${property::exists('config-dir')}"/>
+        <xmlpeek file="${config}" xpath="/subnant/svn-repos/fs-type"        property="fs-type"        unless="${property::exists('fs-type')}"/>
+        <xmlpeek file="${config}" xpath="/subnant/svn-repos/config-dir"     property="config-dir"     unless="${property::exists('config-dir')}"/>
         <!-- Ready properties --> 
         <property name="svnadmin"       value="${path::combine(svn-bindir,'svnadmin')}"/>
         <property name="fs-type"        value="${string::trim(string::to-lower(fs-type))}"/>
@@ -40,13 +40,33 @@ $Id$
         <fail if="${string::get-length(config-dir)>=0 and directory::exists(config-dir)==false}" message="config-dir ${config-dir} directory doesn't exist"/>
         <!-- Assign, ready and verify bdb properties if needed --> 
         <if test="${fs-type=='bdb'}"> 
-            <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/bdb-log-keep"   property="bdb-log-keep"   unless="${property::exists('bdb-log-keep')}"/>
-            <xmlpeek file="${subnant.config}" xpath="/subnant/svn-repos/bdb-txn-nosync" property="bdb-txn-nosync" unless="${property::exists('bdb-txn-nosync')}"/>
+            <xmlpeek file="${config}" xpath="/subnant/svn-repos/bdb-log-keep"   property="bdb-log-keep"   unless="${property::exists('bdb-log-keep')}"/>
+            <xmlpeek file="${config}" xpath="/subnant/svn-repos/bdb-txn-nosync" property="bdb-txn-nosync" unless="${property::exists('bdb-txn-nosync')}"/>
             <property name="bdb-log-keep"   value="${string::trim(string::to-lower(bdb-log-keep))}"/>
             <property name="bdb-txn-nosync" value="${string::trim(string::to-lower(bdb-txn-nosync))}"/>
             <fail if="${bdb-log-keep!='true' and bdb-log-keep!='false'}" message="bdb-log-keep ${bdb-log-keep} must be 'true' or 'false'"/>
             <fail if="${bdb-txn-nosync!='true' and bdb-txn-nosync!='false'}" message="bdb-txn-nosync ${bdb-txn-nosync} must be 'true' or 'false'"/>
         </if>   
     </target>   
+
+    <target name="help">
+        <echo>Executes: svnadmin create &lt;repos&gt;</echo>
+        <echo></echo>
+        <echo>If no options are passed, use values defined in subnant.config</echo>
+        <echo></echo>
+        <echo>Valid options:</echo>
+        <echo>repos          : comma separated list of repositories under &lt;svn-root&gt;</echo>
+        <echo>svn-root       : override subnant.config with new repository root directory</echo>
+        <echo>svn-bindir     : override subnant.config with new subversion binary directory</echo>
+        <echo>fs-type        : type of repository 'bdb' or 'fsfs'</echo>
+        <echo>config-dir     : read user configuration files from this directory</echo>
+        <echo>bdb-log-keep   : automatic log file removal [Berkeley DB] 'true' or 'false'</echo>
+        <echo>bdb-txn-nosync : fsync at transaction commit [Berkeley DB] 'true' or 'false'</echo>
+        <echo></echo>
+        <echo>Examples:</echo>
+        <echo>subnant create -D:repos=repo1,repo2</echo>
+        <echo>subnant create -D:repos=repo1 -D:svn-root=/svnroot</echo>
+        <echo>subnant create -D:repos=repo1 -D:fs-type=fsfs</echo>
+    </target>
    
 </project>

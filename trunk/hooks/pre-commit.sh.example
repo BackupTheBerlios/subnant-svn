@@ -36,6 +36,7 @@
 # invoke it (typically the user httpd runs as), and that user must
 # have filesystem-level permission to access the repository.
 #
-# See http://subnant.berlios.de for complete list of possible targets
+#
+# Goto http://subnant.berlios.de for more information on command below
 
-nant /f:"${SUBNANT_HOME}/src/subnant.build" commit-access -D:repos="$1" -D:txn="$2"
+subnant commit-access -D:repos="$1" -D:txn="$2"

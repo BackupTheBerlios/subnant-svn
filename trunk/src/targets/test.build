@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!--
-Copyright (c) 2005 Simon McKenna
+Copyright (C) 2005 Simon McKenna
 
 Licensed under the GNU General Public License
 http://www.gnu.org/copyleft/gpl.html
@@ -9,10 +9,20 @@ $Id$
 -->
 <project name="test" default="test">
 
-    <target name="test">
+    <target name="test" depends="init">
     </target>
 
     <target name="init">
+    </target>
+
+    <target name="help">
+        <echo>Executes: </echo>
+        <echo></echo>
+        <echo>If no options are passed, use values defined in subnant.config</echo>
+        <echo></echo>
+        <echo>Valid options:</echo>
+        <echo></echo>
+        <echo>Examples:</echo>
     </target>
    
 </project>

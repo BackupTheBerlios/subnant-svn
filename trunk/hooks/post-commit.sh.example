@@ -25,7 +25,8 @@
 # Note that 'post-commit' must be executable by the user(s) who will
 # invoke it (typically the user httpd runs as), and that user must
 # have filesystem-level permission to access the repository.
+#
+#
+# Goto http://subnant.berlios.de for more information on command below
 
-# See http://subnant.berlios.de for complete list of possible targets
-
-nant /f:"${SUBNANT_HOME}/src/subnant.build" commit-email -D:repos="$1" -D:rev="$2"
+subnant commit-email -D:repos="$1" -D:rev="$2"

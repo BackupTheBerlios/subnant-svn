@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!--
-Copyright (c) 2005 Simon McKenna
+Copyright (C) 2005 Simon McKenna
 
 Licensed under the GNU General Public License
 http://www.gnu.org/copyleft/gpl.html
@@ -41,6 +41,22 @@ $Id$
             <!-- Trim trailing comma -->
             <property name="repos" value="${string::substring(repos,0,string::get-length(repos)-1)}"/>
         </ifnot>   
+    </target>
+
+    <target name="help">
+        <echo>Executes: svnadmin verify &lt;repos&gt;</echo>
+        <echo></echo>
+        <echo>If no options are passed, verify all repositories under &lt;svn-root&gt;</echo>
+        <echo></echo>
+        <echo>Valid options:</echo>
+        <echo>repos      : comma separated list of repositories under &lt;svn-root&gt;</echo>
+        <echo>svn-root   : override subnant.config with new repository root directory</echo>
+        <echo>svn-bindir : override subnant.config with new subversion binary directory</echo>
+        <echo></echo>
+        <echo>Examples:</echo>
+        <echo>subnant verify</echo>
+        <echo>subnant verify -D:repos=repo1,repo2</echo>
+        <echo>subnant verify -D:svn-root=/test/svnroot</echo>
     </target>
    
 </project>
