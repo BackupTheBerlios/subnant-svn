@@ -13,8 +13,8 @@ $Id$
 Copyright (C) 2005 Simon McKenna
 http://subnant.berlios.de</description>   
 
-    <property name="nant.onsuccess" value="onsuccess"/>
-    <property name="nant.onfailure" value="onfailure"/>  
+    <property name="nant.onsuccess" value="success"/>
+    <property name="nant.onfailure" value="failure"/>  
   
     <target name="bugtraq" depends="init,init-workingcopy" description="Set bugtraq props in current wc or -D:wc=/path/to/wc">
         <if test="${target::has-executed('help')}">
@@ -105,6 +105,7 @@ http://subnant.berlios.de
 Usage: subnant <target> -D:<option>
 
 Examples:
+subnant -projectinfo
 subnant help config
 subnant config
 subnant test
@@ -131,21 +132,14 @@ subnant verify dump -D:repos=repo1,repo2]]></echo>
         <fail unless="${directory::exists(wc)}" message="Working copy directory doesn't exist: ${wc}"/>
     </target>
 
-    <target name="help">
-<!-- ::To-Do:: Work out how to display usage if no main targets passed
-<echo><![CDATA[Executes: 
+    <target name="help"/>
 
-Valid options:
-
-Examples:]]></echo> -->
+    <target name="success">
+        <!-- Send success mail message if required by any .config/subnant/mail/target/<target> -->
     </target>
 
-    <target name="onsuccess">
-        <!-- Send successful mail message if required -->
-    </target>
-
-    <target name="onfailure">
-        <!-- Send failure mail message if required -->
+    <target name="failure">
+        <!-- Send failure mail message if required by any .config/subnant/mail/target/<target> -->
     </target>
 
     <target name="mail">

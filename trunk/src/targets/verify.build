@@ -11,7 +11,7 @@ $Id$
 
     <target name="verify" depends="init" description="Verify Subversion repositories">
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <echo message="Verifying repository '${path::get-file-name(repo)}'"/>
+            <echo>Verifying repository '${path::get-file-name(repo)}'</echo>
             <exec program="${svnadmin}" failonerror="false" resultproperty="result">
                 <arg value="verify"/>
                 <arg value="${path::combine(svn-root,repo)}"/>

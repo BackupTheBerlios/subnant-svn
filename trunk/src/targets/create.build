@@ -12,7 +12,7 @@ $Id$
     <target name="create" depends="init" description="Create Subversion repositories">
         <foreach item="String" delim="," in="${repos}" property="repo">
             <property name="repo" value="${string::trim(repo)}"/>        
-            <echo message="Creating ${fs-type} repository '${repo}' under ${svn-root}"/>
+            <echo>Creating ${fs-type} repository '${repo}' under ${svn-root}</echo>
             <exec program="${svnadmin}" failonerror="false" resultproperty="result">
                 <arg value="create"/>
                 <arg value="--bdb-txn-nosync" if="${fs-type=='bdb' and bdb-txn-nosync=='true'}"/>

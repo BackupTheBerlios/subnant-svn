@@ -57,7 +57,7 @@ $Id$
         <delete dir="${wc}" if="${directory::exists(wc)}"/>   
         <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>   
         <property name="uri" value='${path::to-uri(path::combine(svn-root,repos))}'/>
-        <echo message="Checking out repository '${repos}' into ${wc}"/>
+        <echo>Checking out repository '${repos}' into ${wc}</echo>
         <exec program="${svn}" workingdir="${wc}" failonerror="false" resultproperty="result">
             <arg value="checkout"/>
             <arg value="${uri}"/>

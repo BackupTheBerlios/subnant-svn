@@ -28,26 +28,17 @@ $Id$
         <property name="install.bindir" value="${path::combine(install.prefix, 'bin')}"/>
         <property name="wrapper" value="${path::combine(install.bindir, 'subnant')}" />
     </target>
-   
+
     <target name="install-windows" if="${platform::is-win32()}">
         <echo file="${wrapper}" append="false">@echo off</echo>
         <echo file="${wrapper}" append="true">nant -nologo -buildfile:"${subnant.srcdir}\subnant.build" %*</echo>
         <echo>Created SubNAnt script '${wrapper}'</echo>
         <echo>Searching environment path for '${install.bindir}'</echo>
         <if test="${string::contains(environment::get-variable('PATH'),install.bindir)}">
-            <echo>Found in path</echo>
+            <echo>Found in path, 'subnant' command should be available</echo>
         </if>
         <ifnot test="${string::contains(environment::get-variable('PATH'),install.bindir)}">
-            <!-- This works but only for current session, doesn't save path permanently?
-            <setenv name="PATH" value="${environment::get-variable('PATH')+';'+install.bindir}"/>
-            <if test="${string::contains(environment::get-variable('PATH'),install.bindir)}">
-                <echo>Added to path</echo>
-            </if>
-            <ifnot test="${string::contains(environment::get-variable('PATH'),install.bindir)}">
-                <fail>Unable to add '${install.bindir}' to path</fail>
-            </ifnot>
-            -->
-            <echo>Not found.  Please add '${install.bindir}' to environment path</echo>
+            <echo>Not found, please add '${install.bindir}' to your environment path</echo> -->
         </ifnot>
     </target>
    
@@ -57,48 +48,7 @@ $Id$
         <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'subnant')}"/>
         <echo>Created SubNAnt script '${wrapper}'</echo>
     </target>
-   
-    <!-- Lifted from Ian MacLean - http://contextfree.blogspot.com/ (awaiting approval)
-    <script language="C#">
-        <imports>
-            <import namespace="System.Runtime.InteropServices"/>
-        </imports>
-        <code><![CDATA[
-            [DllImport("kernel32.dll", SetLastError=true)]
-            static extern bool SetEnvironmentVariable(string lpName, string lpValue);
-            
-            [TaskName("setenv")]
-            public class SetEnvTask : Task
-            {                
-                private string _name;
-                private string _value;
-            
-                [TaskAttribute("name", Required=true)]
-                public string EnvName
-                {
-                    get { return _name; }
-                    set { _name = value; }
-                }
-                [TaskAttribute("value", Required=true)]
-                public string EnvValue
-                {
-                    get { return _value; }
-                    set { _value = value; }
-                }
-                
-                protected override void ExecuteTask()
-                {
-                    Log(Level.Info, "Setting env var {0} to {1}", EnvName, EnvValue);
-                    if ( ! SetEnvironmentVariable(EnvName, EnvValue) )
-                    {
-                        throw new BuildException(string.Format("Error setting env var {0} to {1}", EnvName, EnvValue) , Location);
-                    }                    
-                }
-            }   
-        ]]></code>
-    </script>   
-    -->
-   
+    
     <target name="help">
 <echo><![CDATA[Create 'subnant' wrapper script
 
