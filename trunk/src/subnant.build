@@ -26,68 +26,74 @@ subnant -projecthelp
 subnant config
 subnant help test
 subnant test
-subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true]]>
+subnant backup -D:sendmail=true
+subnant verify dump -D:repos=repo1,repo2]]>
             </echo>
         </if>   
     </target>
 
     <!-- Repository targets -->
+    <target name="backup" description="Backup repositories"
+        depends="init,init-repos,init-svnadmin,init-svnlook,verify-repos-exists,build-repos-list">
+        <nant buildfile="targets/backup.build" target="${subnant::get-target()}" inheritall="true"/>
+    </target>
+
     <target name="create" description="Create repositories"
         depends="init,init-repos,init-svnadmin">
-        <nant buildfile="targets/create.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/create.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <target name="dump" description="Dump repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/dump.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/dump.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <target name="verify" description="Verify repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/verify.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/verify.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <target name="load" description="Load repositories"
         depends="init,init-repos,init-svnadmin">
-        <nant buildfile="targets/load.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/load.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <target name="copy" description="Copy repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/verify.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/verify.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <!-- Repository hooks targets -->
     <target name="commit-access" description="Control access to repository using pre-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/commit-access.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/commit-access.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <target name="commit-email" description="Generate email from commits using post-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/commit-email.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/commit-email.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <!-- Working copy targets -->
     <target name="bugtraq" description="Set bugtraq props in working copy"
         depends="init,init-wc,init-svn,verify-wc-exists">
-        <nant buildfile="targets/bugtraq.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/bugtraq.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <!-- Other targets -->
     <target name="install" description="Create subnant wrapper script"
         depends="init">
-        <nant buildfile="targets/install.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/install.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <target name="config" description="Show subnant configuration"
         depends="init,init-repos">
-        <nant buildfile="targets/config.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/config.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <target name="test" description="Test main targets"
         depends="init,init-repos,init-wc,init-svn,init-svnadmin,init-svnlook">
-        <nant buildfile="targets/test.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/test.build" target="${subnant::get-target()}" inheritall="true"/>
     </target>
 
     <!-- Sub targets -->
@@ -200,7 +206,7 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true]]>
                     <property name="fs-type-test" value=""/>
                     <loadfile file="${path::combine(repo,'db/fs-type')}" property="fs-type-test" failonerror="false"/>
                     <if test="${string::contains(fs-type-test,'bdb') or string::contains(fs-type-test,'fsfs')}">
-                        <property name="repos" value="${repos+repo+','}"/>
+                        <property name="repos" value="${repos+subnant::return-directory-name(repo)+','}"/>
                     </if>
                 </do>
             </foreach>
@@ -219,6 +225,7 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true]]>
         <property name="subject" value="Success"/>
         <call target="mail"/>
         <record name="${nant-output}" action="Close"/>
+        <delete file="${subnant-output}"/>   
     </target>
 
     <target name="failure">
@@ -229,6 +236,7 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true]]>
         </if>
         <record name="${nant-output}" action="Close"/>
         <call target="mail"/>
+        <delete file="${subnant-output}"/>   
     </target>
 
     <target name="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))=='true'}">
@@ -239,7 +247,7 @@ subnant verify dump -D:repos=repo1,repo2 -D:sendmail=true]]>
         <property name="buildsecs" value="second"  if="${int::parse(buildtime)==1}"/>
         <property name="buildsecs" value="seconds" unless="${property::exists('buildsecs')}"/>
         <echo file="${subnant-output}" append="true">
-${string::pad-right('Subnant finished '+datetime::to-string(stoptime),50,' ')}(${buildtime} ${buildsecs})</echo>
+${string::pad-right('Subnant finished '+datetime::to-string(stoptime),60,' ')}(${buildtime} ${buildsecs})</echo>
         <loadfile file="${subnant-output}" property="message"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail_from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>
@@ -260,9 +268,9 @@ ${string::pad-right('Subnant finished '+datetime::to-string(stoptime),50,' ')}($
         <code>
             <![CDATA[
             [Function("to-uri")]
-            public string pathToUriToString( String Path )
+            public string pathToUriToString( string path )
             {
-                Uri pathToUri = new Uri( Path );
+                Uri pathToUri = new Uri( path );
                 return pathToUri.ToString();
             }
             ]]>
@@ -303,4 +311,17 @@ ${string::pad-right('Subnant finished '+datetime::to-string(stoptime),50,' ')}($
         </code>
     </script>
 
+    <!-- path::get-directory-name() returns full path, sometimes we just want directory name -->
+    <script language="C#" prefix="subnant">
+        <code>
+            <![CDATA[
+            [Function("return-directory-name")]
+            public string getSubnantDirectoryName( string path )
+            {
+                DirectoryInfo directory = new DirectoryInfo( path );
+                return directory != null ? directory.Name : string.Empty;
+            }
+            ]]>
+        </code>
+    </script>
 </project>
