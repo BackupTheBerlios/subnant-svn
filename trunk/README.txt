@@ -1,10 +1,12 @@
 
-SubNAnt - http://subnant.berlios.de
+Subnant - Subversion adminstration using NAnt on .NET or Mono runtime
+http://subnant.berlios.de
 
-Subversion adminstration tasks handled using NAnt on .NET or Mono runtime
-
-Thanks to the Subversion scripts used as inspiration:
+Thanks to the Subversion scripts used as inspiration
 http://svn.collab.net/viewcvs/svn/trunk/tools/hook-scripts/
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 
@@ -14,7 +16,8 @@ Installation example:
   // Export, checkout or extract Subnant into local filesystem
   svn export svn://svn.berlios.de/subnant/trunk /subnant
 
-  // Create subnant shortcut
+  // Use NAnt to install 'subnant' wrapper script to execute:
+  // nant -nologo -buildfile:"/subnant/src/subnant.build"
   cd /subnant/src
   nant install
 
@@ -23,13 +26,13 @@ Installation example:
   copy subnant.config.example subnant.config
   [edit subnant.config]
 
-  // Run from console or create scheduled task/cron job
+  // Run from console or create scheduled task or cron job
   subnant -projecthelp
   subnant config
   subnant test
 
 
-Subnant repository targets:
+Repository targets:
 
   * create
 
@@ -62,7 +65,7 @@ Subnant repository targets:
     using the ra_svn repository access layer (svnserve).
 
 
-Subnant working copy targets:
+Working copy targets:
 
   * bugtraq
 
@@ -72,7 +75,7 @@ Subnant working copy targets:
     http://tortoisesvn.tigris.org/docs/TortoiseSVN_en/ch04s10.html
 
 
-Other Subnant targets:
+Other targets:
 
   * install
 
