@@ -35,74 +35,74 @@ subnant verify dump -D:repos=repo1,repo2]]>
     <!-- Repository targets -->
     <target name="backup" description="Backup repositories"
         depends="init,init-repos,init-svnadmin,init-svnlook,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/backup.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/backup.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="create" description="Create repositories"
         depends="init,init-repos,init-svnadmin">
-        <nant buildfile="targets/create.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/create.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="dump" description="Dump repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/dump.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/dump.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="verify" description="Verify repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/verify.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/verify.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="load" description="Load repositories"
         depends="init,init-repos,init-svnadmin">
-        <nant buildfile="targets/load.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/load.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="migrate" description="Migrate (copy) repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/migrate.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/migrate.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Repository hooks targets -->
     <target name="commit-access" description="Control access to repository using pre-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/commit-access.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/commit-access.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="commit-email" description="Generate email from commits using post-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/commit-email.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/commit-email.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Working copy targets -->
     <target name="bugtraq" description="Set bugtraq props in working copy"
         depends="init,init-wc,init-svn,verify-wc-exists">
-        <nant buildfile="targets/bugtraq.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/bugtraq.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Other targets -->
     <target name="install" description="Create subnant wrapper script"
         depends="init">
-        <nant buildfile="targets/install.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/install.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="config" description="Show subnant configuration"
         depends="init,init-repos">
-        <nant buildfile="targets/config.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/config.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="test" description="Test main targets"
         depends="init,init-repos,init-wc,init-svn,init-svnadmin,init-svnlook">
-        <nant buildfile="targets/test.build" target="${subnant::get-target()}" inheritall="true"/>
+        <nant buildfile="targets/test.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Sub targets -->
     <target name="init">
+        <property name="subnant-started" value="${datetime::now()}"/>
         <tstamp property="tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
-        <property name="starttime"      value="${datetime::now()}"/>
-        <property name="nant.onsuccess" value="success"/>
-        <property name="nant.onfailure" value="failure"/>
-        <property name="subnant-root"   value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"
+        <property name="nant.onsuccess"  value="success"/>
+        <property name="nant.onfailure"  value="failure"/>
+        <property name="subnant-root"    value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"
             unless="${property::exists('subnant-root')}"/>
         <!-- Assign default config file unless config already defined from command-line option -->
         <property name="config" value="${path::combine(subnant-root,'conf/subnant.config')}"
@@ -124,7 +124,7 @@ subnant verify dump -D:repos=repo1,repo2]]>
         <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+tstamp)}"/>
         <!-- Define file used for <exec> task output (used for diff, etc) -->
         <property name="exec-output" value="${path::combine(path::get-temp-path(),'exec-output'+tstamp)}"/>
-        <echo file="${subnant-output}" append="false">Subnant started ${datetime::to-string(starttime)}
+        <echo file="${subnant-output}" append="false">Subnant started ${datetime::to-string(subnant-started)}
 </echo>
         <!-- If not displaying help cycle logs by maximum file age defined in config -->
         <if test="${subnant::get-target()!='help'}">
@@ -232,7 +232,7 @@ subnant verify dump -D:repos=repo1,repo2]]>
         <property name="subject" value="FAILURE"/>
         <property name="attach-output" value="true"/>
         <if test="${property::exists('subnant-output')}">
-            <echo file="${subnant-output}" append="true" message="Failure running Subnant (log attached)"/>
+            <echo file="${subnant-output}" append="true" message="*** Failure running Subnant (log attached) ***"/>
         </if>
         <record name="${nant-output}" action="Close"/>
         <call target="mail"/>
@@ -242,12 +242,8 @@ subnant verify dump -D:repos=repo1,repo2]]>
     <target name="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))=='true'}">
         <fail unless="${property::exists('config')}" message="Email not sent as config file not yet set"/>
         <!-- Mail message is culmination of results from all targets executed -->
-        <property name="stoptime" value="${datetime::now()}"/>
-        <property name="buildtime" value="${timespan::get-total-seconds(datetime::parse(stoptime)-datetime::parse(starttime))}"/>
-        <property name="buildsecs" value="second"  if="${int::parse(buildtime)==1}"/>
-        <property name="buildsecs" value="seconds" unless="${property::exists('buildsecs')}"/>
         <echo file="${subnant-output}" append="true">
-${string::pad-right('Subnant finished '+datetime::to-string(stoptime),60,' ')}(${buildtime} ${buildsecs})</echo>
+${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,' ')}(${subnant::get-elapsed-time(subnant-started,datetime::now())} seconds)</echo>
         <loadfile file="${subnant-output}" property="message"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail_from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>
@@ -324,4 +320,19 @@ ${string::pad-right('Subnant finished '+datetime::to-string(stoptime),60,' ')}($
             ]]>
         </code>
     </script>
+
+
+    <!-- Display elapsed time -->
+    <script language="C#" prefix="subnant">
+        <code>
+            <![CDATA[
+            [Function("get-elapsed-time")]
+            public string getSubnantElapsedTime( DateTime started, DateTime finished )
+            {
+                TimeSpan elapsed = finished - started;
+                return Math.Round( elapsed.TotalSeconds, 2 ).ToString();   
+            }
+            ]]>
+        </code>   
+    </script>       
 </project>
