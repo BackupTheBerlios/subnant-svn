@@ -10,7 +10,7 @@ $Id$
 <project name="commit-access" default="commit-access">
 
     <target name="commit-access" depends="init">
-        <echo file="${log-file}" append="true" message="Commit access granted"/>
+        <echo file="${subnant-output}" append="true" message="::TODO:: Commit access"/>
     </target>
    
     <target name="init">
@@ -18,10 +18,10 @@ $Id$
 
     <target name="help">
         <write>
-            <![CDATA[Executes: 
+            <![CDATA[Control access to repository using pre-commit hook 
 
 Options:
-option          description
+sendmail        set true to email result
 
 Examples:
             ]]>

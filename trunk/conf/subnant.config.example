@@ -2,6 +2,10 @@
 
 <configuration description="Settings for Subnant">
 
+    <nantcontrib-bindir
+        description="Location of NAntContrib binary files"
+        conditional="If empty assume NAntContrib already in environment path">C:\Program Files\NAntContrib\bin</nantcontrib-bindir>
+
     <svn-bindir
         description="Location of Subversion binary files"
         conditional="If empty assume Subversion binaries already in environment path"></svn-bindir>

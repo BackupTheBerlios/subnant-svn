@@ -36,7 +36,7 @@ $Id$
             <property name="propval"  value="${bugtraq_logregex}"/>
             <!-- dont set logregex if nothing entered -->
             <call target="propset" if="${string::get-length(bugtraq_logregex)!=0}"/>
-            <echo file="${log-file}" message="Set bugtraq properties in ${path}"/>
+            <echo file="${subnant-output}" message="Set bugtraq properties in ${path}"/>
             <write>Set bugtraq properties in ${path}</write>
         </foreach>
     </target>
@@ -62,7 +62,7 @@ $Id$
     </target>
 
     <target name="propset">
-        <exec program="${svn}" failonerror="true" output="${output-file}" append="true">
+        <exec program="${svn}" failonerror="true">
             <arg value="propset"/>
             <arg value="${propname}"/>
             <arg value="${propval}"/>

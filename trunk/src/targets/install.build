@@ -11,55 +11,59 @@ $Id$
 
     <target name="install" depends="init,install-windows,install-linux"/>
 
-    <target name="init" depends="init-windows,init-linux">
-        <property name="subnant.srcdir" value="${path::get-directory-name(directory::get-parent-directory(project::get-buildfile-path()))}"
-            unless="${property::exists('subnant.srcdir')}"/>
-    </target>
-
-    <target name="init-windows" if="${platform::is-win32()}">
-        <property name="install.prefix" value="${environment::get-folder-path('ProgramFiles')}"
-            unless="${property::exists('install.prefix')}"/>
-        <property name="install.bindir" value="${path::combine(install.prefix, 'Subnant')}"/>
-        <property name="wrapper" value="${path::combine(install.bindir, 'subnant.bat')}" />
-    </target>
-
-    <target name="init-linux" if="${platform::is-unix()}">
-        <property name="install.prefix" value="/usr/local" unless="${property::exists('install.prefix')}"/>
-        <property name="install.bindir" value="${path::combine(install.prefix, 'bin')}"/>
-        <property name="wrapper" value="${path::combine(install.bindir, 'subnant')}" />
-    </target>
-
     <target name="install-windows" if="${platform::is-win32()}">
         <echo file="${wrapper}" append="false">@echo off</echo>
-        <echo file="${wrapper}" append="true">nant -quiet -nologo -buildfile:"${subnant.srcdir}\subnant.build" %*</echo>
+        <echo file="${wrapper}" append="true">nant -quiet -nologo -buildfile:"${subnant-root}\src\subnant.build" %*</echo>
         <write>Created ${wrapper} wrapper script</write>
-        <write>Searching environment path for ${install.bindir}</write>
-        <if test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install.bindir))}">
+        <write>Searching environment path for ${install-bindir}</write>
+        <if test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}">
             <write>Found in path, subnant command should be available</write>
         </if>
-        <ifnot test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install.bindir))}">
-            <write>Not found, please add ${install.bindir} to your environment path</write>
+        <ifnot test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}">
+            <write>Not found, please add ${install-bindir} to your environment path</write>
         </ifnot>
     </target>
    
     <target name="install-linux" if="${platform::is-unix()}">
         <echo file="${wrapper}" append="false">#!/bin/sh</echo>
-        <echo file="${wrapper}" append="true">nant -quiet -nologo -buildfile:"${subnant.srcdir}/subnant.build" $@</echo>
-        <exec program="chmod" commandline="a+x ${path::combine(install.bindir, 'subnant')}"/>
+        <echo file="${wrapper}" append="true">nant -quiet -nologo -buildfile:${subnant-root}/src/subnant.build $@</echo>
+        <exec program="chmod" commandline="a+x ${path::combine(install-bindir, 'subnant')}"/>
         <write>Created ${wrapper} wrapper script</write>
     </target>
     
+    <target name="init" depends="init-windows,init-linux">
+    </target>
+
+    <target name="init-windows" if="${platform::is-win32()}">
+        <property name="install-prefix" value="${environment::get-folder-path('ProgramFiles')}"
+            unless="${property::exists('install-prefix')}"/>
+        <property name="install-bindir" value="${path::combine(install-prefix, 'Subnant')}"/>
+        <property name="wrapper" value="${path::combine(install-bindir, 'subnant.bat')}" />
+    </target>
+
+    <target name="init-linux" if="${platform::is-unix()}">
+        <property name="install-prefix" value="/usr/local" unless="${property::exists('install-prefix')}"/>
+        <property name="install-bindir" value="${path::combine(install-prefix, 'bin')}"/>
+        <property name="wrapper" value="${path::combine(install-bindir, 'subnant')}" />
+    </target>
+
     <target name="help">
         <write>
             <![CDATA[Create subnant wrapper script
 
+Installation involves creating a shortcut to running Subnant under NAnt,
+it does not copy or move existing files.
+
+You can modify the subnant script as required, however the email system
+uses the subnant.log to send reports, so keep the log if possible.
+
 Options:
-install.prefix  override operating systems default installation location
-subnant.srcdir  override location of source directory
+install-prefix   override operating systems default installation location
+subnant-root     override location of subnant root directory
 
 Examples:
 nant install
-nant install -D:install.prefix="E:\Subnant"
+nant install -D:install-prefix="E:\Subnant"
             ]]>
         </write>
     </target>

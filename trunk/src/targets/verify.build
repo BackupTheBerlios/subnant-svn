@@ -11,12 +11,12 @@ $Id$
 
     <target name="verify">
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <exec program="${svnadmin}" failonerror="true" output="${output-file}" append="true">
+            <write>Verifying repository ${path::get-file-name(repo)}</write>
+            <exec program="${svnadmin}" failonerror="true">
                 <arg value="verify"/>
                 <arg value="${path::combine(svn-root,repo)}"/>
             </exec>
-            <echo file="${log-file}" message="Verified repository ${path::get-file-name(repo)}" append="true"/>
-            <write>Verified repository ${path::get-file-name(repo)}</write>
+            <echo file="${subnant-output}" message="Verified repository ${path::get-file-name(repo)}" append="true"/>
         </foreach>
     </target>
 
@@ -30,11 +30,12 @@ Options:
 repos           comma separated list of repositories under svn-root
 svn-root        repository root directory
 svn-bindir      Subversion binary directory
+sendmail        set true to email result
 
 Examples:
 subnant verify
 subnant verify -D:repos=repo1,repo2
-subnant verify -D:svn-root=/tmp/svnroot
+subnant verify -D:svn-root=/svnroot/repos
             ]]>
         </write>
     </target>

@@ -10,20 +10,45 @@ $Id$
 <project name="commit-email" default="commit-email">
 
     <target name="commit-email" depends="init">
-        <echo file="${log-file}" append="true" message="Commit email generated"/>
+        <echo file="${subnant-output}" append="true" message="::TODO:: Commit email"/>
+        <write>Commit email</write>
     </target>
-   
+
     <target name="init">
+        <!-- repos gets verified in subnant.build::verify-repos-exists, but rev doesn't -->
+        <fail unless="${property::exists(rev)}" message="rev not set"/>
+    </target>
+
+    <target name="search-repo">
+    </target>
+
+    <target name="build-diff">
+        <exec program="${svnlook}" failonerror="true" output="${exec-output}" append="false">
+            <arg value="diff"/>
+            <arg value="${path::combine(svn-root,repos)}"/>
+            <arg value="--revision ${rev}"/>
+            <arg value="--no-diff-delete" if="${property::exists('no-diff-delete') and string::trim(string::to-lower(no-diff-delete))=='true'}"/>
+        </exec>
+        <loadfile file="${exec-output}" property="diff"/>
     </target>
 
     <target name="help">
         <write>
-            <![CDATA[Executes: 
+            <![CDATA[Email result of svnlook diff on post-commit hook
+
+Finds email addresses using Subversion property mail:post-commit
+on effected file or parent directories.
+
+Required:
+repos            name of repository
+rev              valid revision number
 
 Options:
-option          description
-   
+no-diff-deleted  set true to not print differences for deleted files
+sendmail         set true to email result
+
 Examples:
+subnant commit-email -D:repos=repo1 -D:rev=1
             ]]>
         </write>
     </target>

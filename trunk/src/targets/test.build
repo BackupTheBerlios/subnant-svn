@@ -35,6 +35,50 @@ $Id$
         <write>Test complete</write>
     </target>
 
+    <target name="test-all">
+        <nant buildfile="create.build"  target="create"/>
+        <call target="create-workingcopy"/>
+        <nant buildfile="bugtraq.build" target="bugtraq"/>
+        <call target="commit-workingcopy"/>
+        <call target="search-log"/>
+        <nant buildfile="verify.build"  target="verify"/>
+        <nant buildfile="dump.build"    target="dump"/>
+    </target>
+
+    <target name="create-workingcopy">
+        <delete dir="${wc}" if="${directory::exists(wc)}"/>
+        <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>
+        <property name="uri" value='${path::to-uri(path::combine(svn-root,repos))}'/>
+        <exec program="${svn}" workingdir="${wc}" failonerror="true">
+            <arg value="checkout"/>
+            <arg value="${uri}"/>
+            <arg value="."/>
+        </exec>
+        <write>Checked out repository ${path::get-file-name(repos)} into ${wc}</write>
+    </target>
+
+    <target name="commit-workingcopy">
+        <exec program="${svn}" workingdir="${wc}" failonerror="true">
+            <arg value="commit"/>
+            <arg value="-m '${test-message}'"/>
+        </exec>
+        <write>Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} with log ${test-message}</write>
+    </target>
+
+    <target name="search-log">
+        <exec program="${svnlook}" failonerror="true" output="${exec-output}" append="true">
+            <arg value="log"/>
+            <arg value="${path::combine(test-root,repos)}"/>
+        </exec>
+        <loadfile file="${exec-output}" property="test-output"/>
+        <if test="${string::contains(test-output,test-message)}">
+            <write>Found log ${test-message} in repository</write>
+        </if>
+        <ifnot test="${string::contains(test-output,test-message)}">
+            <fail>Did not find log ${test-message} in repository</fail>
+        </ifnot>
+    </target>
+
     <target name="init">
         <tstamp property="test-date" pattern="yyyyMMdd-HHmmss"/>
         <property name="keep"    value="false" unless="${property::exists('keep')    and string::to-lower(keep)=='true'}"/>
@@ -56,51 +100,7 @@ $Id$
     <target name="init-workingcopy">
         <property name="test-wc-bdb"  value="${path::combine(test-root,'wc-bdb')}"/>
         <property name="test-wc-fsfs" value="${path::combine(test-root,'wc-fsfs')}"/>
-        <property name="test-message" value="${'Log message for test '+test-date}"/>
-    </target>
-
-    <target name="test-all">
-        <nant buildfile="create.build"  target="create"/>
-        <call target="create-workingcopy"/>
-        <nant buildfile="bugtraq.build" target="bugtraq"/>
-        <call target="commit-workingcopy"/>
-        <call target="search-log"/>
-        <nant buildfile="verify.build"  target="verify"/>
-        <nant buildfile="dump.build"    target="dump"/>
-    </target>
-
-    <target name="create-workingcopy">
-        <delete dir="${wc}" if="${directory::exists(wc)}"/>
-        <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>
-        <property name="uri" value='${path::to-uri(path::combine(svn-root,repos))}'/>
-        <exec program="${svn}" workingdir="${wc}" failonerror="true" output="${output-file}" append="true">
-            <arg value="checkout"/>
-            <arg value="${uri}"/>
-            <arg value="."/>
-        </exec>
-        <write>Checked out repository ${repos} into ${wc}</write>
-    </target>
-
-    <target name="commit-workingcopy">
-        <exec program="${svn}" workingdir="${wc}" failonerror="true" output="${output-file}" append="true">
-            <arg value="commit"/>
-            <arg value="-m '${test-message}'"/>
-        </exec>
-        <write>Committed ${repos} with ${test-message}</write>
-    </target>
-
-    <target name="search-log">
-        <exec program="${svnlook}" failonerror="true" output="${output-file}" append="true">
-            <arg value="log"/>
-            <arg value="${path::combine(test-root,repos)}"/>
-        </exec>
-        <loadfile file="${output-file}" property="test-output"/>
-        <if test="${string::contains(test-output,test-message)}">
-            <write>${test-message} found in repository log</write>
-        </if>
-        <ifnot test="${string::contains(test-output,test-message)}">
-            <fail>${test-message} not found in repository log</fail>
-        </ifnot>
+        <property name="test-message" value="${'message for test '+test-date}"/>
     </target>
 
     <target name="help">
@@ -114,6 +114,7 @@ target          comma separated list of test targets
 keep            set true to keep data created by test
 no-bdb          set true to not test bdb repository
 no-fsfs         set true to not test fsfs repository
+sendemail       set true to email result
 
 Examples:
 subnant test

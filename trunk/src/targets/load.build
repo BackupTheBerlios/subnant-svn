@@ -26,11 +26,12 @@ dumps           comma separated list of repository dumps
 dump-root       repository dump directory
 svn-root        repository root directory
 svn-bindir      Subversion binary directory
+sendmail        set true to email result
 
 Examples:
 subnant load
 subnant load -D:dumps=repo1-repos,repo2-repos
-subnant load -D:dumps=repo1.backup.dump -D:dump-root=/svnroot/dumps/backups
+subnant load -D:dumps=repo1-repos -D:dump-root=/svnroot/dumps
             ]]>
         </write>
     </target>
