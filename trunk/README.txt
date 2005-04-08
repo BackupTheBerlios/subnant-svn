@@ -76,7 +76,7 @@ Run:
   subnant test
   subnant backup -D:sendmail=true
   subnant create verify dump -D:repos=repo1,repo2
-  subannt migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin
+  subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin
 
   // Something went wrong?  Run with -debug switch for more info
   subnant test -debug
@@ -112,7 +112,7 @@ Repository targets:
   * migrate
 
     Migrate one or more repositories by chaining Subnant targets:
-    backup -> create -> load -> verify
+    verify -> dump -> create -> load -> verify
 
     Allows for different Subversion binary version to be used on destination
     repository targets (create, load and verify)
