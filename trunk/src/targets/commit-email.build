@@ -9,22 +9,30 @@ $Id$
 -->
 <project name="commit-email" default="commit-email">
 
-    <target name="commit-email" depends="init,search-repo,exec-svnlook-diff">
-        <loadfile file="${subnant-output}" property="message"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail_from"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail_prefix"/>
-        <echo level="Warning" message="Sending post-commit mail to ${mail_post-commit}"/>
-        <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_post-commit}"
-          subject="${subject}">
-            <files>
-                <include name="${exec-output}"/>
-            </files>
-        </mail>
-        <echo file="${subnant-output}" append="true" message="Post-commit email on repository ${repo}"/>
-        <echo level="Warning" message="Post-commit email on repository ${repo}"/>
+    <!-- Mail (default) Target -->
+    <target name="commit-email" depends="init,find-hook-prop,svnlook-diff">
+        <if test="${string::get-length(mail_tolist)&gt;0}">
+            <loadfile file="${subnant-output}" property="message"/>
+            <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail_from"/>
+            <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>
+            <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail_prefix"/>
+            <echo level="Warning" message="Sending post-commit mail to ${mail_tolist}"/>
+            <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_tolist}"
+              subject="${subject}">
+                <files>
+                    <include name="${exec-output}"/>
+                </files>
+            </mail>
+            <echo file="${subnant-output}" append="true" message="Commit-email sent on repository ${repo} for revision ${rev}"/>
+            <echo level="Warning" message="Commit-email sent on repository ${repo} for revision ${rev}"/>
+        </if>
+        <if test="${string::get-length(mail_tolist)==0}">
+            <echo file="${subnant-output}" append="true" message="Commit-email not sent on repository ${repo} for revision ${rev} (no ${mail-prop} properties found)"/>
+            <echo level="Warning" message="Commit-email not sent on repository ${repo} for revision ${rev} (no ${mail-prop} properties found)"/>
+        </if>
     </target>
 
+    <!-- Sub targets -->
     <target name="init">
         <fail unless="${property::exists('repos')}" message="repos not set"/>
         <fail unless="${property::exists('rev')}"   message="rev not set"/>
@@ -32,42 +40,104 @@ $Id$
         <property name="subject"       value="[${repo} commit] rev ${rev}"/>
         <property name="arg_revoption" value="--revision"/>
         <property name="arg_revision"  value="${rev}"/>
+        <property name="mail-prop"     value="hook:commit-email" unless="${property::exists('mail-prop')}"/>
+        <!-- Initialise properties for target call -->
+        <property name="mail_tolist"   value=""/>
+        <property name="dir-changed"   value=""/>
     </target>
 
-    <target name="search-repo">
-         <echo level="Warning">::TODO:: Get mail:post-commit addresses</echo>
-         <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail_tolist"/>
-         <property name="mail_post-commit" value="${mail_tolist}"/>
+    <target name="find-hook-prop">
+        <!-- Get list of directories changed for revision -->
+        <call target="svnlook-dirs-changed"/>
+        <!-- Copy exec-output into another temp file as it will get overwritten -->
+        <property name="dirs-changed" value="${exec-output}-dirs-changed"/>
+        <copy file="${exec-output}" tofile="${dirs-changed}"/>
+        <!-- Build directory tree list back to root node if not already in list -->
+        <!-- ::TODO:: -->
+        <!-- Don't fail if hook:commit-email property not found -->
+        <property name="failonerror" value="false"/>
+        <!-- Search for hook:commit-email property in each directory found -->
+        <foreach item="Line" in="${dirs-changed}" property="dir-changed">
+            <echo level="Warning" message="Searching: ${dir-changed}"/>
+            <property name="subcommand" value="propget"/>
+            <call target="exec-svnlook"/>
+            <!-- If hook:commit-email found, add each address only once -->
+            <if test="${svnlook-result=='0'}">
+                <!-- Email addresses may be line delimited -->
+                <foreach item="Line" in="${exec-output}" property="address-line">
+                    <!-- Replace , with ; as per spec for mail target -->
+                    <property name="address-line" value="${string::replace(address-line,',',';')}"/>
+                    <!-- Email addresses may be ; delimited -->
+                    <foreach item="String" delim=";" in="${address-line}" property="address">
+                        <!-- Only add address if it doesn't already exist in list -->
+                        <property name="mail_tolist" value="${mail_tolist};${address}"
+                            unless="${string::contains(string::to-lower(mail_tolist),string::to-lower(address))}"/>
+                    </foreach>
+                </foreach>
+            </if>
+            <if test="${svnlook-result!='0'}">
+                <echo level="Warning" message="Didn't find ${mail-prop} in ${dir-changed}"/>
+            </if>
+        </foreach>
+        <!-- Trim start of address list to remove ; if it exists -->
+        <property name="mail_tolist" value="${string::substring(mail_tolist,1,string::get-length(mail_tolist)-1)}"
+            if="${string::starts-with(mail_tolist,';')}"/>
+        <!-- Done searching for hook:commit-email, so turn fail back on -->
+        <property name="failonerror" value="true"/>
+        <!-- Delete our temp directory -->
+        <delete file="${dirs-changed}"/>
     </target>
 
-    <target name="exec-svnlook-diff">
-        <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result"  >
-            <arg value="diff"/>
+    <target name="svnlook-dirs-changed">
+        <property name="subcommand" value="dirs-changed"/>
+        <call target="exec-svnlook"/>
+    </target>
+
+    <target name="svnlook-diff">
+        <property name="subcommand" value="diff"/>
+        <call target="exec-svnlook"/>
+    </target>
+
+    <target name="exec-svnlook">
+        <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
+            <arg value="${subcommand}"/>
             <arg value="${repos}"/>
-            <arg value="${arg_revoption}"/>
-            <arg value="${arg_revision}"/>
-            <arg value="--no-diff-delete" if="${property::exists('no-diff-delete') and string::trim(string::to-lower(no-diff-delete))=='true'}"/>
+            <!-- propget (used by find-hook-prop) should not use revision -->
+            <arg value="${arg_revoption}" unless="${subcommand=='propget'}"/>
+            <arg value="${arg_revision}"  unless="${subcommand=='propget'}"/>
+            <!-- propget (used by find-hook-prop) needs property and path -->
+            <arg value="${mail-prop}"     if="${subcommand=='propget'}"/>
+            <arg value="${dir-changed}"   if="${subcommand=='propget'}"/>
+            <!-- Set optional parameter (used by svnlook-diff) -->
+            <arg value="--no-diff-delete" if="${subcommand=='diff' and property::exists('no-diff-delete') and string::trim(string::to-lower(no-diff-delete))=='true'}"/>
         </exec>
-        <echo if="${svnlook-result!='0'}" file="${subnant-output}" message="*** ERROR executing svnlook on repository ${repos} ***" append="true"/>
-        <echo if="${svnlook-result!='0'}" level="Warning" message="*** ERROR executing svnlook on repository ${repos} ***"/>
-        <fail unless="${file::exists(exec-output)}" message="svnlook diff file not found: ${exec-output}"/>
+        <echo if="${svnlook-result!='0' and failonerror!='false'}" file="${subnant-output}" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" append="true"/>
+        <echo if="${svnlook-result!='0' and failonerror!='false'}" level="Warning" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***"/>
+        <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***"/>
     </target>
 
     <target name="help">
         <echo level="Warning">
             <![CDATA[commit-email: usage: subnant commit-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
 
-Email result of svnlook diff on post-commit hook
+Email svnlook diff for a single revision.
 
-Finds email addresses using Subversion property mail:post-commit
-on effected file or parent directories.
+Finds email addresses using Subversion property hook:commit-email
+on directory of affected file(s).  Will recursive up the directory
+tree back to the root node searching for hook:commit-email property.
 
+Typically used in post-commit hook, but can be called independently.
+
+Multiple email addresses stored in hook:commit-email property may be
+comma or semi-comma or line separated.
+            
 Required:
 repos            full path to repository
 rev              revision number (must exist in repository)
 
 Options:
 no-diff-deleted  set true to not print differences for deleted files
+mail-prop        search for custom property (not hook:commit-email)
 sendmail         set true to email result
 
 Examples:
