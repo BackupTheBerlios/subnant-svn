@@ -133,8 +133,9 @@ Repository hook targets:
 
   * commit-email
 
-    Generates email on post-commit event to addresses defined using
-    Subversion property mail:post-commit
+    Sends email on post-commit hook to address(es) defined using
+    Subversion property hook:commit-email on parent directory(s) of
+    affected files.
 
 
 Working copy targets:
