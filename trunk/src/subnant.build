@@ -11,6 +11,8 @@ $Id$
 
     <description>Subversion administration using NAnt</description>
 
+    <!-- Main targets -->
+
     <!-- Default target -->
     <target name="help">
         <if test="${subnant::get-targets-count()==1}">
