@@ -27,11 +27,11 @@ Goals:
 
 Pre-requisites:
 
-  * .NET 1.1+ or Mono 1.1.5+ runtime
+  * .NET runtime >= 1.1 or Mono runtime >= 1.1.5
 
-  * NAnt and NAntContrib 0.85rc2+
+  * NAnt and NAntContrib >= 0.85rc2
 
-  * Subversion 1.1.3+
+  * Subversion >= 1.1.3
 
 
 Windows Installation:
@@ -88,9 +88,9 @@ Repository targets:
 
     Backup some or all repositories under svn-root using methods:
 
-      hotcopy   : verbatim copy of repository
-      dump      : dump all revisions into portable format
-      increment : dump all revisions since last increment
+      hotcopy     : verbatim copy of repository into hotcopy-root
+      dump        : dump all revisions into dump-root using portable format 
+      incremental : dump younger revisions after highest revision in dump-root
 
 
   * create
@@ -125,17 +125,34 @@ Repository targets:
 
 Repository hook targets:
 
+  * commit-allower
+
+    Provides user-level access control to a repository using start-commit hook.
+
+
   * commit-access
 
-    Provides granular access control to a repository suitable for those
-    using the ra_svn repository access layer (svnserve)
+    Provides granular access control to a repository using pre-commit hook.
 
 
   * commit-email
 
-    Sends email on post-commit hook to address(es) defined using
-    Subversion property hook:commit-email on parent directory(s) of
-    affected files.
+    Sends email on post-commit hook using Subversion property hook:commit-email
+    on parent directory(s) of committed files.  Shows who, why, what, when and
+    where changes were made for a revision.
+
+
+  * propchange-access
+
+    Provides granular access control to repository property changes using
+    pre-revprop-change hook.
+
+
+  * propchange-email
+
+    Sends email on post-revprop-change hook using Subversion property
+    hook:propchange-email on parent directory(s) of committed files.
+    Shows who, why, what, when and where property changes were made.
 
 
 Working copy targets:
@@ -170,9 +187,12 @@ Using hook targets:
     // Create hook scripts by cloning example
     cd subnant/hooks
     copy post-commit.bat.example post-commit.bat
+    copy post-propchange.bat.example post-propchange.bat
+    [edit if necessary to suit your setup]
 
-    // Run test to check post-commit email is being sent
+    // Run test to check hooks are working and email is being sent
     subnant test
 
     // Create new repository (or copy hook script into repos/conf)
+    // any hook scripts in subnant/conf are copied into repository
     subnant create -D:repos=hooktest
