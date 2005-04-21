@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$ 
+-->
+<project name="commit-allower" default="commit-allower">
+
+    <target name="commit-allower" depends="init">
+        <echo file="${subnant-output}" append="true" message="::TODO:: Commit allower"/>
+    </target>
+   
+    <target name="init">
+    </target>
+
+    <target name="help">
+        <echo level="Warning">
+            <![CDATA[commit-allower: usage: subnant commit-allower [-D:<option>=<value>]
+
+Control access to repository using start-commit hook 
+
+Options:
+sendmail        set true to email result
+
+Examples:
+            ]]>
+        </echo>
+    </target>
+   
+</project>

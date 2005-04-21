@@ -362,6 +362,16 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
             {
                 return Math.Round(((length/1024)/1024), 4).ToString();
             }
+
+            // Build unique list of line separated directories recursing up
+            // to root node based upon line separated list of directories.
+            // Initial purpose is to convert 'svnlook dirs-changed' output
+            // so that all parent directories are tested once for hook-prop.
+            [Function("build-dir-list")]
+            public string buildDirList( string dirlist )
+            {
+                return dirlist;
+            }
             ]]>
         </code>
     </script>
