@@ -72,9 +72,24 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/commit-access.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="commit-email" description="Generate email from commits using post-commit hook"
+    <target name="commit-allower" description="Control access to repository using start-commit hook"
+        depends="init,init-repos,init-svnlook,verify-repos-exists">
+        <nant buildfile="targets/commit-allower.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="commit-email" description="Generate email about commits using post-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/commit-email.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="propchange-access" description="Control property access using pre-revprop-change hook"
+        depends="init,init-repos,init-svnlook,verify-repos-exists">
+        <nant buildfile="targets/propchange-access.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="propchange-email" description="Email property changes using post-revprop-change hook"
+        depends="init,init-repos,init-svnlook,verify-repos-exists">
+        <nant buildfile="targets/propchange-email.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Working copy targets -->

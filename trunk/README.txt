@@ -125,14 +125,14 @@ Repository targets:
 
 Repository hook targets:
 
-  * commit-allower
-
-    Provides user-level access control to a repository using start-commit hook.
-
-
   * commit-access
 
     Provides granular access control to a repository using pre-commit hook.
+
+
+  * commit-allower
+
+    Provides user-level access control to a repository using start-commit hook.
 
 
   * commit-email
