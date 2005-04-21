@@ -15,10 +15,10 @@ $Id$
             <echo level="Warning" message="Creating ${create-fs-type} repository ${repo} under ${create-svn-root}"/>
             <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="create-result">
                 <arg value="create"/>
-                <arg value="--bdb-txn-nosync" if="${create-fs-type=='bdb' and bdb-txn-nosync=='true'}"/>
-                <arg value="--bdb-log-keep"   if="${create-fs-type=='bdb' and bdb-log-keep=='true'}"/>
-                <arg value="--config-dir"     if="${string::get-length(create-config-dir)>0}"/>
-                <arg value="${create-config-dir}"    if="${string::get-length(create-config-dir)>0}"/>
+                <arg value="--bdb-txn-nosync"     if="${create-fs-type=='bdb' and txn-nosync=='true'}"/>
+                <arg value="--bdb-log-keep"       if="${create-fs-type=='bdb' and log-keep=='true'}"/>
+                <arg value="--config-dir"         if="${string::get-length(create-config-dir)>0}"/>
+                <arg value="${create-config-dir}" if="${string::get-length(create-config-dir)>0}"/>
                 <arg value="--fs-type"/>
                 <arg value="${create-fs-type}"/>
                 <arg value="${path::combine(create-svn-root,repo)}"/>
@@ -26,8 +26,8 @@ $Id$
             <echo file="${exec-result}" message="${create-result}" append="false"/>   
             <echo if="${create-result=='0'}" file="${subnant-output}" message="Created ${create-fs-type} repository ${repo} under ${create-svn-root}" append="true"/>
             <echo if="${create-result!='0'}" file="${subnant-output}" message="*** ERROR creating ${create-fs-type} repository ${repo} under ${create-svn-root} ***" append="true"/>
-            <call target="copy-repos-conf"  unless="${create-result!='0' or (property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true')}"/>
-            <call target="copy-repos-hooks" unless="${create-result!='0' or (property::exists('no-hooks') and string::to-lower(no-hooks)=='true')}"/>
+            <call target="copy-repos-conf"  if="${create-result=='0'}" unless="${property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true'}"/>
+            <call target="copy-repos-hooks" if="${create-result=='0'}" unless="${property::exists('no-hooks') and string::to-lower(no-hooks)=='true'}"/>
         </foreach>
     </target>
 
@@ -45,12 +45,12 @@ $Id$
         <fail if="${string::get-length(create-config-dir)>=0 and directory::exists(create-config-dir)==false}" message="config-dir ${create-config-dir} doesn't exist"/>
         <!-- Assign, ready and verify bdb properties if needed -->
         <if test="${create-fs-type=='bdb'}">
-            <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-log-keep"   property="bdb-log-keep"   unless="${property::exists('bdb-log-keep')}"/>
-            <xmlpeek file="${config}" xpath="/configuration/svn-repos/bdb-txn-nosync" property="bdb-txn-nosync" unless="${property::exists('bdb-txn-nosync')}"/>
-            <property name="bdb-log-keep" value="${string::trim(string::to-lower(bdb-log-keep))}"/>
-            <property name="bdb-txn-nosync" value="${string::trim(string::to-lower(bdb-txn-nosync))}"/>
-            <fail if="${bdb-log-keep!='true' and bdb-log-keep!='false'}" message="bdb-log-keep ${bdb-log-keep} must be true or false"/>
-            <fail if="${bdb-txn-nosync!='true' and bdb-txn-nosync!='false'}" message="bdb-txn-nosync ${bdb-txn-nosync} must be true or false"/>
+            <property name="log-keep"   value="false"/>
+            <property name="txn-nosync" value="false"/>
+            <property name="log-keep"   value="${string::trim(string::to-lower(bdb-log-keep))}"   if="${property::exists('bdb-log-keep')}"/>
+            <property name="txn-nosync" value="${string::trim(string::to-lower(bdb-txn-nosync))}" if="${property::exists('bdb-txn-nosync')}"/>
+            <fail if="${log-keep!='true'   and log-keep!='false'}"   message="bdb-log-keep ${log-keep} must be true or false"/>
+            <fail if="${txn-nosync!='true' and txn-nosync!='false'}" message="bdb-txn-nosync ${txn-nosync} must be true or false"/>
         </if>
         <!-- Define file extension based upon operating sytem -->
         <property name="file-ext" value=".bat" if="${platform::is-win32()}"/>
@@ -66,17 +66,23 @@ $Id$
     </target>
 
     <target name="copy-repos-hooks">
-        <property name="pre-commit-hook"  value="${path::combine(subnant-root,'hooks/pre-commit'+file-ext)}"/>
-        <property name="post-commit-hook" value="${path::combine(subnant-root,'hooks/post-commit'+file-ext)}"/>
-        <copy file="${pre-commit-hook}"  if="${file::exists(pre-commit-hook)}"  todir="${path::combine(create-svn-root,repo+'/hooks')}"/>
-        <copy file="${post-commit-hook}" if="${file::exists(post-commit-hook)}" todir="${path::combine(create-svn-root,repo+'/hooks')}"/>
+        <property name="post-commit"         value="${path::combine(subnant-root,'hooks/post-commit'+file-ext)}"/>
+        <property name="post-revprop-change" value="${path::combine(subnant-root,'hooks/post-revprop-change'+file-ext)}"/>
+        <property name="pre-commit"          value="${path::combine(subnant-root,'hooks/pre-commit'+file-ext)}"/>
+        <property name="pre-revprop-change"  value="${path::combine(subnant-root,'hooks/pre-revprop-change'+file-ext)}"/>
+        <property name="start-commit"        value="${path::combine(subnant-root,'hooks/start-commit'+file-ext)}"/>
+        <copy file="${post-commit}"         if="${file::exists(post-commit)}"         todir="${path::combine(create-svn-root,repo+'/hooks')}"/>
+        <copy file="${post-revprop-change}" if="${file::exists(post-revprop-change)}" todir="${path::combine(create-svn-root,repo+'/hooks')}"/>
+        <copy file="${pre-commit}"          if="${file::exists(pre-commit)}"          todir="${path::combine(create-svn-root,repo+'/hooks')}"/>
+        <copy file="${pre-revprop-change}"  if="${file::exists(pre-revprop-change)}"  todir="${path::combine(create-svn-root,repo+'/hooks')}"/>
+        <copy file="${start-commit}"        if="${file::exists(start-commit)}"        todir="${path::combine(create-svn-root,repo+'/hooks')}"/>
     </target>
 
     <target name="help">
         <echo level="Warning">
             <![CDATA[create: usage: subnant create -D:repos=<repos> [-D:<option>=<value>]
 
-Create repositories using svnadmin and copy (if found) 
+Create repositories using svnadmin and (if found) copy 
 subnant/conf/svnserve.conf and any subnant/hooks/* 
 scripts appropriate for your operating system
 
@@ -88,8 +94,8 @@ svn-root        repository root directory *
 svn-bindir      Subversion binary directory *
 fs-type         type of repository to create: bdb or fsfs *
 config-dir      read user configuration files from this directory *
-bdb-log-keep    set true for automatic log file removal  [Berkeley DB] *
-bdb-txn-nosync  set true for fsync at transaction commit [Berkeley DB] *
+bdb-log-keep    set true for automatic log file removal  [Berkeley DB]
+bdb-txn-nosync  set true for fsync at transaction commit [Berkeley DB]
 no-svnserve     set true to not copy subnant/conf/svnserve.conf
 no-hooks        set true to not copy subnant/hooks/
 sendmail        set true to email result
