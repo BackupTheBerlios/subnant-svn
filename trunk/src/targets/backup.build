@@ -11,9 +11,9 @@ $Id$
 
     <target name="backup" depends="init">
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <call target="hotcopy-method"   if="${backup-method=='hotcopy'}"/>
-            <call target="dump-method"      if="${backup-method=='dump'}"/>
-            <call target="increment-method" if="${backup-method=='increment'}"/>
+            <call target="hotcopy-method"     if="${backup-method=='hotcopy'}"/>
+            <call target="dump-method"        if="${backup-method=='dump'}"/>
+            <call target="incremental-method" if="${backup-method=='incremental'}"/>
         </foreach>
         <echo unless="${backup-ok=='true'}" file="${subnant-output}" append="true"
             message="${string::pad-right('Backup complete',60,' ')}(${subnant::get-elapsed-time(backup-started)})"/>
@@ -26,28 +26,25 @@ $Id$
         <property name="backup-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="failonerror"    value="false"/>
         <property name="backup-ok"      value="true"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/hotcopy-root"
-            property="hotcopy-root" unless="${property::exists('hotcopy-root')}"/>
-        <xmlpeek file="${config}" xpath="/configuration/backup/method"
-            property="method" unless="${property::exists('method')}"/>
-        <xmlpeek file="${config}" xpath="/configuration/backup/verify-hotcopy"
-            property="verify-hotcopy" unless="${property::exists('verify-hotcopy')}"/>
-        <xmlpeek file="${config}" xpath="/configuration/backup/compress-dump"
-            property="compress-dump" unless="${property::exists('compress-dump')}"/>
-        <fail unless="${directory::exists(hotcopy-root)}"
-            message="hotcopy-root is invalid or does not exist in filesystem: ${hotcopy-root}"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/hotcopy-root" property="hotcopy-root"   unless="${property::exists('hotcopy-root')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/method"          property="method"         unless="${property::exists('method')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/verify-hotcopy"  property="verify-hotcopy" unless="${property::exists('verify-hotcopy')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/compress-dump"   property="compress-dump"  unless="${property::exists('compress-dump')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/deltas"          property="deltas"         unless="${property::exists('deltas')}"/>
+        <fail unless="${directory::exists(hotcopy-root)}" message="hotcopy-root is invalid or does not exist in filesystem: ${hotcopy-root}"/>
         <property name="backup-method" value="${string::trim(string::to-lower(method))}"/>
-        <fail unless="${backup-method=='hotcopy' or backup-method=='dump' or backup-method=='increment'}"
-            message="Backup method must be hotcopy or dump or increment"/>
+        <fail unless="${backup-method=='hotcopy' or backup-method=='dump' or backup-method=='incremental'}"
+            message="Backup method must be hotcopy or dump or incremental"/>
         <property name="verify-backup" value="${string::trim(string::to-lower(verify-hotcopy))}"/>
-        <fail if="${verify-backup!='false' and verify-backup!='true'}"
-            message="verify-hotcopy must be set true or false"/>
+        <fail if="${verify-backup!='false' and verify-backup!='true'}" message="verify-hotcopy must be set true or false"/>
         <property name="compress-backup" value="${string::trim(string::to-lower(compress-dump))}"/>
         <fail if="${compress-backup!='false' and int::parse(compress-backup)&lt;1 and int::parse(compress-backup)&gt;9}"
             message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
+        <property name="deltas-dump" value="${string::trim(string::to-lower(deltas))}"/>
+        <fail if="${deltas-dump!='false' and deltas-dump!='true'}" message="deltas must be set true or false"/>
     </target>
 
-    <target name="init-increment">
+    <target name="init-incremental">
         <echo level="Warning" message="::TODO:: Get highest and youngest"/>
         <property name="dump-highest"  value="0"/>
         <property name="dump-youngest" value="0"/>
@@ -106,13 +103,15 @@ $Id$
         <echo level="Warning" message="::TODO:: Cycle dump"/>
     </target>
 
-    <target name="increment-method" depends="init-increment">
-        <property name="increment-started" value="${datetime::get-ticks(datetime::now())}"/>
+    <target name="incremental-method" depends="init-incremental">
+        <property name="incremental-started" value="${datetime::get-ticks(datetime::now())}"/>
         <nant buildfile="dump.build" target="dump">
             <properties>
                 <property name="dump-repos"    value="${repo}"/>
                 <property name="dump-svn-root" value="${svn-root}"/>
                 <property name="dump-rev"      value="${dump-highest}:${dump-youngest}"/>
+                <property name="incremental"   value="true"/>
+                <property name="deltas"        value="${dump-deltas}"/>
             </properties>
         </nant>
         <loadfile file="${exec-result}" property="dump-result"/>
@@ -127,14 +126,14 @@ $Id$
 Backup repositories using a variety of methods
 
 Methods:
-hotcopy         verbatim copy of repository
-dump            dump all revisions into portable format
-increment       dump all younger revisions starting from highest revision
-                found in dump-root for repository (ie. only new revisions)
+hotcopy         verbatim copy of repository into hotcopy-root
+dump            dump all revisions using portable format into hotcopy-root
+incremental     dump all younger revisions committed after highest incremental
+                dump found in dump-root (i.e. only new revisions)
 
 Options:
 repos           comma separated list of repositories to backup *
-method          set backup method hotcopy or dump or increment **
+method          set backup method hotcopy or dump or incremental **
 verify-hotcopy  verify repository hotcopy **
 compress-dump   compress dump at compression level 1 (lowest) to 9 (highest) **
 svn-root        repository root directory **
