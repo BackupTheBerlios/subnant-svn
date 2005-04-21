@@ -22,37 +22,34 @@
             conditional="Must exist in file system">/svnroot/hotcopy</hotcopy-root>
         <fs-type
             description="Default type of repository created"
-            conditional="bdb or fsfs">bdb</fs-type>
+            conditional="bdb or fsfs">fsfs</fs-type>
         <config-dir
             description="Read user configuration files from directory"
             conditional="If empty assume default configuration file"></config-dir>
-        <bdb-log-keep 
-            description="Disable automatic log file removal [Berkeley DB]" 
-            conditional="true or false">false</bdb-log-keep>
-        <bdb-txn-nosync 
-            description="Disable fsync at transaction commit [Berkeley DB]"
-            conditional="true or false">false</bdb-txn-nosync>
     </svn-repos>
 
     <backup description="Default settings for backup target">
         <method
-            description="Backup methodology, all methods hotcopy then verify
-                         hotcopy   : verbatim copy of repository, includes all revisions and configuration
-                         dump      : dump hotcopy into portable format, suitable for compression and migration
-                         increment : dump all younger revisions starting from highest revision found in dump-root"
-            conditional="hotcopy or full-dump or increment">hotcopy</method>
+            description="Backup methodology takes one of three forms
+                         hotcopy     : verbatim copy of repository, includes all revisions and configuration
+                         dump        : dump all revisions into portable format, suitable for compression and migration
+                         incremental : dump younger revisions committed since highest incremental dump found in dump-root"
+            conditional="hotcopy or dump or incremental">hotcopy</method>
         <num-hotcopy
             description="Number of hotcopies to keep for a repository, cycled chronologically"
             conditional="Integer value from -1 where -1 = keep all and 0 = none (valid for dump or increment)">1</num-hotcopy>
         <verify-hotcopy
-            description="Verify repository hotcopy"
+            description="Verify after repository hotcopy"
             conditional="true or false">true</verify-hotcopy>
         <num-dump
-            description="Number of full dumps (not increment) to keep for a repository, cycled chronologically"
+            description="Number of full dumps (not incremental) to keep for a repository, cycled chronologically"
             conditional="Integer value from 1">1</num-dump>
         <compress-dump
-            description="Compress dump files"
-            conditional="false or compression level from 1 (lowest) to 9 (highest)">true</compress-dump>
+            description="Compress incremental or full dump files"
+            conditional="false or compression level from 1 (lowest) to 9 (highest)">6</compress-dump>
+        <deltas
+            description="Creates a smaller dumpfile by including compressed binary diffs, rather than fulltexts"
+            conditional="true or false">true</deltas>
     </backup>
 
     <mail description="Email settings">
@@ -68,8 +65,8 @@
     </mail>
 
     <logs description="Settings for Subnant log">
-    <logdir
-        description="Location where Subnant log files are stored"
+        <logdir
+            description="Location where Subnant log files are stored"
             conditional="If empty use default directory subnant/logs"></logdir>
         <max-age
             description="Number of days to keeps logs"
