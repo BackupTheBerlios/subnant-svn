@@ -38,64 +38,64 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     <!-- Repository targets -->
     <target name="backup" description="Backup repositories"
         depends="init,init-repos,init-svnadmin,init-svnlook,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/backup.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/backup.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="create" description="Create repositories"
         depends="init,init-repos,init-svnadmin">
-        <nant buildfile="targets/create.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/create.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="dump" description="Dump repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/dump.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/dump.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="load" description="Load repositories"
         depends="init,init-repos,init-svnadmin">
-        <nant buildfile="targets/load.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/load.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="migrate" description="Migrate repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/migrate.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/migrate.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="verify" description="Verify repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/verify.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/verify.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Repository hooks targets -->
     <target name="commit-access" description="Control access to repository using pre-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/commit-access.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/commit-access.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="commit-allower" description="Control access to repository using start-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/commit-allower.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/commit-allower.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="commit-email" description="Generate email about commits using post-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/commit-email.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/commit-email.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="propchange-access" description="Control property access using pre-revprop-change hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/propchange-access.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/propchange-access.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="propchange-email" description="Email property changes using post-revprop-change hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/propchange-email.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/propchange-email.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Working copy targets -->
     <target name="bugtraq" description="Set bugtraq props in working copy"
         depends="init,init-wc,init-svn,verify-wc-exists">
-        <nant buildfile="targets/bugtraq.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/client/bugtraq.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Other targets -->

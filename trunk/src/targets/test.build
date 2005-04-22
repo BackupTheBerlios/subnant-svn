@@ -31,7 +31,8 @@ $Id$
         <property name="wc"      value="${path::combine(test-root,'wc-'+test-fs)}"/>
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
-                <nant buildfile="${test-target}.build" target="test"/>
+                <nant buildfile="client/${test-target}.build" if="${test-target=='bugtraq'}" target="test"/>
+                <nant buildfile="server/${test-target}.build" if="${test-target!='bugtraq'}" target="test"/>
             </foreach>
         </if>
         <ifnot test="${property::exists('target')}">
@@ -42,13 +43,13 @@ $Id$
     <target name="test-all">
         <!-- ::TODO:: Create test target in each main target, so that all this test target has to do
              is setup the test framework (temp directories, etc)...the other targets test themselves -->
-    	<nant buildfile="create.build"  target="create"/>
+    	<nant buildfile="server/create.build"  target="create"/>
         <call target="create-workingcopy"/>
-        <nant buildfile="bugtraq.build" target="bugtraq"/>
+        <nant buildfile="client/bugtraq.build" target="bugtraq"/>
         <call target="commit-workingcopy"/>
         <call target="search-log"/>
-        <nant buildfile="verify.build"  target="verify"/>
-        <nant buildfile="dump.build"    target="dump"/>
+        <nant buildfile="server/verify.build"  target="verify"/>
+        <nant buildfile="server/dump.build"    target="dump"/>
         <!--<nant buildfile="migrate.build" target="test"/> migrate tests nearly everything! -->
     </target>
 
