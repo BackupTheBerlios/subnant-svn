@@ -10,102 +10,133 @@ $Id$
 <project name="commit-email" default="commit-email">
 
     <!-- Main (default) Target -->
-    <target name="commit-email" depends="init,get-hook-emails,get-commit-details">
-        <if test="${string::get-length(mail_tolist)&gt;0}">
-            <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail_from"/>
-            <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>
-            <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail_prefix"/>
-            <echo level="Warning" message="Sending commit-email for repository ${repo} on revision ${rev} to ${mail_tolist}"/>
-            <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_tolist}"
-              subject="[${repo} commit] rev ${rev}">
-                <files>
-                    <include name="${temp-file}"/>
-                </files>
-            </mail>
-            <echo file="${subnant-output}" append="true"
-                message="Sent commit-email for repository ${repo} on revision ${rev} to ${mail_tolist}"/>
-        </if>
-        <if test="${string::get-length(mail_tolist)==0}">
-            <echo file="${subnant-output}" append="true"
-                message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)"/>
-            <echo level="Warning" message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)"/>
-        </if>
-        <delete file="${temp-file}" if="${file::exists(temp-file)}"/>
+    <target name="commit-email" depends="init,get-hook-emails">
+       <call target="build-revision-info" if="${prop-list!=''}"/>
     </target>
 
     <!-- Sub targets -->
     <target name="init">
         <fail unless="${property::exists('repos')}" message="repos not set"/>
         <fail unless="${property::exists('rev')}"   message="rev not set"/>
-        <property name="hook-prop"   value="hook:commit-email" unless="${property::exists('hook-prop')}"/>
-        <property name="repo"        value="${path::get-file-name(repos)}"/>
-        <property name="mail_tolist" value=""/>
-        <property name="dir-check"   value=""/>
-        <property name="dir-list"    value=""/>
-        <property name="temp-file"   value="${exec-output}-commit-email"/>
+        <property name="hook-prop"    value="hook:commit-email" unless="${property::exists('hook-prop')}"/>
+        <property name="svnlook-file" value="${exec-output}-svnlook-result"/>
+        <property name="dir-file"     value="${exec-output}-commit-email"/>
+        <property name="repo"         value="${path::get-file-name(repos)}"/>
+        <property name="mail-tolist"  value=""/>
+        <property name="prop-list"    value=""/>
+        <property name="dir-check"    value=""/>
     </target>
 
     <target name="get-hook-emails">
         <!-- Get list of directories changed for revision -->
         <property name="subcommand" value="dirs-changed"/>
         <call target="exec-svnlook"/>
-        <!-- Build directory tree list back to root node ::TODO:: -->
-        <loadfile file="${exec-output}" property="dir-test"/>
-        <property name="dir-test" value="${subnant::build-dir-list(dir-test)}"/>
-        <!-- Temporary solution until ::TODO:: above is sorted -->
-        <property name="dir-list" value="${exec-output}-dir-list"/>
-        <copy file="${exec-output}" tofile="${dir-list}"/> 
+        <loadfile file="${exec-output}" property="dir-list-prop"/>
+        <!-- Build unique directory tree list back to root node -->
+        <property name="dir-list-prop" value="${subnant::build-dir-list(dir-list-prop)}"/>
+        <echo file="${dir-file}" message="${string::trim(dir-list-prop)}"/>
         <!-- Search the built directory list -->
         <call target="find-hook-prop"/>
         <!-- Delete our temp directory list -->
-        <delete file="${dir-list}" if="${file::exists(dir-list)}"/>
+        <delete file="${dir-file}" if="${file::exists(dir-file)}"/>
     </target>
 
     <target name="find-hook-prop">
         <!-- Don't fail svnlook if hook:commit-email property not found -->
         <property name="failonerror" value="false"/>
         <!-- Search for hook:commit-email property in each directory -->
-        <foreach item="Line" in="${dir-list}" property="dir-check">
+        <foreach item="Line" in="${dir-file}" property="dir-check">
             <property name="subcommand" value="propget"/>
             <call target="exec-svnlook"/>
-            <!-- If hook:commit-email found, add each address only once -->
+            <!-- If hook:commit-email found, add each address and optional subcommand -->
             <if test="${svnlook-result=='0'}">
-                <!-- Email addresses may be line delimited -->
+                <!-- Email addresses and subcommands may be line delimited -->
                 <foreach item="Line" in="${exec-output}" property="address-line">
-                    <!-- Replace , with ; as per spec for NAnt mail task -->
-                    <property name="address-line" value="${string::replace(address-line,',',';')}"/>
-                    <!-- Email addresses may be ; delimited -->
-                    <foreach item="String" delim=";" in="${address-line}" property="address">
-                        <!-- Only add address if it doesn't already exist in list -->
-                        <property name="mail_tolist" value="${mail_tolist};${address}"
-                            unless="${string::contains(string::to-lower(mail_tolist),string::to-lower(address))}"/>
-                    </foreach>
+                    <!-- Only add address if it and subcommand don't already exist in list -->
+                    <property name="prop-list" value="${prop-list};${address-line}"
+                        unless="${string::contains(string::to-lower(prop-list),string::to-lower(address-line))}"/>
                 </foreach>
             </if>
         </foreach>
-        <!-- Trim start of address list to remove ; if it exists -->
-        <property name="mail_tolist" value="${string::substring(mail_tolist,1,string::get-length(mail_tolist)-1)}"
-            if="${string::starts-with(mail_tolist,';')}"/>
+        <!-- Trim start of list to remove semi-comma (if it exists) -->
+        <property name="prop-list" value="${string::substring(prop-list,1,string::get-length(prop-list)-1)}"
+            if="${string::starts-with(prop-list,';')}"/>
         <!-- Done searching, so turn failonerror back on -->
         <property name="failonerror" value="true"/>
     </target>
 
-    <target name="get-commit-details">
-        <!-- Who changed it -->
-        <property name="subcommand" value="author"/>
-        <call target="exec-svnlook"/>
-        <loadfile file="${exec-output}" property="temp-prop"/>
-        <echo file="${temp-file}" message="Author: ${temp-prop}"/>
-        <!-- Why was it changed -->
-        <property name="subcommand" value="log"/>
-        <call target="exec-svnlook"/>
-        <loadfile file="${exec-output}" property="temp-prop"/>
-        <echo file="${temp-file}" append="true" message="Log: ${temp-prop}"/>
-        <!-- What changed and when -->
-        <property name="subcommand" value="diff"/>
-        <call target="exec-svnlook"/>
-        <loadfile file="${exec-output}" property="temp-prop"/>
-        <echo file="${temp-file}" append="true" message="${temp-prop}"/>
+    <target name="build-revision-info">
+        <!-- Now that we have filtered list of addresses, search for svnlook subcommands -->
+        <property name="found-subcommand" value="${string::contains(prop-list,'=')}"/>
+        <!-- No subcommands found?  Easy, all emails sent at once using svnlook diff -->
+        <ifnot test="${found-subcommand}">
+            <property name="mail-tolist" value="${prop-list}"/>
+            <property name="subcommand"  value="diff"/>
+            <call target="exec-svnlook"/>
+            <copy file="${exec-output}" tofile="${svnlook-file}"/>
+            <call target="mail-revision-info"/>
+        </ifnot>
+        <!-- We found subcommands?  Okay, send each email independently -->
+        <!-- ::TODO:: This needs refactoring to group addresses by matching subcommands, I doubt there
+             is an easy way in NAnt, so a custom script will need to be created to build the list e.g.
+             autobot1@example.com   (no subcommand - use diff)
+             autobot2@example.com;autobot3@example.com=author,log
+             autobot4@example.com;autobot5@example.com;autobot6@example.com=author,log,date,diff
+             (No changes to code below required since mail-tolist should consume multiple addresses)
+        -->
+        <if test="${found-subcommand}">
+            <foreach item="String" in="${prop-list}" delim=";" property="prop-line">
+                <!-- Check again...just in case some of the address have no subcommands-->
+                <property name="no-subcommands" value="${string::contains(prop-line,'=')}"/>
+                <!-- Love those double negatives :) -->
+                <ifnot test="${no-subcommands}">
+                    <property name="mail-tolist" value="${prop-line}"/>
+                    <property name="subcommand"  value="diff"/>
+                    <call target="exec-svnlook"/>
+                    <copy file="${exec-output}" tofile="${svnlook-file}"/>
+                    <call target="mail-revision-info"/>
+                </ifnot>
+                <if test="${no-subcommands}">
+                    <property name="mail-tolist" value="${string::substring(prop-line,0,string::index-of(prop-line,'='))}"/>
+                    <property name="subcommands" value="${string::replace(prop-line,mail-tolist+'=','')}"/>
+                    <!-- Execute svnlook for each subcommand found building list -->
+                    <foreach item="String" in="${subcommands}" delim="," property="subcommand">
+                        <property name="subcommand" value="${string::trim(string::to-lower(subcommand))}"/>
+                        <regex pattern="(?'valid'.*(author|changed|date|diff|dirs-changed|history|info|log|tree))" input="${subcommand}"/>
+                        <if test="${valid==subcommand}">
+                            <property name="prefix" value=""/>
+                            <!-- Add capitalised prefix if appropriate -->
+                            <property name="prefix" value="${string::to-upper(string::substring(subcommand,0,1))+string::substring(subcommand,1,string::get-length(subcommand)-1)+': '}"
+                                if="${subcommand=='author' or subcommand=='changed' or subcommand=='date' or subcommand=='log'}"/>
+                            <call target="exec-svnlook"/>
+                            <loadfile file="${exec-output}" property="temp-prop"/>
+                            <echo file="${svnlook-file}" append="true" message="${prefix}${temp-prop}"/>
+                        </if>
+                    </foreach>
+                    <call target="mail-revision-info"/>
+                </if>
+            </foreach>
+        </if>
+        <if test="${string::get-length(prop-list)==0}">
+            <echo file="${subnant-output}" append="true"
+                message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)"/>
+            <echo level="Warning" message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)"/>
+        </if>
+    </target>
+
+    <target name="mail-revision-info">
+        <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail-from"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail-host"/>
+        <echo level="Warning" message="Sending commit-email for repository ${repo} on revision ${rev} to ${mail-tolist}"/>
+        <mail mailhost="${mail-host}" from="${mail-from}" tolist="${mail-tolist}"
+          subject="[${repo} commit] rev ${rev}">
+            <files>
+                <include name="${svnlook-file}"/>
+            </files>
+        </mail>
+        <echo file="${subnant-output}" append="true"
+            message="Sent commit-email for repository ${repo} on revision ${rev} to ${mail-tolist}"/>
+        <delete file="${svnlook-file}" if="${file::exists(svnlook-file)}"/>
     </target>
 
     <target name="exec-svnlook">
@@ -130,16 +161,20 @@ $Id$
         <echo level="Warning">
             <![CDATA[commit-email: usage: subnant commit-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
 
-Sends email on who, why, when, where and what changed in a revision.
+Sends email about a committed revision.
 
-Finds email addresses using Subversion property hook:commit-email
-on directory of affected file(s).  Will recursive up the directory
-tree back to the root node searching for hook:commit-email property.
+Searches for email addresses using Subversion hook:commit-email property
+on directory or parent directories of affected file(s).  Multiple email
+addresses can be stored as line delimited values.
 
-Typically used in post-commit hook, but can be called independently.
+Output generated in email defaults to svnlook diff for revision, but may
+be defined in hook:commit-email for each address using address=subcommand
+syntax, e.g. subnant@example.com=info,diff  
 
-Multiple email addresses stored in hook:commit-email property may be
-comma or semi-comma or line separated.
+Accepted svnlook subcommands are:
+author, changed, date, diff, dirs-changed, history, info, log, tree
+
+Normally used with post-commit hook, but may be called independently.
             
 Required:
 repos            full path to repository

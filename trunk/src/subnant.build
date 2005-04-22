@@ -385,7 +385,7 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
             [Function("build-dir-list")]
             public string buildDirList( string dirlist )
             {
-                return dirlist;
+                return dirlist.Trim();
             }
             ]]>
         </code>
