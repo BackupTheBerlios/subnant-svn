@@ -5,7 +5,7 @@ Copyright (C) 2005 Simon McKenna
 Licensed under the GNU General Public License
 http://www.gnu.org/copyleft/gpl.html
 
-$Id$ 
+$Id$
 -->
 <project name="commit-email" default="commit-email">
 
@@ -33,8 +33,7 @@ $Id$
         <call target="exec-svnlook"/>
         <loadfile file="${exec-output}" property="dir-list-prop"/>
         <!-- Build unique directory tree list back to root node -->
-        <property name="dir-list-prop" value="${subnant::build-dir-list(dir-list-prop)}"/>
-        <echo file="${dir-file}" message="${string::trim(dir-list-prop)}"/>
+        <echo file="${dir-file}" message="${subnant::build-dir-list(dir-list-prop)}"/>
         <!-- Search the built directory list -->
         <call target="find-hook-prop"/>
         <!-- Delete our temp directory list -->
