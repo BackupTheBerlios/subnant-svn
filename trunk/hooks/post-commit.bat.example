@@ -29,4 +29,4 @@ REM
 REM
 REM Visit http://subnant.berlios.de for details on command below
 
-subnant commit-email -D:repos="%1" -D:rev="%2"
+start /b subnant commit-email -D:repos="%1" -D:rev="%2" -D:kill=true
