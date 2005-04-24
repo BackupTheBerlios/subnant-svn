@@ -437,8 +437,8 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
             }
 
             /// <summary>
-            /// Kills current process.  Primarily used when Subversion post-commit hooks have spawned
-            /// a subnant process through a shell to avoid waiting for post-commit operation to end
+            /// Kills current process.  Primarily used when Subversion post-process hooks have spawned
+            /// a subnant process through a shell to avoid waiting for post-process operation to end
             /// (e.g. when using DOS start /b command or Linux & option)
             /// </summary>
             [TaskName("killprocess")]
