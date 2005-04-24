@@ -35,7 +35,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         </if>
     </target>
 
-    <!-- Repository targets -->
+    <!-- Repository (server) targets -->
     <target name="backup" description="Backup repositories"
         depends="init,init-repos,init-svnadmin,init-svnlook,verify-repos-exists,build-repos-list">
         <nant buildfile="targets/server/backup.build" target="${subnant::get-target()}"/>
@@ -92,7 +92,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/server/hooks/propchange-email.build" target="${subnant::get-target()}"/>
     </target>
 
-    <!-- Working copy targets -->
+    <!-- Working copy (client) targets -->
     <target name="bugtraq" description="Set bugtraq props in working copy"
         depends="init,init-wc,init-svn,verify-wc-exists">
         <nant buildfile="targets/client/bugtraq.build" target="${subnant::get-target()}"/>
@@ -256,8 +256,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <if test="${property::exists('nant-output') and file::exists(nant-output)}">
             <record name="${nant-output}" action="Close" />
         </if>
-        <call target="mail"/>
-        <call target="delete-temp-files"/>
+        <call target="finally"/>
     </target>
 
     <target name="failure">
@@ -269,11 +268,15 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <if test="${property::exists('nant-output') and file::exists(nant-output)}">
             <record name="${nant-output}" action="Close" />
         </if>
-        <call target="mail"/>
-        <call target="delete-temp-files"/>
+        <call target="finally"/>
     </target>
 
-    <target name="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))=='true'}">
+    <target name="finally">
+        <call target="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))=='true'}"/>
+        <call target="delete-temp-files"/>
+    </target>   
+
+    <target name="mail">
         <fail unless="${property::exists('config')}" message="Email not sent as config file not yet set"/>
         <!-- Mail message is culmination of results from all targets executed -->
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
@@ -298,22 +301,21 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
     </target>
 
     <target name="delete-temp-files">
-        <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
-            <delete file="${subnant-output}"/>
-        </if>
-        <if test="${property::exists('exec-output') and file::exists(exec-output)}">
-            <delete file="${exec-output}"    if="${file::exists(exec-output)}"/>
-        </if>
-        <if test="${property::exists('exec-result') and file::exists(exec-result)}">
-            <delete file="${exec-result}"    if="${file::exists(exec-result)}"/>
-        </if>
+        <delete file="${subnant-output}" if="${property::exists('subnant-output') and file::exists(subnant-output)}"/>
+        <delete file="${exec-output}"    if="${property::exists('exec-output') and file::exists(exec-output)}"/>
+        <delete file="${exec-result}"    if="${property::exists('exec-result') and file::exists(exec-result)}"/>
     </target>
    
     <!-- Custom tasks used in Subnant.build or more than target build -->
     <script language="C#" prefix="subnant">
+        <imports>
+            <import namespace="System.Diagnostics"/>   
+        </imports>   
         <code>
             <![CDATA[
-            // Function to determine whether to call help or default target
+            /// <summary>
+            /// Determines whether to call help or default subnant target
+            /// </summary>
             [Function("get-target")]
             public string getSubnantTarget()
             {
@@ -323,15 +325,19 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
                     return Project.CurrentTarget.Name;
             }
 
-            // Function to return count of build targets, as help should display subnant
-            // usage (if their is only one build target) rather than the main targets help
+            /// <summary>
+            /// Return count of build targets, as help should display subnant usage
+            /// if there is only one build target, rather than main targets help
+            /// </summary>
             [Function("get-targets-count")]
             public int getSubnantTargetsCount()
             {
                 return Project.BuildTargets.Count;
             }
 
-            // Display list of build targets   
+            /// <summary>
+            /// Display list of build targets   
+            /// </summary>
             [Function("get-build-targets")]
             public string getSubnantBuildTargets()
             {
@@ -347,11 +353,13 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
                 return targets;
             }
 
-            // path::get-directory-name() returns full path, sometimes we just want directory name   
+            /// <summary>
+            /// NAnt path::get-directory-name() returns full path, sometimes we just want directory name   
+            /// </summary>
             [Function("return-directory-name")]
-            public string getSubnantDirectoryName( string path )
+            public string getSubnantDirectoryName(string path)
             {
-                DirectoryInfo directory = new DirectoryInfo( path );
+                DirectoryInfo directory = new DirectoryInfo(path);
                 return directory != null ? directory.Name : string.Empty;
             }
 
@@ -363,29 +371,68 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
                 return Math.Round(elapsed.TotalSeconds, 2).ToString();
             }
 
-            // Subversion may want a uri instead of path   
+            /// <summary>
+            /// Subversion somtimes wants an Uri instead of path   
+            /// </summary>
             [Function("to-uri")]
-            public string pathToUriString( string path )
+            public string pathToUriString(string path)
             {
-                Uri pathToUri = new Uri( path );
+                Uri pathToUri = new Uri(path);
                 return pathToUri.ToString();
             }
 
-            // Display length of file in MB
+            /// <summary>
+            /// Display length of file in MB instead of bytes
+            /// </summary>
             [Function("length-in-mb")]
-            public string getLengthInMb( double length )
+            public string getLengthInMb(double length)
             {
                 return Math.Round(((length/1024)/1024), 4).ToString();
             }
 
-            // Build unique list of line separated directories recursing up
-            // to root node based upon line separated list of directories.
-            // Initial purpose is to convert 'svnlook dirs-changed' output
-            // so that all parent directories are tested once for hook-prop.
+            /// <summary>
+            /// Build unique list of line separated directories recursing up
+            /// to root node based upon line separated list of directories.
+            /// Initial purpose is to convert 'svnlook dirs-changed' output
+            /// so that all parent directories are tested once for hook-prop.
+            /// </summary>
             [Function("build-dir-list")]
-            public string buildDirList( string dirlist )
+            public string buildDirList(string dirsChanged)
             {
-                return dirlist.Trim();
+                string[]  dirsList   = dirsChanged.Split(Environment.NewLine.ToCharArray());
+                string[]  tempDirs;
+                ArrayList dirsPath   = new ArrayList();
+                string    dirsResult = String.Empty;
+                string    tempPath   = String.Empty;
+                string    dirSplit   = "/";
+    
+                foreach (string dir in dirsList)
+                {
+                    tempPath = String.Empty;
+                    tempDirs = dir.Split(dirSplit.ToCharArray());
+
+                    foreach (string path in tempDirs)
+                    {
+                        tempPath += path;
+                        if (!tempPath.EndsWith(dirSplit))
+                        {
+                            tempPath += dirSplit;   
+                        }   
+
+                        // Add each directory to result if it isn't already in there
+                        if (dirsPath.IndexOf(tempPath) < 0)
+                        {
+                            dirsPath.Add(tempPath);
+                        }
+                    }
+                }
+
+                dirsPath.Sort();
+                foreach (string dir in dirsPath)
+                {
+                    dirsResult += dir + Environment.NewLine;
+                }
+                return dirsResult.Trim();
             }
             ]]>
         </code>
