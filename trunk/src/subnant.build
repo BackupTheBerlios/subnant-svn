@@ -129,7 +129,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <!-- Assign default config file unless already set from command-line -->
         <property name="config" value="${path::combine(subnant-root,'conf/subnant.config')}"
             unless="${property::exists('config')}"/>
-        <fail unless="${file::exists(config)}" message="Could not find ${path::get-file-name(config)}"/>
+        <fail unless="${file::exists(config)}" message="File not found: ${path::get-file-name(config)}"/>
         <!-- Assign default Subversion directory unless already set from command-line -->
         <xmlpeek file="${config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}"/>
         <!-- Verify Subversion directory is valid if set -->
@@ -301,9 +301,15 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
     </target>
 
     <target name="delete-temp-files">
-        <delete file="${subnant-output}" if="${property::exists('subnant-output') and file::exists(subnant-output)}"/>
-        <delete file="${exec-output}"    if="${property::exists('exec-output') and file::exists(exec-output)}"/>
-        <delete file="${exec-result}"    if="${property::exists('exec-result') and file::exists(exec-result)}"/>
+        <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
+            <delete file="${subnant-output}"/>
+        </if>
+        <if test="${property::exists('exec-output') and file::exists(exec-output)}">
+            <delete file="${exec-output}"/>
+        </if>
+        <if test="${property::exists('exec-result') and file::exists(exec-result)}">
+            <delete file="${exec-result}"/>
+        </if>
     </target>
    
     <!-- Custom tasks used in Subnant.build or more than target build -->
