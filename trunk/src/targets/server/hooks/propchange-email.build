@@ -143,7 +143,6 @@ user             name of user changing property (if empty uses svnlook author)
 propname         name of property changed (if empty uses svnlook diff)
 no-diff-deleted  set true to not print differences for deleted properties
 hook-prop        search for another property (not hook:propchange-email)
-kill             set true to kill subnant process on completion
 sendmail         set true to email result
 
 Examples:

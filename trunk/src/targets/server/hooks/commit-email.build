@@ -182,7 +182,6 @@ rev              revision number (must exist in repository)
 Options:
 no-diff-deleted  set true to not print differences for deleted files
 hook-prop        search for another property (not hook:commit-email)
-kill             set true to kill subnant process on completion
 sendmail         set true to email result
 
 Examples:

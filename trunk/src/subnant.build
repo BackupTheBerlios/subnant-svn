@@ -274,7 +274,6 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     <target name="finally">
         <call target="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))=='true'}"/>
         <call target="delete-temp-files"/>
-        <killprocess if="${property::exists('kill') and string::trim(string::to-lower(kill))=='true'}"/>
     </target>
 
     <target name="mail">
@@ -434,21 +433,6 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
                     dirsResult += dir + Environment.NewLine;
                 }
                 return dirsResult.Trim();
-            }
-
-            /// <summary>
-            /// Kills current process.  Primarily used when Subversion post-process hooks have spawned
-            /// a subnant process through a shell to avoid waiting for post-process operation to end
-            /// (e.g. when using DOS start /b command or Linux & option)
-            /// </summary>
-            [TaskName("killprocess")]
-            public class KillCurrentProcess : Task
-            {
-                protected override void ExecuteTask()
-                {
-                    Process currentProcess = Process.GetCurrentProcess();
-                    currentProcess.Kill();
-                }
             }
             ]]>
         </code>
