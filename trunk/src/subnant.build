@@ -118,8 +118,8 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     <target name="init">
         <tstamp property="tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
         <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="nant.onsuccess"  value="success"/>
-        <property name="nant.onfailure"  value="failure"/>
+        <property name="nant.onsuccess"  value="on-success"/>
+        <property name="nant.onfailure"  value="on-failure"/>
         <!-- By default Subnant will fail on any <exec> task errors, which is what most normal operations would want.
              However, for the backup target, one repository failing to <exec> should not stop other repositories from
              being backed up.  So we make the failonerror property switchable and use a variable to store the result -->    
@@ -251,7 +251,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <!-- Final targets -->
-    <target name="success">
+    <target name="on-success">
         <property name="subject" value="Success on ${subnant::get-build-targets()}"/>
         <if test="${property::exists('nant-output') and file::exists(nant-output)}">
             <record name="${nant-output}" action="Close" />
@@ -259,7 +259,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <call target="finally"/>
     </target>
 
-    <target name="failure">
+    <target name="on-failure">
         <property name="subject" value="*** ERROR during ${subnant::get-build-targets()} ***"/>
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
             <property name="attach-output" value="true"/>
@@ -434,10 +434,12 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
                 }
 
                 dirsPath.Sort();
+   
                 foreach (string dir in dirsPath)
                 {
                     dirsResult += dir + Environment.NewLine;
                 }
+ 
                 return dirsResult.Trim();
             }
             ]]>
