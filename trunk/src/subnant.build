@@ -152,14 +152,14 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <mkdir dir="${logdir}" unless="${directory::exists(logdir)}"/>
         <property name="nant-output" value="${path::combine(logdir,'subnant-'+tstamp+'.log')}"/>
         <record name="${nant-output}" level="Info" action="Start"/>
-        <!-- Define file used for Subnant output (used when sendmail=true) -->
-        <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+tstamp)}"/>
         <!-- Define file used for <exec> task output -->
         <property name="exec-output" value="${path::combine(path::get-temp-path(),'exec-output'+tstamp)}"/>
         <!-- Define file used to store <exec> task result across targets -->
         <property name="exec-result" value="${path::combine(path::get-temp-path(),'exec-result'+tstamp)}"/>        
-        <!-- ::TODO:: Convert ticks in subnant-started to datetime string -->
-        <echo file="${subnant-output}" append="false">Subnant started ${datetime::to-string(datetime::now())}
+        <!-- Define file used for Subnant output (used when sendmail=true) -->
+        <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+tstamp)}"/>
+        <!-- ::TODO:: Add option for UTC instead of server localtime output? -->
+        <echo file="${subnant-output}" append="false">Subnant started ${subnant::ticks-to-string(subnant-started)}
 </echo>
     </target>
    
@@ -289,7 +289,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <!-- Mail message is culmination of results from all targets executed -->
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
             <echo file="${subnant-output}" append="true">
-${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,' ')}(${subnant::get-elapsed-time(subnant-started)} seconds)</echo>
+${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::get-elapsed-time(subnant-started)} seconds)</echo>
             <loadfile file="${subnant-output}" property="message"/>
         </if>
         <ifnot test="${property::exists('subnant-output') and file::exists(subnant-output)}">
@@ -324,7 +324,7 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
     <script language="C#" prefix="subnant">
         <imports>
             <import namespace="System.Diagnostics"/>   
-        </imports>   
+        </imports>
         <code>
             <![CDATA[
             /// <summary>
@@ -394,10 +394,20 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
             }
 
             /// <summary>
+            /// Display DateTime string from ticks
+            /// </summary>
+            [Function("ticks-to-string")]
+            public string getDateTimeFromTicks(Int64 ticks)
+            {
+                DateTime result = new DateTime(ticks);
+                return result.ToString();
+            }
+
+            /// <summary>
             /// Display elapsed time in seconds to 2 decimal places using ticks for accuracy   
             /// </summary>
             [Function("get-elapsed-time")]
-            public string getSubnantElapsedTime(long ticks)
+            public string getElapsedTime(long ticks)
             {
                 TimeSpan elapsed = TimeSpan.FromTicks(DateTime.Now.Ticks - ticks);
                 return Math.Round(elapsed.TotalSeconds, 2).ToString();
