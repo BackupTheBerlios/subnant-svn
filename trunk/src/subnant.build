@@ -14,7 +14,7 @@ $Id$
     <!-- Main targets -->
 
     <!-- Default target -->
-    <target name="help">
+    <target name="help" description="Display help">
         <if test="${subnant::get-targets-count()==1}">
             <echo level="Warning">
                 <![CDATA[Subversion administration using NAnt
@@ -98,7 +98,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/client/bugtraq.build" target="${subnant::get-target()}"/>
     </target>
 
-    <!-- Other targets -->
+    <!-- Other main targets -->
     <target name="config" description="Show subnant configuration"
         depends="init,init-repos">
         <nant buildfile="targets/config.build" target="${subnant::get-target()}"/>
@@ -116,17 +116,24 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
 
     <!-- Sub targets -->
     <target name="init">
+        <property name="nant.onsuccess" value="on-success"/>
+        <property name="nant.onfailure" value="on-failure"/>
         <tstamp property="tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
         <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="nant.onsuccess"  value="on-success"/>
-        <property name="nant.onfailure"  value="on-failure"/>
-        <!-- By default Subnant will fail on any <exec> task errors, which is what most normal operations would want.
-             However, for the backup target, one repository failing to <exec> should not stop other repositories from
-             being backed up.  So we make the failonerror property switchable and use a variable to store the result -->    
-        <property name="failonerror"    value="true"/>
-        <property name="subnant-root"   value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"
+        <!-- By default Subnant will fail on any <exec> task errors, however some for targets
+             (e.g. backup and post-commit) an svn reported error shouldn't always trigger failure.
+             So we make the failonerror property switchable and use a variable to store the result -->
+        <property name="failonerror" value="true"/>
+        <!-- Initalise and verify subnant core -->
+        <call target="init-subnant"/>
+        <!-- If we're not displaying help cycle logs -->
+        <call target="init-logs" unless="${subnant::get-target()=='help'}"/>
+    </target>
+
+    <target name="init-subnant">
+        <property name="subnant-root" value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"
             unless="${property::exists('subnant-root')}"/>
-        <!-- Assign default config file unless already set from command-line -->
+        <!-- Assign and verify config file unless already set from command-line -->
         <property name="config" value="${path::combine(subnant-root,'conf/subnant.config')}"
             unless="${property::exists('config')}"/>
         <fail unless="${file::exists(config)}" message="File not found: ${path::get-file-name(config)}"/>
@@ -145,41 +152,42 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <mkdir dir="${logdir}" unless="${directory::exists(logdir)}"/>
         <property name="nant-output" value="${path::combine(logdir,'subnant-'+tstamp+'.log')}"/>
         <record name="${nant-output}" level="Info" action="Start"/>
-        <!-- Define file used for Subnant output (used in emails) -->
+        <!-- Define file used for Subnant output (used when sendmail=true) -->
         <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+tstamp)}"/>
-        <!-- Define file used for <exec> task output (used for diff, etc) -->
+        <!-- Define file used for <exec> task output -->
         <property name="exec-output" value="${path::combine(path::get-temp-path(),'exec-output'+tstamp)}"/>
         <!-- Define file used to store <exec> task result across targets -->
-        <property name="exec-result" value="${path::combine(path::get-temp-path(),'exec-result'+tstamp)}"/>
+        <property name="exec-result" value="${path::combine(path::get-temp-path(),'exec-result'+tstamp)}"/>        
+        <!-- ::TODO:: Convert ticks in subnant-started to datetime string -->
         <echo file="${subnant-output}" append="false">Subnant started ${datetime::to-string(datetime::now())}
 </echo>
-        <!-- If we're not displaying help cycle logs by maximum file age defined in config -->
-        <if test="${subnant::get-target()!='help'}">
-            <xmlpeek file="${config}" xpath="/configuration/logs/max-age" property="logs-max-age"/>
-            <xmlpeek file="${config}" xpath="/configuration/logs/archive" property="archive"/>
-            <property name="archive" value="${string::trim(string::to-lower(archive))}"/>
-            <property name="archive" value="${string::trim(string::to-lower(archive))}"/>
-            <foreach item="File" property="log-file" if="${logs-max-age!='false' and logs-max-age&gt;='0'}">
-                <in>
-                    <items>
-                        <include name="${path::combine(logdir,'*.log')}"/>
-                        <exclude name="${nant-output}"/>
-                    </items>
-                </in>
-                <do>
-                    <if test="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-max-age))}">
-                        <zip if="${archive=='true'}" zipfile="${path::combine(logdir,'archive.zip')}" failonerror="false" ziplevel="9" comment="Subnant logs">
-                            <fileset>
-                                <!--<include name="${archived-logs}"/> ::TODO:: Append zip? Or unzip to temp and re-add? -->
-                                <include name="${log-file}"/>
-                                <exclude name="${nant-output}"/>
-                            </fileset>
-                        </zip>
-                        <delete file="${log-file}"/>
-                    </if>
-                </do>
-            </foreach>
-        </if>
+    </target>
+   
+    <target name="init-logs">
+        <!-- Use maximum file age defined in config -->
+        <xmlpeek file="${config}" xpath="/configuration/logs/max-age" property="logs-max-age"/>
+        <xmlpeek file="${config}" xpath="/configuration/logs/archive" property="archive"/>
+        <property name="archive" value="${string::trim(string::to-lower(archive))}"/>
+        <foreach item="File" property="log-file" if="${logs-max-age!='false' and logs-max-age&gt;='0'}">
+            <in>
+                <items>
+                    <include name="${path::combine(logdir,'*.log')}"/>
+                    <exclude name="${nant-output}"/>
+                </items>
+            </in>
+            <do>
+                <if test="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-max-age))}">
+                    <zip if="${archive=='true'}" zipfile="${path::combine(logdir,'archive.zip')}" failonerror="false" ziplevel="9" comment="Subnant logs">
+                        <fileset>
+                            <!--<include name="${archived-logs}"/> ::TODO:: Append zip? Or unzip to temp and re-add? -->
+                            <include name="${log-file}"/>
+                            <exclude name="${nant-output}"/>
+                        </fileset>
+                    </zip>
+                    <delete file="${log-file}"/>
+                </if>
+            </do>
+        </foreach>
     </target>
 
     <target name="init-repos">
@@ -312,7 +320,7 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
         </if>
     </target>
    
-    <!-- Custom tasks used in Subnant.build or more than target build -->
+    <!-- Custom tasks and functions -->
     <script language="C#" prefix="subnant">
         <imports>
             <import namespace="System.Diagnostics"/>   
@@ -326,9 +334,13 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
             public string getSubnantTarget()
             {
                 if (Project.BuildTargets.Contains("help"))
+                {
                     return "help";
+                }
                 else
+                {
                     return Project.CurrentTarget.Name;
+                }
             }
 
             /// <summary>
@@ -351,10 +363,14 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
                 System.Collections.Specialized.StringEnumerator targetEnumerator = Project.BuildTargets.GetEnumerator();
 
                 while (targetEnumerator.MoveNext())
+                {   
                     targets += targetEnumerator.Current+", ";
+                }   
 
                 if (targets.EndsWith(", "))
+                {   
                     targets = targets.Substring(0, targets.Length-2);
+                }   
 
                 return targets;
             }
@@ -366,10 +382,20 @@ ${string::pad-right('Subnant finished '+datetime::to-string(datetime::now()),60,
             public string getSubnantDirectoryName(string path)
             {
                 DirectoryInfo directory = new DirectoryInfo(path);
-                return directory != null ? directory.Name : string.Empty;
+
+                if (directory == null)
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return directory.Name;
+                }
             }
 
-            // Display elapsed time in seconds using ticks for accuracy   
+            /// <summary>
+            /// Display elapsed time in seconds to 2 decimal places using ticks for accuracy   
+            /// </summary>
             [Function("get-elapsed-time")]
             public string getSubnantElapsedTime(long ticks)
             {
