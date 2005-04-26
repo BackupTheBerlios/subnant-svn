@@ -134,17 +134,14 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <property name="subnant-root" value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"
             unless="${property::exists('subnant-root')}"/>
         <!-- Assign and verify config file unless already set from command-line -->
-        <property name="config" value="${path::combine(subnant-root,'conf/subnant.config')}"
-            unless="${property::exists('config')}"/>
+        <property name="config" value="${path::combine(subnant-root,'conf/subnant.config')}" unless="${property::exists('config')}"/>
         <fail unless="${file::exists(config)}" message="File not found: ${path::get-file-name(config)}"/>
         <!-- Assign default Subversion directory unless already set from command-line -->
         <xmlpeek file="${config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}"/>
         <!-- Verify Subversion directory is valid if set -->
-        <fail if="${string::get-length(svn-bindir)&gt;0 and directory::exists(svn-bindir)!=true}"
-            message="Subversion binary directory doesn't exist: ${svn-bindir}"/>
+        <fail if="${string::get-length(svn-bindir)&gt;0 and directory::exists(svn-bindir)!=true}" message="Subversion binary directory doesn't exist: ${svn-bindir}"/>
         <!-- Load NAntContrib to create and control log file -->
-        <xmlpeek file="${config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir"
-            unless="${property::exists('nantcontrib-bindir')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir" unless="${property::exists('nantcontrib-bindir')}"/>
         <loadtasks assembly="${nantcontrib-bindir}/NAnt.Contrib.Tasks.dll"/>
         <!-- Define location and file used for standard NAnt build log -->
         <xmlpeek file="${config}" xpath="/configuration/logs/logdir" property="logdir" unless="${property::exists('logdir')}"/>
@@ -300,8 +297,7 @@ ${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-t
         <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail_tolist"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail_prefix"/>
         <echo level="Warning">Sending mail to ${mail_tolist}</echo>
-        <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_tolist}"
-          subject="${mail_prefix} ${subject}" message="${message}">
+        <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_tolist}" subject="${mail_prefix} ${subject}" message="${message}">
             <attachments>
                 <include name="${nant-output}" if="${property::exists('attach-output') and file::exists(nant-output)}"/>
             </attachments>
