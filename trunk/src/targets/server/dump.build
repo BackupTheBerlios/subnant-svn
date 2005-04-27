@@ -12,15 +12,15 @@ $Id$
     <target name="dump" depends="init">
         <foreach item="String" delim="," in="${dump-repos}" property="repo">
             <call target="init-dump"/>
-            <echo level="Warning" message="Dumping repository ${string::trim(repo+' '+arg_revoption+' '+arg_revision+' '+arg_incremental+' '+arg_deltas)}"/>
+            <echo level="Warning" message="Dumping repository ${repo} ${string::trim(arg-revoption+' '+arg-revision+' '+arg-incremental+' '+arg-deltas)}"/>
             <exec program="${dump}" failonerror="${failonerror}" resultproperty="dump-result">
                 <arg value="${svnadmin}"/>
                 <arg value="${path::combine(dump-svn-root,repo)}"/>
                 <arg value="${dump-file}"/>
-                <arg value="${arg_revoption}"/>
-                <arg value="${arg_revision}"/>
-                <arg value="${arg_incremental}"/>
-                <arg value="${arg_deltas}"/>
+                <arg value="${arg-revoption}"/>
+                <arg value="${arg-revision}"/>
+                <arg value="${arg-incremental}"/>
+                <arg value="${arg-deltas}"/>
             </exec>
             <echo file="${exec-result}" message="${dump-result}" append="false"/>   
             <echo if="${dump-result=='0'}" file="${subnant-output}" message="${string::pad-right('Dumped repository '+repo+'   ('+subnant::length-in-mb(file::get-length(dump-file))+'MB)',60,' ')}(${subnant::get-elapsed-time(dump-started)})" append="true"/>
@@ -45,14 +45,14 @@ $Id$
         <fail if="${compress-dump!='false' and int::parse(compress-dump)&lt;1 and int::parse(compress-dump)&gt;9}"
             message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
         <fail unless="${directory::exists(dump-root)}" message="Repository dump root directory doesn't exist: ${dump-root}"/>
-        <property name="arg_revision"     value=""/>
-        <property name="arg_revoption"    value=""/>
-        <property name="arg_incremental"  value=""/>
-        <property name="arg_deltas"       value=""/>
-        <property name="arg_revision"     value="${dump-rev}"   if="${dump-rev!='false'}"/>
-        <property name="arg_revoption"    value="--revision"    if="${dump-rev!='false'}"/>
-        <property name="arg_incremental"  value="--incremental" if="${incremental-dump=='true'}"/>
-        <property name="arg_deltas"       value="--deltas"      if="${deltas-dump=='true'}"/>
+        <property name="arg-revision"     value=""/>
+        <property name="arg-revoption"    value=""/>
+        <property name="arg-incremental"  value=""/>
+        <property name="arg-deltas"       value=""/>
+        <property name="arg-revision"     value="${dump-rev}"   if="${dump-rev!='false'}"/>
+        <property name="arg-revoption"    value="--revision"    if="${dump-rev!='false'}"/>
+        <property name="arg-incremental"  value="--incremental" if="${incremental-dump=='true'}"/>
+        <property name="arg-deltas"       value="--deltas"      if="${deltas-dump=='true'}"/>
     </target>
 
     <target name="init-windows" if="${platform::is-win32()}">
@@ -66,8 +66,10 @@ $Id$
 
     <target name="init-dump">
         <property name="dump-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="dump-file" if="${dump-rev=='false'}" value="${path::combine(dump-root,repo+'.dump')}"/>
-        <property name="dump-file" if="${dump-rev!='false'}" value="${path::combine(dump-root,repo+'-'+string::replace(arg_revision,':','-')+'.dump')}"/>
+        <property name="dump-file" if="${dump-rev=='false'}" value="${path::combine(dump-root,repo)}"/>
+        <property name="dump-file" if="${dump-rev!='false'}" value="${path::combine(dump-root,repo+'.r'+string::replace(arg-revision,':','-'))}"/>
+        <property name="dump-file" if="${incremental-dump=='true'}" value="${dump-file+'.incr'}"/>
+        <property name="dump-file" value="${dump-file+'.dump'}"/>
     </target>
 
     <target name="compress-dump-file">
@@ -88,6 +90,18 @@ $Id$
             <![CDATA[dump: usage: subnant dump [-D:<option>=<value>]
 
 Dump repositories using svnadmin, optionally compressing dump file
+
+Dump filename is based upon the name of the repository and the revision
+range that has been dumped.  If an incremental dump is used, .incr is
+suffixed after the revision name.  e.g.:
+
+repos1.r10.dump         (dump of revision 10)
+repos1.r0-10.dump       (full dump of revisions 0 to 10)
+repos1.r10.incr.dump    (incremental dump of revision 10)
+repos1.r8-10.incr.dump  (incremental dump of revisions 8 to 10)
+
+Note: This filename format is assumed by the Subnant load target
+
 
 Options:
 repos           comma separated list of repositories to dump *

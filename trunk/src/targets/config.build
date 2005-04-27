@@ -37,10 +37,10 @@ deltas              ${deltas}
 
 Mail settings:
 
-from                ${mail_from}
-host                ${mail_host}
-tolist              ${mail_tolist}
-subject prefix      ${mail_prefix}
+from                ${mail-from}
+host                ${mail-host}
+tolist              ${mail-tolist}
+subject prefix      ${mail-prefix}
 
 Log settings:
 
@@ -50,13 +50,13 @@ archive             ${archive}
 
 Bugtraq settings:
 
-message             ${bugtraq_message}
-append              ${bugtraq_append}
-url                 ${bugtraq_url}
-label               ${bugtraq_label}
-number              ${bugtraq_number}
-warnifnoissue       ${bugtraq_warnifnoissue}
-logregex            ${bugtraq_logregex}
+message             ${bugtraq-message}
+append              ${bugtraq-append}
+url                 ${bugtraq-url}
+label               ${bugtraq-label}
+number              ${bugtraq-number}
+warnifnoissue       ${bugtraq-warnifnoissue}
+logregex            ${bugtraq-logregex}
             ]]>
         </echo>
     </target>
@@ -74,19 +74,19 @@ logregex            ${bugtraq_logregex}
         <xmlpeek file="${config}" xpath="/configuration/backup/num-dump"           property="num-dump"/>
         <xmlpeek file="${config}" xpath="/configuration/backup/compress-dump"      property="compress-dump"/>
         <xmlpeek file="${config}" xpath="/configuration/backup/deltas"             property="deltas"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/from"                 property="mail_from"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/host"                 property="mail_host"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/tolist"               property="mail_tolist"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/prefix"               property="mail_prefix"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/from"                 property="mail-from"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/host"                 property="mail-host"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/tolist"               property="mail-tolist"/>
+        <xmlpeek file="${config}" xpath="/configuration/mail/prefix"               property="mail-prefix"/>
         <xmlpeek file="${config}" xpath="/configuration/logs/max-age"              property="max-age"/>
         <xmlpeek file="${config}" xpath="/configuration/logs/archive"              property="archive"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/message"           property="bugtraq_message"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/append"            property="bugtraq_append"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/url"               property="bugtraq_url"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/label"             property="bugtraq_label"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/number"            property="bugtraq_number"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/warnifnoissue"     property="bugtraq_warnifnoissue"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/logregex"          property="bugtraq_logregex"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/message"           property="bugtraq-message"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/append"            property="bugtraq-append"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/url"               property="bugtraq-url"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/label"             property="bugtraq-label"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/number"            property="bugtraq-number"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/warnifnoissue"     property="bugtraq-warnifnoissue"/>
+        <xmlpeek file="${config}" xpath="/configuration/bugtraq/logregex"          property="bugtraq-logregex"/>
         <!-- Ready program location settings -->
         <property name="nantcontrib-dir" value="[not set - path used]" if="${string::get-length(nantcontrib-bindir)==0}"/>
         <property name="nantcontrib-dir" value="${nantcontrib-bindir}" unless="${string::get-length(nantcontrib-bindir)==0}"/>
@@ -119,11 +119,11 @@ logregex            ${bugtraq_logregex}
         <property name="log-dir"         value="[invalid] ${logdir}" unless="${directory::exists(logdir)}"/>
         <!-- Ready bugtraq settings -->
         <!-- xmlpeek doesn't like CDATA, so search for start/end tags and remove from url if found -->
-        <property name="bugtraq_url" value="${string::trim(bugtraq_url)}"/>
-        <if test="${string::substring(bugtraq_url,1,8)=='![CDATA[' and string::substring(bugtraq_url,string::get-length(bugtraq_url)-3,2)==']]'}">
-            <property name="bugtraq_url" value="${string::substring(bugtraq_url,9,string::get-length(bugtraq_url)-12)}"/>
+        <property name="bugtraq-url" value="${string::trim(bugtraq-url)}"/>
+        <if test="${string::substring(bugtraq-url,1,8)=='![CDATA[' and string::substring(bugtraq-url,string::get-length(bugtraq-url)-3,2)==']]'}">
+            <property name="bugtraq-url" value="${string::substring(bugtraq-url,9,string::get-length(bugtraq-url)-12)}"/>
         </if>
-        <property name="bugtraq_logregex" value="[not set]" if="${string::trim(bugtraq_logregex)==''}"/>
+        <property name="bugtraq-logregex" value="[not set]" if="${string::trim(bugtraq-logregex)==''}"/>
     </target>
 
     <target name="help">

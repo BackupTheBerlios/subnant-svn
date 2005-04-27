@@ -37,8 +37,8 @@ $Id$
             message="Backup method must be hotcopy or dump or incremental"/>
         <property name="verify-backup" value="${string::trim(string::to-lower(verify-hotcopy))}"/>
         <fail if="${verify-backup!='false' and verify-backup!='true'}" message="verify-hotcopy must be set true or false"/>
-        <property name="compress-backup" value="${string::trim(string::to-lower(compress-dump))}"/>
-        <fail if="${compress-backup!='false' and int::parse(compress-backup)&lt;1 and int::parse(compress-backup)&gt;9}"
+        <property name="compress" value="${string::trim(string::to-lower(compress-dump))}"/>
+        <fail if="${compress!='false' and int::parse(compress)&lt;1 and int::parse(compress)&gt;9}"
             message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
         <property name="deltas-dump" value="${string::trim(string::to-lower(deltas))}"/>
         <fail if="${deltas-dump!='false' and deltas-dump!='true'}" message="deltas must be set true or false"/>

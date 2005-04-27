@@ -7,25 +7,25 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="propchange-email" default="commit-email">
+<project name="propchange-email" default="propchange-email">
 
     <!-- Main (default) Target -->
     <target name="propchange-email" depends="init,get-hook-emails,get-propchange-details">
-        <if test="${string::get-length(mail_tolist)&gt;0}">
-            <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail_from"/>
-            <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail_host"/>
-            <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail_prefix"/>
-            <echo level="Warning" message="Sending propchange-email for repository ${repo} on revision ${rev} to ${mail_tolist}"/>
-            <mail mailhost="${mail_host}" from="${mail_from}" tolist="${mail_tolist}"
+        <if test="${string::get-length(mail-tolist)&gt;0}">
+            <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail-from"/>
+            <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail-host"/>
+            <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail-prefix"/>
+            <echo level="Warning" message="Sending propchange-email for repository ${repo} on revision ${rev} to ${mail-tolist}"/>
+            <mail mailhost="${mail-host}" from="${mail-from}" tolist="${mail-tolist}"
               subject="[${repo} propchange] rev ${rev}">
                 <files>
                     <include name="${temp-file}"/>
                 </files>
             </mail>
             <echo file="${subnant-output}" append="true"
-                message="Sent propchange-email for repository ${repo} on revision ${rev} to ${mail_tolist}"/>
+                message="Sent propchange-email for repository ${repo} on revision ${rev} to ${mail-tolist}"/>
         </if>
-        <if test="${string::get-length(mail_tolist)==0}">
+        <if test="${string::get-length(mail-tolist)==0}">
             <echo file="${subnant-output}" append="true"
                 message="Propchange-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)"/>
             <echo level="Warning" message="Propchange-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)"/>
@@ -39,7 +39,7 @@ $Id$
         <fail unless="${property::exists('rev')}"   message="rev not set"/>
         <property name="hook-prop"   value="hook:propchange-email" unless="${property::exists('hook-prop')}"/>
         <property name="repo"        value="${path::get-file-name(repos)}"/>
-        <property name="mail_tolist" value=""/>
+        <property name="mail-tolist" value=""/>
         <property name="dir-check"   value=""/>
         <property name="dir-list"    value=""/>
         <property name="temp-file"   value="${exec-output}-commit-email"/>
@@ -68,37 +68,22 @@ $Id$
                     <!-- Email addresses may be ; delimited -->
                     <foreach item="String" delim=";" in="${address-line}" property="address">
                         <!-- Only add address if it doesn't already exist in list -->
-                        <property name="mail_tolist" value="${mail_tolist};${address}"
-                            unless="${string::contains(string::to-lower(mail_tolist),string::to-lower(address))}"/>
+                        <property name="mail-tolist" value="${mail-tolist};${address}"
+                            unless="${string::contains(string::to-lower(mail-tolist),string::to-lower(address))}"/>
                     </foreach>
                 </foreach>
             </if>
         </foreach>
         <!-- Trim start of address list to remove ; if it exists -->
-        <property name="mail_tolist" value="${string::substring(mail_tolist,1,string::get-length(mail_tolist)-1)}"
-            if="${string::starts-with(mail_tolist,';')}"/>
+        <property name="mail-tolist" value="${string::substring(mail-tolist,1,string::get-length(mail-tolist)-1)}"
+            if="${string::starts-with(mail-tolist,';')}"/>
         <!-- Done searching for hook:commit-email, so turn failonerror back on -->
         <property name="failonerror" value="true"/>
         <!-- Delete our temp directory list -->
         <delete file="${dir-list}" if="${file::exists(dir-list)}"/>
     </target>
 
-    <target name="get-commit-details">
-        <!-- Who changed it -->
-        <property name="subcommand" value="author"/>
-        <call target="exec-svnlook"/>
-        <loadfile file="${exec-output}" property="temp-prop"/>
-        <echo file="${temp-file}" message="Author: ${temp-prop}"/>
-        <!-- Why was it changed -->
-        <property name="subcommand" value="log"/>
-        <call target="exec-svnlook"/>
-        <loadfile file="${exec-output}" property="temp-prop"/>
-        <echo file="${temp-file}" append="true" message="Log: ${temp-prop}"/>
-        <!-- What changed and when -->
-        <property name="subcommand" value="diff"/>
-        <call target="exec-svnlook"/>
-        <loadfile file="${exec-output}" property="temp-prop"/>
-        <echo file="${temp-file}" append="true" message="${temp-prop}"/>
+    <target name="get-propchange-details">
     </target>
 
     <target name="exec-svnlook">

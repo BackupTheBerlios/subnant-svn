@@ -38,8 +38,8 @@ $Id$
     </target>
 
     <target name="init-load">
-        <property name="load-started"  value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="load-repos"    value=""/>
+        <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="load-repos"   value=""/>
     </target>
 
     <target name="help">
@@ -48,10 +48,17 @@ $Id$
 
 Load repositories from dumps, uncompressing if dump has .zip extension
 
+If repos option is not passed, repository name is assumed to match 
+first part of filename. e.g.:
+
+Note: Dump filename format is assumed to match Subnant dump target
+filename format, a mismatch may cause incremental loads to fail
+
 Required:
 dumps           comma separated list of repository dumps to load
 
 Options:
+repos           comma separated list of repositories (count must match dumps)
 dump-root       repository dump directory *
 svn-root        repository root directory *
 svn-bindir      Subversion binary directory *
