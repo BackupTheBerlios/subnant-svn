@@ -13,7 +13,7 @@
     <meta name="Description" content="Specification for using Subversion properties in conjunction with post-commit hook for emailing revision details" />
 
     <style type="text/css">
-        dt { font-weight: bold;}
+        dt { font-weight: bold; }
         .term { border-bottom: 1px dotted black; }
     </style>
 
@@ -40,20 +40,21 @@
                 of files or directories you wish to monitor.</p>
 
             <p>Optionally, each email address can be suffixed with an equals sign followed by a
-                comma delimited list of svnlook subcommands to be executed, with the results concatenated
-                together to form the email content.  When no equals sign is found,
+                comma delimited list of svnlook subcommands to be executed, with the results
+                concatenated together to form the email content.  When no equals sign is found,
                 <code>svnlook diff</code> is executed.</p>
 
             <p>Accepted svnlook subcommands are:<br />
                 <code>author, changed, date, diff, dirs-changed, history, info, log, tree</code></p>
 
-            <p>e.g.: To send an email to “patches@example.com” displaying the differences between
-                the current and previous revision (what has changed), and to email “details@example.com”
-                displaying who, when and why something was changed in any part of the repository, 
-                <em>hook:commit-email</em> is set to the following values on the repository root:</p>>
+            <p>e.g.: To send an email to <var>patches@example.com</var> displaying the differences between
+                the current and previous revision (what has changed), and to email 
+                <var>details@example.com</var> displaying who, when and why something was changed in any
+                part of the repository, the <em>hook:commit-email</em> property is set to the following
+                values on the repository root:</p>
 
             <p><samp>patches@example.com<br />
-                    details@example.com=author,date,log,changed</samp></p>
+                details@example.com=author,date,log,changed</samp></p>
         </dd>
 
         <dt><dfn>hook: </dfn><span class="term">post-commit</span></dt>
@@ -61,7 +62,8 @@
             <p>This hook script should call a program which searches the HEAD revision for
                 <em>hook:commit-email</em> properties on or above the directories changed.
                 The <code>svnlook dirs-changed</code> command can be used in conjunction
-                with the revision number passed to post-commit to retrieve list of modified directories.</p>
+                with the revision number passed to post-commit to retrieve list of modified
+                directories.</p>
 
             <p>If matching properties are found, the hook script will:</p>
 

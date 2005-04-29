@@ -13,7 +13,7 @@
     <meta name="Description" content="Specification for using Subversion properties in conjunction with pre-commit or start-commit hook for repository acesss control" />
 
     <style type="text/css">
-        dt { font-weight: bold;}
+        dt { font-weight: bold; }
         .term { border-bottom: 1px dotted black; }
     </style>
 
@@ -30,10 +30,11 @@
         we can provide a flexible, granular, visible and version controlled mechanism for
         access control independent of the repository access method.</p>
 
-    <p>Two properties are required.  These properties can exist on individual files or
-        directories, or on the parent directories of files or directories governed by acesss
-        control.  They do not have to exist in tandem, but at the least at least one of each
-        should exist into the repository.</p>
+    <p>Two properties are required.  One to control who can give commit rights, and one to control
+        who can commit.  These properties can exist on individual files or directories, or on the
+        parent directories of files or directories governed by acesss control.  They do not have
+        to exist in tandem in the same location, however both should exist in the repository at
+        the top path level you wish to control.</p>
 
     <dl>
         <dt><dfn>property: </dfn><span class="term">hook:commit-access</span></dt>
@@ -43,10 +44,10 @@
                 cascades down to sub-directories and files within these sub-directories.</p>
 
             <p>Conversely, this property can also explicitly deny access if any user is prefixed
-                with an exclamation mark (!).  This is useful when a user has been given access
+                with an exclamation mark !.  This is useful when a user has been given access
                 rights higher up the repository path.</p>
 
-            <p>e.g.: To give user “admin” and “user1” commit rights to any part of the repository,
+            <p>e.g. To give user “admin” and “user1” commit rights to any part of the repository,
                 <em>hook:commit-access</em> is set to the following values on
                 the repository root:</p>
 
@@ -61,33 +62,35 @@
                 permitted to modify the property.</p>
 
             <p>Conversely, this property can also explicitly deny access if any user is prefixed
-                with an exclamation mark (!).  This is useful when a user has been given access
+                with an exclamation mark !.  This is useful when a user has been given access
                 rights higher up the repository path.</p>
 
             <p>To enable changes to access control, this property needs to set 2 property values,
                 the first controls who is allowed to modify the <em>hook:propchange-access</em>
                 property, the second controls who is allowed to modify the
-                <em>hook:commit-access</em> property.  
+                <em>hook:commit-access</em> property.</p>  
 
-            <p>e.g.: To give user “admin” rights to control who is allowed to modify the 
-                <em>hook:propchange-access</em> property, and users “admin” and “user1” rights
-                to modify the <em>hook:commit-access</em> property for any part of repository,
-                the <em>hook:propchange-access</em> property is set to the following values on
-                the repository root:</p>
+            <p>e.g. To give user <var>admin1</var> rights to control who is allowed to modify the 
+                <em>hook:propchange-access</em> property, and users <var>admin1</var> and 
+                <var>user1</var> rights to modify the <em>hook:commit-access</em> property for
+                any part of repository, the <em>hook:propchange-access</em> property is set to
+                the following values on the repository root:</p>
 
-            <p><samp>hook:propchange-access=admin<br />
-                hook:commit-access=admin,user1</samp></p>
+            <p><samp>hook:propchange-access=admin1<br />
+                hook:commit-access=admin1,user1</samp></p>
 
-            <p>If “admin” wanted to prevent “user1” from modifying who can commit to a
-                particular path in the repository, say in the “/admin-only” path, then “admin”
-                would set the following value to the <em>hook:propchange-access</em>
-                property on the “/admin-only” directory:</p>
+            <p>If <var>admin1</var> wanted to prevent <var>user1</var> from modifying who can
+                commit to a particular path in the repository, say in the <samp>/admin-only</samp>
+                directory, then <var>admin1</var> would set the following value to the
+                <em>hook:propchange-access</em> property on the <var>/admin-only</var>
+                directory:</p>
 
             <p><samp>hook:commit-access=!user1</samp></p>
 
-            <p>If “admin” also wanted to prevent “user1” from committing in “/admin-only”,
-                then “admin” would set the following value to the <em>hook:commit-access</em>
-                property on the “/admin-only” directory:</p>
+            <p>If <var>admin1</var> also wanted to prevent <var>user1</var> from committing in
+                <samp>/admin-only</samp>, then <var>admin1</var> would set the following value to
+                the <em>hook:commit-access</em> property on the <samp>/admin-only</samp>
+                directory:</p>
 
             <p><samp>!user1</samp></p>
         </dd>
