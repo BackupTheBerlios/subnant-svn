@@ -34,7 +34,10 @@
         who can commit.  These properties can exist on individual files or directories, or on the
         parent directories of files or directories governed by acesss control.  They do not have
         to exist in tandem in the same location, however both should exist in the repository at
-        the top path level you wish to control.</p>
+        the top level of the path you wish to control.</p>
+
+    <p>Caveat: This approach does not provide user authentication. The repository access method
+        will still need to provide authentication to the server.</p>
 
     <dl>
         <dt><dfn>property: </dfn><span class="term">hook:commit-access</span></dt>
@@ -44,14 +47,14 @@
                 cascades down to sub-directories and files within these sub-directories.</p>
 
             <p>Conversely, this property can also explicitly deny access if any user is prefixed
-                with an exclamation mark !.  This is useful when a user has been given access
+                with an exclamation mark !.  This can be useful when a user has been given access
                 rights higher up the repository path.</p>
 
-            <p>e.g. To give user “admin” and “user1” commit rights to any part of the repository,
-                <em>hook:commit-access</em> is set to the following values on
+            <p>e.g. To give user <var>admin1</var> and <var>user1</var> commit rights to any part
+                of the repository, <em>hook:commit-access</em> is set to the following values on
                 the repository root:</p>
 
-            <p><samp>admin<br />
+            <p><samp>admin1<br />
                 user1</samp></p>
         </dd>
 
@@ -62,7 +65,7 @@
                 permitted to modify the property.</p>
 
             <p>Conversely, this property can also explicitly deny access if any user is prefixed
-                with an exclamation mark !.  This is useful when a user has been given access
+                with an exclamation mark !.  This can be useful when a user has been given access
                 rights higher up the repository path.</p>
 
             <p>To enable changes to access control, this property needs to set 2 property values,
