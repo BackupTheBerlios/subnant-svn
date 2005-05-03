@@ -68,10 +68,10 @@
                 with an exclamation mark !.  This can be useful when a user has been given access
                 rights higher up the repository path.</p>
 
-            <p>To enable changes to access control, this property needs to set 2 property values,
-                the first controls who is allowed to modify the <em>hook:propchange-access</em>
-                property, the second controls who is allowed to modify the
-                <em>hook:commit-access</em> property.</p>  
+            <p>To enable changes to access control, this property needs to set values for two
+                properties, the first controls who is allowed to modify the
+                <em>hook:propchange-access</em> property, the second controls who is allowed
+                to modify the <em>hook:commit-access</em> property.</p>
 
             <p>e.g. To give user <var>admin1</var> rights to control who is allowed to modify the 
                 <em>hook:propchange-access</em> property, and users <var>admin1</var> and 
@@ -98,35 +98,36 @@
             <p><samp>!user1</samp></p>
         </dd>
 
-        <dt><dfn>hook: </dfn><span class="term">pre-revprop-change</span></dt>
-        <dd>
-            <p>This hook script searches HEAD revision to see if there are any
-                <em>hook:propchange-access</em> properties, and if found verifies that
-                the user modifying the property is permitted to do so.</p>
-        </dd>
-
         <dt><dfn>hook: </dfn><span class="term">pre-commit</span></dt>
         <dd>
-            <p>This hook script searches HEAD revision to see if there are any
-                <em>hook:commit-access</em> properties, and if found verifies that
-                the user committing the change is permitted to do so.  This hook script
-                enables repository, directory or file access control per user.</p>
-                
-            <p>The hook script should search up the directory tree back to the repository
-                root, searching each parent directory for a match.  Properties found higher
-                up the directory path have less precedence than those found lower down the
-                repository path.  In other words, the value of <em>hook:commit-access</em>
-                on a modified file is higher than the value of <em>hook:commit-access</em>
-                on it's directory, which is higher than the value of <em>hook:commit-access</em>
-                in it's parent directory, and so on.</p>
+            <p>This hook script searches HEAD revision for <em>hook:commit-access</em>
+                properties on the files and directories being changed.  If the property is not
+                found, each parent directory back to the repository root is searched. If a
+                matching property is found, the user's permission is verified and the search
+                is stopped.  If no match is found, permission is granted.</p>
+
+            <p>If a property is being modified, which can be determined by using the
+                <code>svnlook proplist</code> command for the transaction being committed,
+                the <em>hook:propchange-access</em> property is also searched on the HEAD
+                revision on the files and directories changing.  If the property is not found,
+                each parent directory back to the repository root is searched until a match
+                is found.  If a matching property is found, the user's permission to modify
+                the property is verified and the search is stopped.  If no match is found,
+                permission is granted.</p>
+
+            <p>Note that whilst the search for <em>hook:commit-access</em> and 
+                <em>hook:propchange-access</em> should both start on and be performed for each
+                file or directory being modified (before working their way up the repository path),
+                they are independant and should be treated separately.  i.e.  A match on
+                <em>hook:commit-access</em> does not stop the search for
+                <em>hook:propchange-access</em> properties, and vice versa.<p>
         </dd>
 
         <dt><dfn>hook: </dfn><span class="term">start-commit</span></dt>
         <dd>
-            <p>This hook script searches HEAD revision to see if there is a
-                <em>hook:commit-access</em> property on the repository root, and if found,
-                verifies that the user committing the change is permitted to do so.  This hook
-                script enables repository access control per user.</p>
+            <p>This hook script searches HEAD revision for the <em>hook:commit-access</em>
+                property on the repository root, and if found, verify user is permitted
+                to commit.  This enables basic repository access control for each user.</p>
         </dd>
     </dl>
 
