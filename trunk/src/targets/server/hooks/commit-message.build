@@ -33,7 +33,7 @@ $Id$
     </target>
    
     <target name="init">
-        <!-- repos property is tested in subnant.build::verify-repos-exists -->
+        <fail unless="${property::exists('repos')}" message="repos not set"/>
         <fail unless="${property::exists('txn')}"   message="txn not set"/>
         <property name="no-log-msg" value="No log message entered" unless="${property::exists('no-log-msg')}"/>
     </target>
