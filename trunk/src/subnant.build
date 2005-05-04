@@ -82,6 +82,11 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/server/hooks/commit-email.build" target="${subnant::get-target()}"/>
     </target>
 
+    <target name="commit-message" description="Ensure log message entered by using pre-commit hook"
+        depends="init,init-repos,init-svnlook,verify-repos-exists">
+        <nant buildfile="targets/server/hooks/commit-message.build" target="${subnant::get-target()}"/>
+    </target>
+
     <target name="propchange-access" description="Control property access using pre-revprop-change hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/propchange-access.build" target="${subnant::get-target()}"/>
@@ -475,6 +480,27 @@ ${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-t
  
                 return dirsResult.Trim();
             }
+
+            /// <summary>
+            /// Write message to stderr
+            /// </summary>
+            [TaskName("stderr")]
+            public class WriteStderr : Task
+            {
+                private string _message;
+
+                [TaskAttribute("message", Required=true)]
+                public string ErrorMessage
+                {
+                  get { return _message; }
+                  set { _message = value; }
+                }
+
+                protected override void ExecuteTask()
+                {
+                    Console.Error.WriteLine(_message);           
+                }
+            }                
             ]]>
         </code>
     </script>

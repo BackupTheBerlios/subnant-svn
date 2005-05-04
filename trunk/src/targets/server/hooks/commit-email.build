@@ -151,8 +151,10 @@ $Id$
             <!-- Set optional parameter (used by get-commit-details) -->
             <arg value="--no-diff-delete" if="${subcommand=='diff' and property::exists('no-diff-delete') and string::trim(string::to-lower(no-diff-delete))=='true'}"/>
         </exec>
-        <echo if="${svnlook-result!='0' and failonerror!='false'}" file="${subnant-output}" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" append="true"/>
-        <echo if="${svnlook-result!='0' and failonerror!='false'}" level="Warning" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***"/>
+        <if test="${svnlook-result!='0' and failonerror!='false'}">
+            <echo file="${subnant-output}" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" append="true"/>
+            <echo level="Warning" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***"/>
+        </if>
         <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***"/>
     </target>
 

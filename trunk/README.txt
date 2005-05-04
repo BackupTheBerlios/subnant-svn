@@ -106,12 +106,12 @@ Repository targets:
 
   * load
 
-    Uncompress and load some or all repositories from svn-dumps to svn-root
+    Uncompress and load repositories from svn-dumps to svn-root
 
 
   * migrate
 
-    Migrate one or more repositories by chaining Subnant targets:
+    Migrate some or all repositories by chaining Subnant targets:
     verify -> dump -> create -> load -> verify
 
     Allows for different Subversion binary version to be used on destination
@@ -137,9 +137,14 @@ Repository hook targets:
 
   * commit-email
 
-    Sends email on post-commit hook using Subversion property hook:commit-email
-    on parent directory(s) of committed files.  Shows who, why, what, when and
-    where changes were made for a revision.
+    Sends email using post-commit hook by reading Subversion hook:commit-email
+    property on parent directory(s) of committed files.  Able to shows who, 
+    why, what, when and where changes were made for the committed revision.
+
+
+  * commit-message
+
+    Ensures log message is entered by using pre-commit hook.
 
 
   * propchange-access

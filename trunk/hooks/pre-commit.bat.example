@@ -39,4 +39,4 @@ REM
 REM
 REM Visit http://subnant.berlios.de for details on command below
 
-subnant commit-access -D:repos="%1" -D:txn="%2"
+subnant commit-message commit-access -D:repos="%1" -D:txn="%2"

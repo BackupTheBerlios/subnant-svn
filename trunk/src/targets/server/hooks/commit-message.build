@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$
+-->
+<project name="commit-message" default="commit-message">
+
+    <target name="commit-message" depends="init">
+        <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
+            <arg value="log"/>
+            <arg value="${repos}"/>
+            <arg value="--transaction"/>
+            <arg value="${txn}"/>
+        </exec>
+        <if test="${svnlook-result!='0' and failonerror!='false'}">
+            <echo file="${subnant-output}" message="*** ERROR executing svnlook log on repository ${repos} ***" append="true"/>
+            <echo level="Warning" message="*** ERROR executing svnlook log on repository ${repos} ***"/>
+        </if>
+        <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook log output file not found: ${exec-output} ***"/>
+        <loadfile file="${exec-output}" property="log-message"/>
+        <if test="${string::get-length(string::trim(log-message))==0}">
+            <echo file="${subnant-output}" append="true" message="Commit denied - no log message entered for repository ${repos} on transaction ${txn}"/>
+            <stderr message="${no-log-msg}"/>
+            <fail message="${no-log-msg}"/>
+        </if>
+        <ifnot test="${string::get-length(string::trim(log-message))==0}">
+            <echo file="${subnant-output}" append="true" message="Commit allowed - log message entered for repository ${repos} on transaction ${txn}"/>
+        </ifnot>
+    </target>
+   
+    <target name="init">
+        <!-- repos property is tested in subnant.build::verify-repos-exists -->
+        <fail unless="${property::exists('txn')}"   message="txn not set"/>
+        <property name="no-log-msg" value="No log message entered" unless="${property::exists('no-log-msg')}"/>
+    </target>
+
+    <target name="help">
+        <echo level="Warning">
+            <![CDATA[commit-message: usage: subnant commit-message [-D:<option>=<value>]
+
+Ensures log message is entered by using pre-commit hook
+
+Required:
+repos           full path to repository
+txn             Subversion transaction number
+
+Options:
+no-log-msg      override default message when no log entered
+sendmail        set true to email result
+
+Examples:
+subnant commit-message -D:repos=/path/to/repo -D:txn=1-1
+            ]]>
+        </echo>
+    </target>
+   
+</project>

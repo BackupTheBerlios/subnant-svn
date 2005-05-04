@@ -10,10 +10,13 @@ $Id$
 <project name="commit-access" default="commit-access">
 
     <target name="commit-access" depends="init">
+        <echo level="Warning" message="::TODO:: Commit access"/>
         <echo file="${subnant-output}" append="true" message="::TODO:: Commit access"/>
     </target>
    
     <target name="init">
+        <fail unless="${property::exists('repos')}" message="repos not set"/>
+        <fail unless="${property::exists('txn')}"   message="txn not set"/>
     </target>
 
     <target name="help">
@@ -22,10 +25,15 @@ $Id$
 
 Control access to repository using pre-commit hook 
 
+Required:
+repos           full path to repository
+txn             Subversion transaction number
+
 Options:
 sendmail        set true to email result
 
 Examples:
+subnant commit-access -D:repos=/path/to/repo -D:txn=1-1
             ]]>
         </echo>
     </target>
