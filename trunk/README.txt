@@ -88,9 +88,8 @@ Repository targets:
 
     Backup some or all repositories under svn-root using methods:
 
-      hotcopy     : verbatim copy of repository into hotcopy-root
-      dump        : dump all revisions into dump-root using portable format 
-      incremental : dump younger revisions after highest revision in dump-root
+      hotcopy  : verbatim copy of repository into hotcopy-root
+      dump     : dump all revisions into dump-root using portable format
 
 
   * create

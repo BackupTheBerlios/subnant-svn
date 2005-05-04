@@ -47,7 +47,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="dump" description="Dump repositories"
-        depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
+        depends="init,init-repos,init-svnadmin,init-svnlook,verify-repos-exists,build-repos-list">
         <nant buildfile="targets/server/dump.build" target="${subnant::get-target()}"/>
     </target>
 

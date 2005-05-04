@@ -22,37 +22,52 @@ $Id$
                 <arg value="${arg-incremental}"/>
                 <arg value="${arg-deltas}"/>
             </exec>
-            <echo file="${exec-result}" message="${dump-result}" append="false"/>   
-            <echo if="${dump-result=='0'}" file="${subnant-output}" message="${string::pad-right('Dumped repository '+repo+'   ('+subnant::length-in-mb(file::get-length(dump-file))+'MB)',60,' ')}(${subnant::get-elapsed-time(dump-started)})" append="true"/>
-            <echo if="${dump-result!='0'}" file="${subnant-output}" message="${'*** ERROR dumping repository '+repo+' ***'}" append="true"/>
-            <call target="compress-dump-file" if="${dump-result=='0' and compress-dump!='false'}"/>
+            <echo file="${exec-result}" message="${dump-result}" append="false"/>
+            <if test="${dump-result=='0'}">
+                <echo file="${subnant-output}" message="${string::pad-right('Dumped repository '+repo+'   ('+subnant::length-in-mb(file::get-length(dump-file))+'MB)',60,' ')}(${subnant::get-elapsed-time(dump-started)})" append="true"/>
+                <call target="compress-dump-file" if="${dump-result=='0' and dump-compress!='false'}"/>
+            </if>
+            <if test="${dump-result!='0'}">
+                <echo file="${subnant-output}" message="${'*** ERROR dumping repository '+repo+' ***'}" append="true"/>
+                <delete file="${dump-file}" if="${file::exists(dump-file)}"/>
+            </if>
         </foreach>
     </target>
 
     <target name="init" depends="init-windows,init-linux">
-        <property name="dump-repos"    value="${repos}"    unless="${property::exists('dump-repos')}"/>   
-        <property name="dump-svn-root" value="${svn-root}" unless="${property::exists('dump-svn-root')}"/>
-        <property name="dump-rev"      value="${rev}"      unless="${property::exists('dump-rev')}" if="${property::exists('rev')}"/>
-        <property name="dump-rev"      value="false"       unless="${property::exists('dump-rev')}"/>
-        <property name="compress-dump" value="${string::trim(string::to-lower(compress))}" if="${property::exists('compress')}"/>
-        <property name="compress-dump" value="false" unless="${property::exists('compress')}"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/dump-root"    
-            property="dump-root" unless="${property::exists('dump-root')}"/>
-        <property name="incremental-dump" value="${string::trim(string::to-lower(incremental))}" if="${property::exists('incremental')}"/>
-        <property name="incremental-dump" value="false" unless="${property::exists('incremental')}"/>
-        <property name="deltas-dump"      value="${string::trim(string::to-lower(deltas))}" if="${property::exists('deltas')}"/>
-        <property name="deltas-dump"      value="false" unless="${property::exists('deltas')}"/>
-        <fail if="${compress-dump!='false' and int::parse(compress-dump)&lt;1 and int::parse(compress-dump)&gt;9}"
-            message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
-        <fail unless="${directory::exists(dump-root)}" message="Repository dump root directory doesn't exist: ${dump-root}"/>
-        <property name="arg-revision"     value=""/>
+        <property name="rev"              value="false" unless="${property::exists('rev')}"/>
+        <property name="dump-compress"    value="false" unless="${property::exists('dump-compress')}"/>
+        <property name="dump-incremental" value="false"/>
+        <property name="dump-deltas"      value="false"/>
         <property name="arg-revoption"    value=""/>
+        <property name="arg-revision"     value=""/>
         <property name="arg-incremental"  value=""/>
         <property name="arg-deltas"       value=""/>
-        <property name="arg-revision"     value="${dump-rev}"   if="${dump-rev!='false'}"/>
-        <property name="arg-revoption"    value="--revision"    if="${dump-rev!='false'}"/>
-        <property name="arg-incremental"  value="--incremental" if="${incremental-dump=='true'}"/>
-        <property name="arg-deltas"       value="--deltas"      if="${deltas-dump=='true'}"/>
+        <property name="youngest"         value=""/>
+        <property name="oldest"           value=""/>
+        <!-- Read in default properties -->
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}"/>
+        <!-- Assign properties from parameters -->
+        <property name="dump-repos"       value="${repos}"       unless="${property::exists('dump-repos')}"/>   
+        <property name="dump-svn-root"    value="${svn-root}"    unless="${property::exists('dump-svn-root')}"/>
+        <property name="dump-compress"    value="${compress}"    if="${property::exists('compress')}"/>
+        <property name="dump-incremental" value="${incremental}" if="${property::exists('incremental')}"/>
+        <property name="dump-deltas"      value="${deltas}"      if="${property::exists('deltas')}"/>
+        <!-- Tidy up properties -->
+        <property name="dump-compress"    value="${string::to-lower(string::trim(dump-compress))}"/>
+        <property name="dump-incremental" value="${string::to-lower(string::trim(dump-incremental))}"/>
+        <property name="dump-deltas"      value="${string::to-lower(string::trim(dump-deltas))}"/>
+        <!-- Assign switches -->
+        <property name="arg-revoption"    value="--revision"    if="${rev!='false'}"/>
+        <property name="arg-revision"     value="${rev}"        if="${rev!='false'}"/>
+        <property name="arg-incremental"  value="--incremental" if="${dump-incremental=='true'}"/>
+        <property name="arg-deltas"       value="--deltas"      if="${dump-deltas=='true'}"/>
+        <!-- Verify properties -->
+        <fail unless="${directory::exists(dump-root)}" message="dump-root is invalid or does not exist in filesystem: ${dump-root}"/>
+        <fail if="${dump-incremental!='false' and dump-incremental!='true'}" message="incremental must be set true or false"/>
+        <fail if="${dump-deltas!='false' and dump-deltas!='true'}" message="deltas must be set true or false"/>
+        <fail if="${dump-compress!='false' and int::parse(dump-compress)&lt;1 and int::parse(dump-compress)&gt;9}"
+            message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
     </target>
 
     <target name="init-windows" if="${platform::is-win32()}">
@@ -61,22 +76,62 @@ $Id$
 
     <target name="init-linux" if="${platform::is-unix()}">
         <property name="dump" value="${path::combine(subnant-root,'src/inc/dump.sh')}"/>
-        <echo level="Warning" message="dump: ${dump}"/>   
     </target>
 
     <target name="init-dump">
         <property name="dump-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="dump-file" if="${dump-rev=='false'}" value="${path::combine(dump-root,repo)}"/>
-        <property name="dump-file" if="${dump-rev!='false'}" value="${path::combine(dump-root,repo+'.r'+string::replace(arg-revision,':','-'))}"/>
-        <property name="dump-file" if="${incremental-dump=='true'}" value="${dump-file+'.incr'}"/>
+        <property name="dump-file"    value="${path::combine(dump-root,repo)}"/>
+        <!-- If no rev option passed, look for youngest and (if needed) oldest revision for dumpfile -->
+        <if test="${rev=='false'}">
+            <call target="get-youngest"/>
+            <call target="get-oldest"/>
+            <property name="dump-file" value="${dump-file+'.r'+oldest}"              if="${oldest==youngest}"/>
+            <property name="dump-file" value="${dump-file+'.r'+oldest+'-'+youngest}" if="${oldest!=youngest}"/>
+        </if>
+        <!-- If a revision or revision range is used, we let svnadmin do all the work :) -->
+        <if test="${rev!='false'}">
+            <property name="dump-file" value="${path::combine(dump-root,repo+'.r'+string::replace(arg-revision,':','-'))}"/>
+        </if>
+        <property name="dump-file" if="${dump-incremental=='true'}" value="${dump-file+'.incr'}"/>
         <property name="dump-file" value="${dump-file+'.dump'}"/>
     </target>
 
+    <target name="get-youngest">
+        <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
+            <arg value="youngest"/>
+            <arg value="${path::combine(svn-root,repo)}"/>
+        </exec>
+        <if test="${svnlook-result!='0' and failonerror!='false'}">
+            <echo file="${subnant-output}" message="*** ERROR executing svnlook youngest on repository ${repo} ***" append="true"/>
+            <echo level="Warning" message="*** ERROR executing svnlook youngest on repository ${repo} ***"/>
+        </if>
+        <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook youngest output file not found: ${exec-output} ***"/>
+        <loadfile file="${exec-output}" property="youngest"/>
+        <property name="youngest" value="${string::trim(youngest)}"/>
+    </target>
+
+    <target name="get-oldest">
+        <!-- Because most repositories start from 0, take a guess that history starts there -->
+        <exec program="${svnlook}" failonerror="false" output="${exec-output}" append="false" resultproperty="svnlook-result">
+            <arg value="history"/>
+            <arg value="${path::combine(svn-root,repo)}"/>
+            <arg value="--revision"/>
+            <arg value="0"/>
+        </exec>
+        <!-- No error?  Guess was correct, so assign revision 0 as oldest -->
+        <if test="${svnlook-result=='0'}">
+            <property name="oldest" value="0"/>
+        </if>
+        <!-- Ok, guessing didn't work, so do it the hard way, extract the oldest revision from history -->
+        <if test="${svnlook-result!='0'}">
+        </if>
+    </target>
+   
     <target name="compress-dump-file">
         <property name="zip-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="zip-file"    value="${dump-file}.zip"/>
         <echo level="Warning" message="Compressing ${path::get-file-name(dump-file)}"/>
-        <zip zipfile="${zip-file}" failonerror="${failonerror}" ziplevel="${compress-dump}" comment="Subversion repository dump">
+        <zip zipfile="${zip-file}" failonerror="${failonerror}" ziplevel="${dump-compress}" comment="Subversion repository dump">
             <fileset>
                 <include name="${dump-file}"/>   
             </fileset>
@@ -89,19 +144,20 @@ $Id$
         <echo level="Warning">
             <![CDATA[dump: usage: subnant dump [-D:<option>=<value>]
 
-Dump repositories using svnadmin, optionally compressing dump file
+Dump and compress repositories to file using svnadmin 
 
-Dump filename is based upon the name of the repository and the revision
-range that has been dumped.  If an incremental dump is used, .incr is
-suffixed after the revision name.  e.g.:
+Dumpfile is based upon the name of the repository, the revision or
+revision range being dumped, and whether it is an incremental dump
 
-repos1.r10.dump         (dump of revision 10)
-repos1.r0-10.dump       (full dump of revisions 0 to 10)
-repos1.r10.incr.dump    (incremental dump of revision 10)
-repos1.r8-10.incr.dump  (incremental dump of revisions 8 to 10)
+Dumpfile format: <repos>.r[oldest-][youngest][.incr].dump[.zip]   
 
-Note: This filename format is assumed by the Subnant load target
+Example dumpfiles:
+repos1.r10.dump          dump of revision 10
+repos1.r0-10.dump        dump of revisions 0 to 10
+repos1.r10.incr.dump     incremental dump of revision 10
+repos1.r9-10.incr.dump   incremental dump of revisions 9 to 10
 
+Note: Dumpfile format is assumed by the Subnant load target
 
 Options:
 repos           comma separated list of repositories to dump *
@@ -115,12 +171,12 @@ deltas          set true for svnamdin --deltas switch
 sendmail        set true to email result
 
 *   If repos not set, all repositories under svn-root are dumped
-**  If rev not set, all revisions dumped
+**  If rev not set, all revisions are dumped
 *** If option not set, default value in subnant.config is used
 
 Examples:
 subnant dump
-subnant dump -D:repos=repo1,repo2 -D:sendmail=true
+subnant dump -D:repos=repo1,repo2 -D:rev=HEAD -D:sendmail=true
 subnant dump -D:svn-root=/svnroot/repos -D:compress=9
             ]]>
         </echo>

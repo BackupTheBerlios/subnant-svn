@@ -29,10 +29,9 @@ config-dir          ${config-dir}
 Backup settings:
 
 method              ${backup-method}
-num-hotcopy         ${num-hotcopy}
-verify-hotcopy      ${verify}
-num-dump            ${num-dump}
-compress-dump       ${compress}
+verify              ${verify}
+compress            ${compress}
+incremental         ${incremental}
 deltas              ${deltas}
 
 Mail settings:
@@ -69,10 +68,9 @@ logregex            ${bugtraq-logregex}
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/fs-type"         property="fs-type"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/config-dir"      property="config-dir"/>
         <xmlpeek file="${config}" xpath="/configuration/backup/method"             property="method"/>
-        <xmlpeek file="${config}" xpath="/configuration/backup/num-hotcopy"        property="num-hotcopy"/>
-        <xmlpeek file="${config}" xpath="/configuration/backup/verify-hotcopy"     property="verify-hotcopy"/>
-        <xmlpeek file="${config}" xpath="/configuration/backup/num-dump"           property="num-dump"/>
-        <xmlpeek file="${config}" xpath="/configuration/backup/compress-dump"      property="compress-dump"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/verify"             property="verify-hotcopy"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/compress"           property="compress-dump"/>
+        <xmlpeek file="${config}" xpath="/configuration/backup/incremental"        property="incremental"/>
         <xmlpeek file="${config}" xpath="/configuration/backup/deltas"             property="deltas"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"                 property="mail-from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"                 property="mail-host"/>
@@ -105,14 +103,13 @@ logregex            ${bugtraq-logregex}
         <property name="config-dir"      value="[not set]"                 if="${string::get-length(config-dir)==0}"/>
         <!-- Ready backup settings -->
         <property name="backup-method"   value="${string::trim(string::to-lower(method))}"/>
-        <property name="backup-method"   value="[invalid] ${method}"      if="${method!='hotcopy' and method!='dump' and method!='increment'}"/>
-        <property name="num-hotcopy"     value="[invalid] ${num-hotcopy}" if="${int::parse(num-hotcopy)&lt;-1}"/>
+        <property name="backup-method"   value="[invalid] ${method}"      if="${method!='hotcopy' and method!='dump'}"/>
         <property name="verify"          value="${string::trim(string::to-lower(verify-hotcopy))}"/>
-        <property name="num-dump"        value="[invalid] ${num-dump}"    if="${int::parse(num-dump)&lt;1}"/>
         <property name="level"           value="${string::trim(string::to-lower(compress-dump))}"/>
         <property name="compress"        value="level ${level}"     if="${level!='false' and int::parse(level)&gt;=1 and int::parse(level)&lt;=9}"/>
         <property name="compress"        value="[disabled]"         if="${level=='false'}"/>
         <property name="compress"        value="[invalid] ${level}" if="${level!='false' and (int::parse(level)&lt;1 or int::parse(level)&gt;9)}"/>
+        <property name="incremental"     value="${string::trim(string::to-lower(incremental))}"/>
         <property name="deltas"          value="${string::trim(string::to-lower(deltas))}"/>
         <!-- Ready log settings -->
         <property name="log-dir"         value="${logdir}"           if="${directory::exists(logdir)}"/>
