@@ -23,7 +23,6 @@ $Id$
 
     <target name="init">
         <property name="hotcopy-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <tstamp property="hotcopy-date"  pattern="yyyyMMdd-HHmmss-ffff"/>
         <property name="failonerror"     value="false"/>
         <property name="hotcopy-ok"      value="true"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/hotcopy-root"   property="hotcopy-root"         unless="${property::exists('hotcopy-root')}"/>
@@ -54,8 +53,7 @@ $Id$
                     </properties>
                 </nant>
                 <loadfile file="${exec-result}" property="verify-result"/>
-                <property name="verify-result" value="${string::trim(verify-result)}"/>
-                <property name="hotcopy-ok" value="false" if="${verify-result!='0'}"/>
+                <property name="hotcopy-ok" value="false" if="${string::trim(verify-result)!='0'}"/>
             </if>
         </if>
         <if test="${hotcopy-result!='0'}">
