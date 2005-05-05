@@ -20,7 +20,7 @@ $Id$
         </if>
         <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep-test=='true'}"/>
         <echo level="Warning" message="Test complete"/>
-        <echo file="${subnant-output}" append="true" message="${string::pad-right('Test complete',60,' ')}(${subnant::get-elapsed-time(test-started)})"/>
+        <echo message="${string::pad-right('Test complete',60,' ')}(${subnant::get-elapsed-time(test-started)})" file="${subnant-output}" append="true"/>
     </target>
 
     <target name="do-test">
@@ -49,6 +49,7 @@ $Id$
         <call target="commit-workingcopy"/>
         <call target="search-log"/>
         <nant buildfile="server/verify.build"  target="verify"/>
+        <nant buildfile="server/hotcopy.build" target="hotcopy"/>
         <nant buildfile="server/dump.build"    target="dump"/>
         <!--<nant buildfile="migrate.build" target="test"/> migrate tests nearly everything! -->
     </target>
