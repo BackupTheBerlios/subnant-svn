@@ -11,27 +11,16 @@ $Id$
 
     <target name="create" depends="init">
         <foreach item="String" delim="," in="${repos}" property="repo">
-            <property name="repo" value="${string::trim(repo)}"/>
-            <echo level="Warning" message="Creating ${create-fs-type} repository ${repo} under ${create-svn-root}"/>
-            <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="create-result">
-                <arg value="create"/>
-                <arg value="--bdb-txn-nosync"     if="${create-fs-type=='bdb' and txn-nosync=='true'}"/>
-                <arg value="--bdb-log-keep"       if="${create-fs-type=='bdb' and log-keep=='true'}"/>
-                <arg value="--config-dir"         if="${string::get-length(create-config-dir)>0}"/>
-                <arg value="${create-config-dir}" if="${string::get-length(create-config-dir)>0}"/>
-                <arg value="--fs-type"/>
-                <arg value="${create-fs-type}"/>
-                <arg value="${path::combine(create-svn-root,repo)}"/>
-            </exec>
-            <echo file="${exec-result}" message="${create-result}" append="false"/>   
-            <echo if="${create-result=='0'}" file="${subnant-output}" message="Created ${create-fs-type} repository ${repo} under ${create-svn-root}" append="true"/>
-            <echo if="${create-result!='0'}" file="${subnant-output}" message="*** ERROR creating ${create-fs-type} repository ${repo} under ${create-svn-root} ***" append="true"/>
-            <call target="copy-repos-conf"  if="${create-result=='0'}" unless="${property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true'}"/>
-            <call target="copy-repos-hooks" if="${create-result=='0'}" unless="${property::exists('no-hooks') and string::to-lower(no-hooks)=='true'}"/>
+            <call target="svnadmin-create"/>
         </foreach>
+        <if test="${create-ok!='true'}">
+            <fail message="${string::pad-right('Create completed with errors!',60,' ')}(${subnant::get-elapsed-time(create-started)})"/>
+        </if>
     </target>
 
     <target name="init">
+        <property name="create-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="create-ok"      value="true"/>
         <!-- Assign config values to properties so long as they haven't been passed as a command-line parameter -->
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/fs-type"    property="fs-type"    unless="${property::exists('fs-type')}"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/config-dir" property="config-dir" unless="${property::exists('config-dir')}"/>
@@ -58,6 +47,31 @@ $Id$
         <fail unless="${property::exists('file-ext')}" message="Unknown operating sytem (only Linux and Windows supported)"/>
     </target>
 
+    <target name="svnadmin-create">
+        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="repo"    value="${string::trim(repo)}"/>
+        <echo level="Warning" message="Creating ${create-fs-type} repository ${repo} in ${create-svn-root}"/>
+        <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="create-result">
+            <arg value="create"/>
+            <arg value="--bdb-txn-nosync"     if="${create-fs-type=='bdb' and txn-nosync=='true'}"/>
+            <arg value="--bdb-log-keep"       if="${create-fs-type=='bdb' and log-keep=='true'}"/>
+            <arg value="--config-dir"         if="${string::get-length(create-config-dir)>0}"/>
+            <arg value="${create-config-dir}" if="${string::get-length(create-config-dir)>0}"/>
+            <arg value="--fs-type"/>
+            <arg value="${create-fs-type}"/>
+            <arg value="${path::combine(create-svn-root,repo)}"/>
+        </exec>
+        <if test="${create-result=='0'}">
+            <echo message="${string::pad-right('Created '+create-fs-type+' repository '+repo+' in '+create-svn-root,60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <call target="copy-repos-conf"  unless="${property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true'}"/>
+            <call target="copy-repos-hooks" unless="${property::exists('no-hooks') and string::to-lower(no-hooks)=='true'}"/>
+        </if>
+        <if test="${create-result!='0'}">
+            <echo message="*** ERROR creating ${create-fs-type} repository ${repo} in ${create-svn-root} ***" file="${subnant-output}" append="true"/>
+            <property name="create-ok" value="false"/>
+        </if>
+    </target>
+   
     <target name="copy-repos-conf">
         <property name="svnserve-conf" value="${path::combine(subnant-root,'conf/svnserve.conf')}"/>
         <if test="${file::exists(svnserve-conf)}">
@@ -82,9 +96,9 @@ $Id$
         <echo level="Warning">
             <![CDATA[create: usage: subnant create -D:repos=<repos> [-D:<option>=<value>]
 
-Create repositories using svnadmin and (if found) copy 
-subnant/conf/svnserve.conf and any subnant/hooks/* 
-scripts appropriate for your operating system
+Create repositories in svn-root, copying configuration files
+and hooks appropriate for current operating system, defined
+in subnant/conf and subnant/hooks
 
 Required:   
 repos           comma separated list of repositories to create
