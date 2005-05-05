@@ -28,7 +28,7 @@ subnant -projecthelp
 subnant config
 subnant help test
 subnant test
-subnant backup -D:sendmail=true
+subnant hotcopy dump -D:sendmail=true
 subnant create verify dump -D:repos=repo1,repo2
 subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             </echo>
@@ -36,11 +36,6 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <!-- Repository (server) targets -->
-    <target name="backup" description="Backup repositories"
-        depends="init,init-repos,init-svnadmin,init-svnlook,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/server/backup.build" target="${subnant::get-target()}"/>
-    </target>
-
     <target name="create" description="Create repositories"
         depends="init,init-repos,init-svnadmin">
         <nant buildfile="targets/server/create.build" target="${subnant::get-target()}"/>
@@ -49,6 +44,11 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     <target name="dump" description="Dump repositories"
         depends="init,init-repos,init-svnadmin,init-svnlook,verify-repos-exists,build-repos-list">
         <nant buildfile="targets/server/dump.build" target="${subnant::get-target()}"/>
+    </target>
+
+    <target name="hotcopy" description="Hotcopy repositories"
+        depends="init,init-repos,init-svnadmin,init-svnlook,verify-repos-exists,build-repos-list">
+        <nant buildfile="targets/server/hotcopy.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="load" description="Load repositories"
@@ -126,8 +126,8 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <tstamp property="tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
         <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
         <!-- By default Subnant will fail on any <exec> task errors, however some for targets
-             (e.g. backup and post-commit) an svn reported error shouldn't always trigger failure.
-             So we make the failonerror property switchable and use a variable to store the result -->
+             (e.g. backups on multiple repositories and post-commit) an svn error shouldn't always
+             trigger failure.  So make failonerror property switchable and use a variable for result -->
         <property name="failonerror" value="true"/>
         <!-- Initalise and verify subnant core -->
         <call target="init-subnant"/>
@@ -378,7 +378,7 @@ ${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-t
             }
 
             /// <summary>
-            /// NAnt path::get-directory-name() returns full path, sometimes we just want directory name   
+            /// NAnt path::get-directory-name() returns full path, sometimes we just want directory name
             /// </summary>
             [Function("return-directory-name")]
             public string getSubnantDirectoryName(string path)

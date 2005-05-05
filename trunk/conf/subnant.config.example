@@ -10,7 +10,7 @@
         description="Default location of Subversion binary files"
         conditional="If empty assumes Subversion binaries can be found in environment path"></svn-bindir>
 
-    <svn-repos description="Repository settings">
+    <svn-repos description="Default repository settings">
         <svn-root
             description="Root location of repositories"
             conditional="Must exist in file system">/svnroot/repos</svn-root>
@@ -26,21 +26,13 @@
         <config-dir
             description="Read user configuration files from directory"
             conditional="If empty assume default configuration file"></config-dir>
-    </svn-repos>
-
-    <backup description="Default settings for backup">
-        <method
-            description="Backup methodology takes one of two forms
-                         hotcopy : verbatim copy of repository, includes all revisions and configuration
-                         dump    : dump all revision into portable format, suitable for compression and migration"
-            conditional="hotcopy or dump">hotcopy</method>
-        <verify
+        <verify-hotcopy
             description="Verify after hotcopy"
-            conditional="true or false">true</verify>
-        <compress
+            conditional="true or false">true</verify-hotcopy>
+        <compress-dump
             description="Compress dump files"
-            conditional="false or compression level from 1 (lowest) to 9 (highest)">6</compress>
-    </backup>
+            conditional="false or compression level from 1 (lowest) to 9 (highest)">6</compress-dump>
+    </svn-repos>
 
     <mail description="Email settings">
         <from description="Email sent from this address">subnant@example.com</from>

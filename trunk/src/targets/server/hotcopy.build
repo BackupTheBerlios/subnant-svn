@@ -1,0 +1,97 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$ 
+-->
+<project name="hotcopy" default="hotcopy">
+
+    <target name="hotcopy" depends="init">
+        <foreach item="String" delim="," in="${repos}" property="repo">
+            <call target="svnadmin-hotcopy"/>
+        </foreach>
+        <if test="${hotcopy-ok=='true'}">
+            <echo message="${string::pad-right('Hotcopy complete',60,' ')}(${subnant::get-elapsed-time(hotcopy-started)})" file="${subnant-output}" append="true"/>
+        </if>
+        <if test="${hotcopy-ok!='true'}">
+            <fail message="${string::pad-right('Hotcopy completed with errors!',60,' ')}(${subnant::get-elapsed-time(hotcopy-started)})"/>
+        </if>
+    </target>
+
+    <target name="init">
+        <property name="hotcopy-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <tstamp property="hotcopy-date"  pattern="yyyyMMdd-HHmmss-ffff"/>
+        <property name="failonerror"     value="false"/>
+        <property name="hotcopy-ok"      value="true"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/hotcopy-root"   property="hotcopy-root"         unless="${property::exists('hotcopy-root')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/verify-hotcopy" property="verify-after-hotcopy" unless="${property::exists('verify')}"/>
+        <property name="verify-after-hotcopy" value="${verify}" if="${property::exists('verify')}"/>
+        <property name="verify-after-hotcopy" value="${string::to-lower(string::trim(verify-after-hotcopy))}"/>
+        <fail unless="${directory::exists(hotcopy-root)}" message="hotcopy-root is invalid or does not exist in filesystem: ${hotcopy-root}"/>
+        <fail if="${verify-after-hotcopy!='false' and verify-after-hotcopy!='true'}" message="verify must be set true or false"/>
+    </target>
+
+    <target name="svnadmin-hotcopy">
+        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
+        <echo level="Warning" message="Hotcopying repository ${repo}"/>
+        <delete dir="${path::combine(hotcopy-root,repo)}" if="${directory::exists(path::combine(hotcopy-root,repo))}"/>
+        <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="hotcopy-result">
+            <arg value="hotcopy"/>
+            <arg value="${path::combine(svn-root,repo)}"/>
+            <arg value="${path::combine(hotcopy-root,repo)}"/>
+            <arg value="--clean-logs"/>
+        </exec>
+        <if test="${hotcopy-result=='0'}">
+            <echo message="${string::pad-right('Hotcopied repository '+repo,60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <if test="${verify-after-hotcopy=='true'}">
+                <nant buildfile="verify.build" target="verify">
+                    <properties>
+                        <property name="verify-repos"    value="${repo}"/>
+                        <property name="verify-svn-root" value="${hotcopy-root}"/>
+                    </properties>
+                </nant>
+                <loadfile file="${exec-result}" property="verify-result"/>
+                <property name="verify-result" value="${string::trim(verify-result)}"/>
+                <property name="hotcopy-ok" value="false" if="${verify-result!='0'}"/>
+            </if>
+        </if>
+        <if test="${hotcopy-result!='0'}">
+            <echo message="${string::pad-right('*** ERROR hotcopying repository '+repo+' ***',60,' ')}" file="${subnant-output}" append="true"/>
+            <property name="hotcopy-ok" value="false"/>
+        </if>
+    </target>
+
+    <target name="help">
+        <echo level="Warning">
+            <![CDATA[hotcopy: usage: subnant hotcopy [-D:<option>=<value>]
+
+Hotcopy repositories under svn-root into hotcopy-root
+
+A hotcopy is a verbatim copy of a repository, 
+including configuration files and hook scripts
+
+It can be performed against a live repository
+
+Options:
+repos           comma separated list of repositories *
+verify          set true to verify hotcopy **
+svn-root        repository root directory **
+hotcopy-root    hotcopy root directory **
+svn-bindir      Subversion binary directory **
+sendmail        set true to email result
+
+*   If repos not set, all repositories under svn-root are backed up
+**  If option not set, default value in subnant.config is used
+
+Examples:
+subnant hotcopy
+subnant hotcopy -D:repos=repo1,repo2 -D:verify=true
+subnant hotcopy -D:hotcopy-root=/svnroot/hotcopy -D:sendmail=true
+            ]]>
+        </echo>
+    </target>
+   
+</project>

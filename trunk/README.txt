@@ -22,7 +22,7 @@ Goals:
     to create repositories to standard, automatically included in backups
 
   * Provide hook-script functionality similar to Subversion's own scripts,
-    but without the need for 3rd party tools (Perl,Python,sendmail,etc)
+    but without the need for third party tools (Perl,Python,sendmail,etc)
 
 
 Pre-requisites:
@@ -70,11 +70,11 @@ Run:
   // Help for each main target is available
   subnant -projecthelp
   subnant help
-  subnant help backup
+  subnant help hotcopy
   
   // Run from console or create scheduled task or cron job
   subnant test
-  subnant backup -D:sendmail=true
+  subnant hotcopy -D:sendmail=true
   subnant create verify dump -D:repos=repo1,repo2
   subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin
 
@@ -84,28 +84,25 @@ Run:
 
 Repository targets:
 
-  * backup
-
-    Backup some or all repositories under svn-root using methods:
-
-      hotcopy  : verbatim copy of repository into hotcopy-root
-      dump     : dump all revisions into dump-root using portable format
-
-
   * create
 
-    Create one or more repositories using configuration in subnant.config
-    and setup hook scripts and configuration files if defined
+    Create one or more repositories under svn-root using configuration in
+    subnant.config, optionally setting up hook scripts and configuration files
 
 
   * dump
 
-    Dump and compress some or all repositories under svn-root
+    Dump and compress some or all repositories in svn-root into dump-root
+
+
+  * hotcopy
+
+    Hotcopy and verify some or all repositories in svn-root into hotcopy-root
 
 
   * load
 
-    Uncompress and load repositories from svn-dumps to svn-root
+    Uncompress and load repositories from dump-root to svn-root
 
 
   * migrate
@@ -119,44 +116,46 @@ Repository targets:
 
   * verify
 
-    Verify some or all repositories under svn-root
+    Verify some or all repositories in svn-root
 
 
 Repository hook targets:
 
   * commit-access
 
-    Provides granular access control to a repository using pre-commit hook.
+    Provides granular access control to a repository using pre-commit hook
 
 
   * commit-allower
 
-    Provides user-level access control to a repository using start-commit hook.
+    Provides user-level access control to a repository using start-commit hook
 
 
   * commit-email
 
     Sends email using post-commit hook by reading Subversion hook:commit-email
-    property on parent directory(s) of committed files.  Able to shows who, 
-    why, what, when and where changes were made for the committed revision.
+    property on parent directory(s) of committed files.  
+    
+    Shows who, why, what, when and where revision changes were made
 
 
   * commit-message
 
-    Ensures log message is entered by using pre-commit hook.
+    Ensures log message is entered by using pre-commit hook
 
 
   * propchange-access
 
     Provides granular access control to repository property changes using
-    pre-revprop-change hook.
+    pre-commit or pre-revprop-change hook
 
 
   * propchange-email
 
-    Sends email on post-revprop-change hook using Subversion property
-    hook:propchange-email on parent directory(s) of committed files.
-    Shows who, why, what, when and where property changes were made.
+    Sends email on post-commit or post-revprop-change hook using Subversion
+    property hook:propchange-email on parent directory(s) of committed files
+
+    Shows who, why, what, when and where revision property changes were made
 
 
 Working copy targets:
