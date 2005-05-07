@@ -36,8 +36,8 @@ $Id$
             <property name="propval"  value="${bugtraq-logregex}"/>
             <!-- dont set logregex if nothing entered -->
             <call target="propset" if="${string::get-length(bugtraq-logregex)!=0}"/>
-            <echo file="${subnant-output}" message="Set bugtraq properties in ${path}" append="true"/>
-            <echo level="Warning" message="Set bugtraq properties in ${path}"/>
+            <echo message="Set bugtraq properties in ${path}" file="${subnant-output}" append="true"/>
+            <echo message="Set bugtraq properties in ${path}" level="Warning"/>
         </foreach>
     </target>
    
@@ -68,15 +68,17 @@ $Id$
             <arg value="${propval}"/>
             <arg value="${path}"/>
         </exec>
-        <echo if="${exec-result!='0'}" file="${subnant-output}" message="*** ERROR setting bugtraq property ${propname} to ${propval}" append="true"/>
-        <echo if="${exec-result!='0'}" level="Warning" message="*** ERROR setting bugtraq property ${propname} to ${propval}"/>
+        <if test="${exec-result!='0'}">
+            <echo message="*** ERROR setting bugtraq property ${propname} to ${propval}" file="${subnant-output}" append="true"/>
+            <echo message="*** ERROR setting bugtraq property ${propname} to ${propval}" level="Warning"/>
+        </if>
     </target>
 
     <target name="help">
         <echo level="Warning">
             <![CDATA[bugtraq: usage: subnant bugtraq [-D:wc=/path/to/wc]
 
-Set bugtraq properties in a working copy using svn
+Set bugtraq properties in a working copy
 
 Options:
 wc              comma separated list of working copies to set *

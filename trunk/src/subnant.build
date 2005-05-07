@@ -322,7 +322,7 @@ ${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-t
         </if>
     </target>
    
-    <!-- Custom tasks and functions -->
+    <!-- Custom functions and tasks -->
     <script language="C#" prefix="subnant">
         <imports>
             <import namespace="System.Diagnostics"/>   
@@ -490,6 +490,7 @@ ${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-t
                 private string _message;
 
                 [TaskAttribute("message", Required=true)]
+                [StringValidator(AllowEmpty=false)]
                 public string ErrorMessage
                 {
                   get { return _message; }

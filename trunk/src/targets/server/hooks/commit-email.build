@@ -152,8 +152,8 @@ $Id$
             <arg value="--no-diff-delete" if="${subcommand=='diff' and property::exists('no-diff-delete') and string::trim(string::to-lower(no-diff-delete))=='true'}"/>
         </exec>
         <if test="${svnlook-result!='0' and failonerror!='false'}">
-            <echo file="${subnant-output}" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" append="true"/>
-            <echo level="Warning" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***"/>
+            <echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}" append="true"/>
+            <echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" level="Warning"/>
         </if>
         <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***"/>
     </target>

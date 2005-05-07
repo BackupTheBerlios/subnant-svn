@@ -25,7 +25,7 @@
             conditional="bdb or fsfs">fsfs</fs-type>
         <config-dir
             description="Read user configuration files from directory"
-            conditional="If empty assume default configuration file"></config-dir>
+            conditional="If empty assume default configuration"></config-dir>
         <verify-hotcopy
             description="Verify after hotcopy"
             conditional="true or false">true</verify-hotcopy>
