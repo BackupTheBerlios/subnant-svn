@@ -129,21 +129,22 @@ $Id$
     </target>
 
     <target name="create-workingcopy">
-        <!--<delete dir="${wc}" if="${directory::exists(wc)}"/>-->
-        <mkdir dir="${wc}" if="${directory::exists(test-root)}" unless="${directory::exists(wc)}"/>
-        <property name="uri" value='${subnant::to-uri(path::combine(svn-root,repos))}'/>
-        <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
-            <arg value="checkout"/>
-            <arg value="${uri}"/>
-            <arg value="."/>
-        </exec>
-        <echo message="Checked out ${path::get-file-name(repos)}" level="Warning"/>
+        <if test="${directory::exists(test-root) and directory::exists(wc)==false}">
+            <mkdir dir="${wc}"/>
+            <property name="uri" value='${subnant::to-uri(path::combine(test-root,repos))}'/>
+            <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
+                <arg value="checkout"/>
+                <arg value="${uri}"/>
+                <arg value="."/>
+            </exec>
+            <echo message="Checked out ${path::get-file-name(repos)}" level="Warning"/>
+        </if>
     </target>
 
     <target name="create-hook">
         <property name="hook-script" value="${path::combine(test-root,repos+'/hooks/'+hook+hook-ext)}"/>
         <copy file="../../hooks/${hook}${hook-ext}.example" tofile="${hook-script}" unless="${file::exists(hook-script)}"/>
-        <echo message="Created ${path::get-file-name(hook-script)} hook" level="Warning"/>
+        <echo message="Created hook ${path::get-file-name(hook-script)}" level="Warning"/>
     </target>
 
     <target name="propset">
