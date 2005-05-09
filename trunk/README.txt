@@ -27,9 +27,9 @@ Goals:
 
 Pre-requisites:
 
-  * .NET runtime >= 1.1 or Mono runtime >= 1.1.5
+  * .NET runtime >= 1.1 or Mono runtime >= 1.1.6
 
-  * NAnt and NAntContrib >= 0.85rc2
+  * NAnt and NAntContrib >= 0.85rc4
 
   * Subversion >= 1.1.3
 
@@ -182,7 +182,7 @@ Other targets:
 
   * test
 
-    Tests Subnant using the configuration in subnant.config
+    Tests Subnant using configuration in subnant.config
 
 
 Using hook targets:
