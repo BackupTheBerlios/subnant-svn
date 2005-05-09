@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$
+-->
+<project name="test-commit-email" default="test-commit-email">
+
+    <target name="test-commit-email">
+        <nant buildfile="../../targets/server/hooks/commit-email.build" target="commit-email"/>
+    </target>
+
+</project>

@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$
+-->
+<project name="test-commit-message" default="test-commit-message">
+
+    <target name="test-commit-message">
+        <nant buildfile="../../targets/server/hooks/commit-message.build" target="commit-message"/>
+    </target>
+
+</project>

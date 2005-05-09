@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$
+-->
+<project name="test-load" default="test-load">
+
+    <target name="test-load">
+        <nant buildfile="../../targets/server/load.build" target="load"/>
+    </target>
+
+</project>

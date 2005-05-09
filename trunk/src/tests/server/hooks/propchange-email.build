@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$
+-->
+<project name="test-propchange-email" default="test-propchange-email">
+
+    <target name="test-propchange-email">
+        <nant buildfile="../../targets/server/hooks/propchange-email.build" target="propchange-email"/>
+    </target>
+
+</project>

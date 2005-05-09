@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$
+-->
+<project name="test-hotcopy" default="test-hotcopy">
+
+    <target name="test-hotcopy">
+        <nant buildfile="../../targets/server/hotcopy.build" target="hotcopy"/>
+    </target>
+
+</project>

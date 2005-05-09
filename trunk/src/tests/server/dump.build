@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$
+-->
+<project name="test-dump" default="test-dump">
+
+    <target name="test-dump">
+        <nant buildfile="../../targets/server/dump.build" target="dump"/>
+    </target>
+
+</project>

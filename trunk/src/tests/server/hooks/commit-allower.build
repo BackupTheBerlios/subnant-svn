@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$
+-->
+<project name="test-commit-allower" default="test-commit-allower">
+
+    <target name="test-commit-allower">
+        <nant buildfile="../../targets/server/hooks/commit-allower.build" target="commit-allower"/>
+    </target>
+
+</project>
