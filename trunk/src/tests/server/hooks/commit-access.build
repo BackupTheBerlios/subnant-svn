@@ -10,7 +10,7 @@ $Id$
 <project name="test-commit-access" default="test-commit-access">
 
     <target name="test-commit-access">
-        <nant buildfile="../../targets/server/hooks/commit-access.build" target="commit-access"/>
+        <echo message="::TODO::" level="Warning"/>   
     </target>
 
 </project>

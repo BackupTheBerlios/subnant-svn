@@ -10,7 +10,8 @@ $Id$
 <project name="test-migrate" default="test-migrate">
 
     <target name="test-migrate">
-        <nant buildfile="../../targets/server/migrate.build" target="migrate"/>
+        <echo message="::TODO::" level="Warning"/>   
+        <!--<nant buildfile="../../targets/server/migrate.build" target="migrate"/>-->
     </target>
 
 </project>

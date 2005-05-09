@@ -9,8 +9,24 @@ $Id$
 -->
 <project name="test-commit-message" default="test-commit-message">
 
-    <target name="test-commit-message">
-        <nant buildfile="../../targets/server/hooks/commit-message.build" target="commit-message"/>
+    <target name="test-commit-message" depends="init">
+        <nant buildfile="../../../targets/test.build" target="create-hook"/>
+        <nant buildfile="../../../targets/test.build" target="create-workingcopy"/>
+        <nant buildfile="../../../targets/test.build" target="propset"/>
+        <property name="test-message"       value=""/>
+        <property name="commit-should-pass" value="false"/>
+        <nant buildfile="../../../targets/test.build" target="commit-workingcopy"/>
+        <property name="test-message"       value="${message}"/>
+        <property name="commit-should-pass" value="true"/>
+        <nant buildfile="../../../targets/test.build" target="commit-workingcopy"/>
+    </target>
+
+    <target name="init">
+        <property name="failonerror" value="false"/>
+        <property name="message"     value="${test-message}"/>
+        <property name="propname"    value="log-message-test"/>
+        <property name="propval"     value="AlienIsBeautiful"/>
+        <property name="hook"        value="pre-commit"/>
     </target>
 
 </project>

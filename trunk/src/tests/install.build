@@ -7,10 +7,10 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="test-propchange-email" default="test-propchange-email">
+<project name="test-install" default="test-install">
 
-    <target name="test-propchange-email">
-        <echo message="::TODO::" level="Warning"/>   
+    <target name="test-install">
+        <nant buildfile="../targets/install.build" target="install"/>
     </target>
 
 </project>

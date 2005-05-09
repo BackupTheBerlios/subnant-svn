@@ -9,8 +9,18 @@ $Id$
 -->
 <project name="test-commit-email" default="test-commit-email">
 
-    <target name="test-commit-email">
-        <nant buildfile="../../targets/server/hooks/commit-email.build" target="commit-email"/>
+    <target name="test-commit-email" depends="init">
+        <nant buildfile="../../../targets/test.build" target="create-hook"/>
+        <nant buildfile="../../../targets/test.build" target="create-workingcopy"/>
+        <nant buildfile="../../../targets/test.build" target="propset"/>
+        <nant buildfile="../../../targets/test.build" target="commit-workingcopy"/>
     </target>
 
+    <target name="init">
+        <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
+        <property name="commit-should-pass" value="true"/>
+        <property name="propname"           value="hook:commit-email"/>
+        <property name="propval"            value="${mail-tolist}"/>
+        <property name="hook"               value="post-commit"/>
+    </target>
 </project>

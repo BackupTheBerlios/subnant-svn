@@ -10,12 +10,12 @@ $Id$
 <project name="test" default="test">
 
     <target name="test" depends="init">
-        <if test="${no-bdb!='true'}">
-            <property name="test-fs" value="bdb"/>
-            <call target="test-repo"/>
-        </if>
         <if test="${no-fsfs!='true'}">
             <property name="test-fs" value="fsfs"/>
+            <call target="test-repo"/>
+        </if>
+        <if test="${no-bdb!='true'}">
+            <property name="test-fs" value="bdb"/>
             <call target="test-repo"/>
         </if>
         <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep-test=='true'}"/>
@@ -42,8 +42,8 @@ $Id$
         <property name="test-hotcopy" value="${path::combine(test-root,'hotcopy')}"/>
         <property name="dump-root"    value="${test-dump}"/>
         <property name="hotcopy-root" value="${test-hotcopy}"/>
-        <property name="hook-ext" if="${platform::is-win32()}" value=".bat"/>
-        <property name="hook-ext" if="${platform::is-unix()}"  value=".sh"/>
+        <property name="hook-ext"     value=".bat" if="${platform::is-win32()}"/>
+        <property name="hook-ext"     value=".sh"  if="${platform::is-unix()}"/>
         <mkdir dir="${test-dump}"    unless="${directory::exists(test-dump)}"/>
         <mkdir dir="${test-hotcopy}" unless="${directory::exists(test-hotcopy)}"/>
     </target>
@@ -119,7 +119,7 @@ $Id$
             <property name="build-path" value="../tests/server"/>
         </if>
         <!-- Hook targets: commit-access,commit-allower,commit-email,commit-message,propchange-access,propchange-email -->
-        <if test="${test-target=='commit-access' or test-target=='commit-allower' or test-target=='commit-email' or test-target=='commit-message' or test-target=='propchange-access' or test-target=='commit-email'}">
+        <if test="${test-target=='commit-access' or test-target=='commit-allower' or test-target=='commit-email' or test-target=='commit-message' or test-target=='propchange-access' or test-target=='propchange-email'}">
             <property name="build-path" value="../tests/server/hooks"/>
         </if>
         <fail if="${build-path==''}" message="Unknown test target: ${test-target}"/>   
@@ -129,25 +129,21 @@ $Id$
     </target>
 
     <target name="create-workingcopy">
-        <delete dir="${wc}" if="${directory::exists(wc)}"/>
-        <mkdir dir="${wc}" if="${directory::exists(test-root)}"/>
+        <!--<delete dir="${wc}" if="${directory::exists(wc)}"/>-->
+        <mkdir dir="${wc}" if="${directory::exists(test-root)}" unless="${directory::exists(wc)}"/>
         <property name="uri" value='${subnant::to-uri(path::combine(svn-root,repos))}'/>
         <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
             <arg value="checkout"/>
             <arg value="${uri}"/>
             <arg value="."/>
         </exec>
-        <echo message="Checked out ${path::get-file-name(repos)} into ${wc}" level="Warning"/>
+        <echo message="Checked out ${path::get-file-name(repos)}" level="Warning"/>
     </target>
 
     <target name="create-hook">
-        <if test="${file::exists(path::combine(test-root,repos+'/hooks/post-commit'+hook-ext))}">
-            <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
-            <property name="propname" value="hook:commit-email"/>
-            <property name="propval"  value="${mail-tolist}"/>
-            <call target="propset"/>
-            <echo message="Set hook:commit-email property in ${wc}" level="Warning"/>
-        </if>
+        <property name="hook-script" value="${path::combine(test-root,repos+'/hooks/'+hook+hook-ext)}"/>
+        <copy file="../../hooks/${hook}${hook-ext}.example" tofile="${hook-script}" unless="${file::exists(hook-script)}"/>
+        <echo message="Created ${path::get-file-name(hook-script)} hook" level="Warning"/>
     </target>
 
     <target name="propset">
@@ -157,6 +153,9 @@ $Id$
             <arg value="${propval}"/>
             <arg value="${wc}"/>
         </exec>
+        <if test="${exec-result=='0'}">
+            <echo message="Set ${propname} property in ${wc}" level="Warning"/>
+        </if>
         <if test="${exec-result!='0'}">
             <echo message="*** ERROR setting property ${propname} to ${propval}" file="${subnant-output}" append="true"/>
             <echo message="*** ERROR setting property ${propname} to ${propval}" level="Warning"/>
@@ -164,29 +163,21 @@ $Id$
     </target>
 
     <target name="commit-workingcopy">
-        <if test="${file::exists(path::combine(test-root,repos+'/hooks/pre-commit'+hook-ext))}">
-            <echo message="Committing without log message (should fail if pre-commit hook calls commit-message)..." level="Warning"/>
-            <exec program="${svn}" workingdir="${wc}" failonerror="false" resultproperty="svn-result">
-                <arg line='commit --message ""'/>
-            </exec>
-            <if test="${svn-result=='0'}">
-                <echo message="Commit succeed, this is bad if you call commit-message in pre-commit hook" level="Warning"/>
-            </if>
-            <if test="${svn-result!='0'}">
-                <echo message="Commit failed, this is good if you call commit-message in pre-commit hook" level="Warning"/>
-            </if>
-        </if>
-        <echo message="Committing with log ${test-message}..." level="Warning"/>
+        <echo message='Committing with log "${test-message}"' level="Warning"/>
         <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
-            <arg value="commit"/>
-            <arg value="--message"/>
-            <arg value="${test-message}"/>
+            <arg line='commit --message "${test-message}"'/>
         </exec>
-        <if test="${svn-result=='0'}">
+        <if test="${svn-result=='0' and commit-should-pass=='true'}">
             <echo message="Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)}" level="Warning"/>
         </if>
-        <if test="${svn-result!='0'}">
-            <echo message="**** ERROR committing ${path::get-file-name(wc)} to ${path::get-file-name(repos)} ***" level="Warning"/>
+        <if test="${svn-result!='0' and commit-should-pass=='false'}">
+            <echo message="Committing ${path::get-file-name(wc)} to ${path::get-file-name(repos)} failed as expected" level="Warning"/>
+        </if>
+        <if test="${svn-result=='0' and commit-should-pass=='false'}">
+            <fail message="*** ERROR Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} when it should have failed ***"/>
+        </if>
+        <if test="${svn-result!='0' and commit-should-pass=='true'}">
+            <fail message="*** ERROR committing ${path::get-file-name(wc)} to ${path::get-file-name(repos)} ***"/>
         </if>
     </target>
 
@@ -197,7 +188,7 @@ $Id$
         </exec>
         <loadfile file="${exec-output}" property="test-output"/>
         <if test="${string::contains(test-output,test-message)}">
-            <echo level="Warning" message="Found log ${test-message} in repository"/>
+            <echo message="Found log ${test-message} in repository" level="Warning"/>
         </if>
         <ifnot test="${string::contains(test-output,test-message)}">
             <fail message="Did not find log ${test-message} in repository"/>

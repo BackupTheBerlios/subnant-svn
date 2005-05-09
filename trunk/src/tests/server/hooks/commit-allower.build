@@ -10,7 +10,7 @@ $Id$
 <project name="test-commit-allower" default="test-commit-allower">
 
     <target name="test-commit-allower">
-        <nant buildfile="../../targets/server/hooks/commit-allower.build" target="commit-allower"/>
+        <echo message="::TODO::" level="Warning"/>   
     </target>
 
 </project>

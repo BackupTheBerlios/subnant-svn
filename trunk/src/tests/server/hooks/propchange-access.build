@@ -10,7 +10,7 @@ $Id$
 <project name="test-propchange-access" default="test-propchange-access">
 
     <target name="test-propchange-access">
-        <nant buildfile="../../targets/server/hooks/propchange-access.build" target="propchange-access"/>
+        <echo message="::TODO::" level="Warning"/>   
     </target>
 
 </project>

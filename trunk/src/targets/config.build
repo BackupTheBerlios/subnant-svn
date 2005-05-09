@@ -56,9 +56,10 @@ logregex            ${bugtraq-logregex}
 
     <target name="init">
         <!-- ::TODO:: Parse automatically from subnant.config? -->
-        <!-- Get all properties except for nantcontrib-bindir, svn-bindir, svn-root & logdir (defined already) -->
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/dump-root"       property="dump-root"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/hotcopy-root"    property="hotcopy-root"/>
+        <!-- Get all properties except for nantcontrib-bindir, svn-bindir & logdir (defined already) -->
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/svn-root"        property="svn-root"     unless="${property::exists('svn-root')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/dump-root"       property="dump-root"    unless="${property::exists('dump-root')}"/>
+        <xmlpeek file="${config}" xpath="/configuration/svn-repos/hotcopy-root"    property="hotcopy-root" unless="${property::exists('hotcopy-root')}"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/fs-type"         property="fs-type"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/config-dir"      property="config-dir"/>
         <xmlpeek file="${config}" xpath="/configuration/svn-repos/verify-hotcopy"  property="verify-hotcopy"/>
