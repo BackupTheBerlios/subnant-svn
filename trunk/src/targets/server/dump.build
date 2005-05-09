@@ -161,7 +161,7 @@ Examples:
 subnant dump
 subnant dump -D:repos=repo1,repo2 -D:rev=HEAD -D:sendmail=true
 subnant dump -D:svn-root=/svnroot/repos -D:compress=9
-            ]]>
+]]>
         </echo>
     </target>
 

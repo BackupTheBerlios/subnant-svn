@@ -88,7 +88,7 @@ wc              comma separated list of working copies to set *
 Examples:
 subnant bugtraq
 subnant bugtraq -D:wc=/project1,"/project 2"
-            ]]>
+]]>
         </echo>
     </target>
 

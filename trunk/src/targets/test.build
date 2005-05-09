@@ -49,11 +49,12 @@ $Id$
     </target>
 
     <target name="test-repo" depends="init-client,init-server">
-        <echo message="Testing ${test-fs} repository..." level="Warning"/>
-        <echo message="Testing ${test-fs} repository..." file="${subnant-output}" append="true"/>
-        <property name="repos"   value="${'test-repo-'+test-fs}"/>
-        <property name="fs-type" value="${test-fs}"/>
-        <property name="wc"      value="${path::combine(test-root,'wc-'+test-fs)}"/>
+        <echo message="[Testing ${test-fs} repository]" level="Warning"/>
+        <echo message="[Testing ${test-fs} repository]" file="${subnant-output}" append="true"/>
+        <property name="repos"      value="${'test-repo-'+test-fs}"/>
+        <property name="fs-type"    value="${test-fs}"/>
+        <property name="test-repos" value="${path::combine(test-root,repos)}"/>
+        <property name="wc"         value="${path::combine(test-root,'wc-'+test-fs)}"/>
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
                 <property name="test-target" value="${string::to-lower(string::trim(test-target))}"/>
@@ -62,10 +63,15 @@ $Id$
             </foreach>
         </if>
         <ifnot test="${property::exists('target')}">
+            <!-- Core targets -->
             <property name="test-target" value="config"/>
             <call target="run-test"/>
             <property name="test-target" value="install"/>
             <call target="run-test"/>
+            <!-- Client targets -->
+            <property name="test-target" value="bugtraq"/>
+            <call target="run-test"/>
+            <!-- Server targets -->
             <property name="test-target" value="create"/>
             <call target="run-test"/>
             <property name="test-target" value="dump"/>
@@ -78,6 +84,7 @@ $Id$
             <call target="run-test"/>
             <property name="test-target" value="verify"/>
             <call target="run-test"/>
+            <!-- Hook targets -->
             <property name="test-target" value="commit-access"/>
             <call target="run-test"/>
             <property name="test-target" value="commit-allower"/>
@@ -90,44 +97,35 @@ $Id$
             <call target="run-test"/>
             <property name="test-target" value="propchange-email"/>
             <call target="run-test"/>
-            <property name="test-target" value="bugtraq"/>
-            <call target="run-test"/>
         </ifnot>
+        <echo message="" level="Warning"/>
+        <echo message="" file="${subnant-output}" append="true"/>
     </target>
 
     <target name="run-test">
-        <echo message="Running ${test-target} test..." level="Warning"/>
-        <echo message="Running ${test-target} test..." file="${subnant-output}" append="true"/>
+        <echo message="[Testing ${test-target}]" level="Warning"/>
+        <echo message="[Testing ${test-target}]" file="${subnant-output}" append="true"/>
+        <property name="build-path" value=""/>
         <!-- Core targets: config,install -->
         <if test="${test-target=='config' or test-target=='install'}">
-            <nant buildfile="../tests/${test-target}.build" target="test-${test-target}"/>
+            <property name="build-path" value="../tests"/>
         </if>
         <!-- Client targets: bugtraq -->
         <if test="${test-target=='bugtraq'}">
-            <call target="create-repository"/>
-            <call target="create-workingcopy"/>
-            <nant buildfile="../tests/client/${test-target}.build" target="test-${test-target}"/>
-            <call target="commit-workingcopy"/>
-            <call target="search-log"/>
+            <property name="build-path" value="../tests/client"/>
         </if>
         <!-- Server targets: create,dump,hotcopy,load,migrate,verify -->
         <if test="${test-target=='create' or test-target=='dump' or test-target=='hotcopy' or test-target=='load' or test-target=='migrate' or test-target=='verify'}">
-            <call target="create-repository"/>
-            <nant buildfile="../tests/server/${test-target}.build" target="test-${test-target}"/>
+            <property name="build-path" value="../tests/server"/>
         </if>
         <!-- Hook targets: commit-access,commit-allower,commit-email,commit-message,propchange-access,propchange-email -->
         <if test="${test-target=='commit-access' or test-target=='commit-allower' or test-target=='commit-email' or test-target=='commit-message' or test-target=='propchange-access' or test-target=='commit-email'}">
-            <call target="create-repository"/>
-            <call target="create-hook"/>
-            <call target="create-workingcopy"/>
-            <nant buildfile="../tests/server/hooks/${test-target}.build" target="test-${test-target}"/>
+            <property name="build-path" value="../tests/server/hooks"/>
         </if>
-    </target>
-
-    <target name="create-repository">
-        <delete dir="${repos}" if="${directory::exists(repos)}"/>
-        <mkdir dir="${repos}" if="${directory::exists(test-root)}"/>
-        <nant buildfile="server/create.build" target="create"/>
+        <fail if="${build-path==''}" message="Unknown test target: ${test-target}"/>   
+        <nant buildfile="${build-path}/${test-target}.build" target="test-${test-target}"/>
+        <echo message="" level="Warning"/>
+        <echo message="" file="${subnant-output}" append="true"/>
     </target>
 
     <target name="create-workingcopy">
@@ -226,7 +224,7 @@ Examples:
 subnant test
 subnant test -D:target=create,verify,dump
 subnant test -D:keep-test=true -D:no-bdb=true
-            ]]>
+]]>
         </echo>
     </target>
    

@@ -88,7 +88,7 @@ Examples:
 subnant hotcopy
 subnant hotcopy -D:repos=repo1,repo2 -D:verify=true
 subnant hotcopy -D:hotcopy-root=/svnroot/hotcopy -D:sendmail=true
-            ]]>
+]]>
         </echo>
     </target>
    

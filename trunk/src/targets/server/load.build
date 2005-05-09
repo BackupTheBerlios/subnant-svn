@@ -69,7 +69,7 @@ sendmail        set true to email result
 Examples:
 subnant load -D:dumps=repo1.dump.zip,repo2.dump
 subnant load -D:dumps=repo1.dump -D:dump-root=/svnroot/dumps
-            ]]>
+]]>
         </echo>
     </target>
    

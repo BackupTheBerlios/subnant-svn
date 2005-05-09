@@ -50,7 +50,7 @@ label               ${bugtraq-label}
 number              ${bugtraq-number}
 warnifnoissue       ${bugtraq-warnifnoissue}
 logregex            ${bugtraq-logregex}
-            ]]>
+]]>
         </echo>
     </target>
 
@@ -124,7 +124,7 @@ config          name of alternative configuration file *
 Examples:
 subnant config
 subnant config -D:config=/path/to/file.config
-            ]]>
+]]>
         </echo>
     </target>
    

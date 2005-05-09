@@ -132,7 +132,7 @@ sendmail         set true to email result
 
 Examples:
 subnant propchange-email -D:repos=/path/to/repo1 -D:rev=1
-            ]]>
+]]>
         </echo>
     </target>
    

@@ -68,7 +68,7 @@ Examples:
 nant install
 nant install -D:install-prefix=E:\
 nant install -D:install-prefix="C:\Subversion Tools"
-            ]]>
+]]>
         </echo>
     </target>
 

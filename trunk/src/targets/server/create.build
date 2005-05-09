@@ -120,7 +120,7 @@ Examples:
 subnant create -D:repos=repo1
 subnant create -D:repos=repo1,repo2 -D:svn-root=/svnroot/repos
 subnant create verify -D:repos=repo1 -D:fs-type=fsfs -D:no-hooks=true
-            ]]>
+]]>
         </echo>
     </target>
    

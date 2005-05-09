@@ -188,7 +188,7 @@ sendmail         set true to email result
 
 Examples:
 subnant commit-email -D:repos=/path/to/repo -D:rev=1 -D:no-diff-deleted=true
-            ]]>
+]]>
         </echo>
     </target>
    

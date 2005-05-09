@@ -34,7 +34,7 @@ sendmail        set true to email result
 
 Examples:
 subnant commit-access -D:repos=/path/to/repo -D:txn=1-1
-            ]]>
+]]>
         </echo>
     </target>
    

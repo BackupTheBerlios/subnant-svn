@@ -76,7 +76,7 @@ Examples:
 subnant migrate -D:to-svn-root=/svn2root/repos
 subnant migrate -D:to-svn-root=/svn2root/repos -D:repos=repo1,repo2
 subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin
-            ]]>
+]]>
         </echo>
     </target>
 

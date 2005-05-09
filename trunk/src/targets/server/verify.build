@@ -60,7 +60,7 @@ Examples:
 subnant verify
 subnant verify -D:repos=repo1,repo2
 subnant verify -D:svn-root=/svnroot/repos
-            ]]>
+]]>
         </echo>
     </target>
    
