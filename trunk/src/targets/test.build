@@ -9,79 +9,125 @@ $Id$
 -->
 <project name="test" default="test">
 
-    <target name="test" depends="init,init-repository,init-workingcopy">
+    <target name="test" depends="init">
         <if test="${no-bdb!='true'}">
             <property name="test-fs" value="bdb"/>
-            <call target="do-test"/>
+            <call target="test-repo"/>
         </if>
         <if test="${no-fsfs!='true'}">
             <property name="test-fs" value="fsfs"/>
-            <call target="do-test"/>
+            <call target="test-repo"/>
         </if>
         <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep-test=='true'}"/>
-        <echo level="Warning" message="Test complete"/>
+        <echo message="Test complete" level="Warning"/>
         <echo message="${string::pad-right('Test complete',60,' ')}(${subnant::get-elapsed-time(test-started)})" file="${subnant-output}" append="true"/>
     </target>
 
-    <target name="init" depends="init-windows,init-linux">
+    <target name="init">
         <property name="test-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="keep-test" value="false" unless="${property::exists('keep-test') and string::to-lower(keep-test)=='true'}"/>
         <property name="no-bdb"    value="false" unless="${property::exists('no-bdb') and string::to-lower(no-bdb)=='true'}"/>
         <property name="no-fsfs"   value="false" unless="${property::exists('no-fsfs') and string::to-lower(no-fsfs)=='true'}"/>
-        <property name="test-root" value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),tstamp)}"
-             unless="${property::exists('test-root')}"/>
+        <property name="test-root" value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),tstamp)}" unless="${property::exists('test-root')}"/>
         <mkdir dir="${test-root}" unless="${directory::exists(test-root)}"/>
     </target>
 
-    <target name="init-windows" if="${platform::is-win32()}">
-        <property name="hook-ext" value=".bat"/>
-    </target>
-
-    <target name="init-linux" if="${platform::is-unix()}">
-        <property name="hook-ext" value=".sh"/>
-    </target>
-
-    <target name="init-repository">
-        <property name="svn-root"   value="${test-root}"/>
-        <property name="test-dumps" value="${path::combine(test-root,'repo-dumps')}"/>
-        <mkdir dir="${test-dumps}" unless="${directory::exists(test-dumps)}"/>
-        <property name="dump-root" value="${test-dumps}"/>
-    </target>
-
-    <target name="init-workingcopy">
+    <target name="init-client">
         <property name="test-message" value="${'message for test '+tstamp}"/>
     </target>
 
-    <target name="do-test">
-        <echo level="Warning" message="Testing ${test-fs} repository and working copy..."/>
-        <echo file="${subnant-output}" message="Testing ${test-fs} repository and working copy..." append="true"/>
+    <target name="init-server">
+        <property name="svn-root"     value="${test-root}"/>
+        <property name="test-dump"    value="${path::combine(test-root,'dumps')}"/>
+        <property name="test-hotcopy" value="${path::combine(test-root,'hotcopy')}"/>
+        <property name="dump-root"    value="${test-dump}"/>
+        <property name="hotcopy-root" value="${test-hotcopy}"/>
+        <property name="hook-ext" if="${platform::is-win32()}" value=".bat"/>
+        <property name="hook-ext" if="${platform::is-unix()}"  value=".sh"/>
+        <mkdir dir="${test-dump}"    unless="${directory::exists(test-dump)}"/>
+        <mkdir dir="${test-hotcopy}" unless="${directory::exists(test-hotcopy)}"/>
+    </target>
+
+    <target name="test-repo" depends="init-client,init-server">
+        <echo message="Testing ${test-fs} repository..." level="Warning"/>
+        <echo message="Testing ${test-fs} repository..." file="${subnant-output}" append="true"/>
         <property name="repos"   value="${'test-repo-'+test-fs}"/>
         <property name="fs-type" value="${test-fs}"/>
         <property name="wc"      value="${path::combine(test-root,'wc-'+test-fs)}"/>
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
-                <nant buildfile="client/${test-target}.build" if="${test-target=='bugtraq'}" target="test"/>
-                <nant buildfile="server/${test-target}.build" if="${test-target!='bugtraq'}" target="test"/>
+                <property name="test-target" value="${string::to-lower(string::trim(test-target))}"/>
+                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|config|create|dump|hotcopy|install|load|migrate|propchange-(access|email)|verify))" input="${test-target}"/>
+                <call target="run-test"/>
             </foreach>
         </if>
         <ifnot test="${property::exists('target')}">
-            <call target="test-all"/>
+            <property name="test-target" value="config"/>
+            <call target="run-test"/>
+            <property name="test-target" value="install"/>
+            <call target="run-test"/>
+            <property name="test-target" value="create"/>
+            <call target="run-test"/>
+            <property name="test-target" value="dump"/>
+            <call target="run-test"/>
+            <property name="test-target" value="hotcopy"/>
+            <call target="run-test"/>
+            <property name="test-target" value="load"/>
+            <call target="run-test"/>
+            <property name="test-target" value="migrate"/>
+            <call target="run-test"/>
+            <property name="test-target" value="verify"/>
+            <call target="run-test"/>
+            <property name="test-target" value="commit-access"/>
+            <call target="run-test"/>
+            <property name="test-target" value="commit-allower"/>
+            <call target="run-test"/>
+            <property name="test-target" value="commit-email"/>
+            <call target="run-test"/>
+            <property name="test-target" value="commit-message"/>
+            <call target="run-test"/>
+            <property name="test-target" value="propchange-access"/>
+            <call target="run-test"/>
+            <property name="test-target" value="propchange-email"/>
+            <call target="run-test"/>
+            <property name="test-target" value="bugtraq"/>
+            <call target="run-test"/>
         </ifnot>
     </target>
 
-    <target name="test-all">
-        <!-- ::TODO:: Create test target in each main target, so that all this test target has to do
-             is setup the test framework (temp directories, etc)...the other targets test themselves -->
-    	<nant buildfile="server/create.build"  target="create"/>
-        <call target="create-workingcopy"/>
-        <nant buildfile="client/bugtraq.build" target="bugtraq"/>
-        <call target="add-hook-properties"/>
-        <call target="commit-workingcopy"/>
-        <call target="search-log"/>
-        <nant buildfile="server/verify.build"  target="verify"/>
-        <nant buildfile="server/hotcopy.build" target="hotcopy"/>
-        <nant buildfile="server/dump.build"    target="dump"/>
-        <!--<nant buildfile="migrate.build" target="test"/> migrate tests nearly everything! -->
+    <target name="run-test">
+        <echo message="Running ${test-target} test..." level="Warning"/>
+        <echo message="Running ${test-target} test..." file="${subnant-output}" append="true"/>
+        <!-- Core targets: config,install -->
+        <if test="${test-target=='config' or test-target=='install'}">
+            <nant buildfile="../tests/${test-target}.build" target="test-${test-target}"/>
+        </if>
+        <!-- Client targets: bugtraq -->
+        <if test="${test-target=='bugtraq'}">
+            <call target="create-repository"/>
+            <call target="create-workingcopy"/>
+            <nant buildfile="../tests/client/${test-target}.build" target="test-${test-target}"/>
+            <call target="commit-workingcopy"/>
+            <call target="search-log"/>
+        </if>
+        <!-- Server targets: create,dump,hotcopy,load,migrate,verify -->
+        <if test="${test-target=='create' or test-target=='dump' or test-target=='hotcopy' or test-target=='load' or test-target=='migrate' or test-target=='verify'}">
+            <call target="create-repository"/>
+            <nant buildfile="../tests/server/${test-target}.build" target="test-${test-target}"/>
+        </if>
+        <!-- Hook targets: commit-access,commit-allower,commit-email,commit-message,propchange-access,propchange-email -->
+        <if test="${test-target=='commit-access' or test-target=='commit-allower' or test-target=='commit-email' or test-target=='commit-message' or test-target=='propchange-access' or test-target=='commit-email'}">
+            <call target="create-repository"/>
+            <call target="create-hook"/>
+            <call target="create-workingcopy"/>
+            <nant buildfile="../tests/server/hooks/${test-target}.build" target="test-${test-target}"/>
+        </if>
+    </target>
+
+    <target name="create-repository">
+        <delete dir="${repos}" if="${directory::exists(repos)}"/>
+        <mkdir dir="${repos}" if="${directory::exists(test-root)}"/>
+        <nant buildfile="server/create.build" target="create"/>
     </target>
 
     <target name="create-workingcopy">
@@ -93,10 +139,10 @@ $Id$
             <arg value="${uri}"/>
             <arg value="."/>
         </exec>
-        <echo message="Checked out repository ${path::get-file-name(repos)} into ${wc}" level="Warning"/>
+        <echo message="Checked out ${path::get-file-name(repos)} into ${wc}" level="Warning"/>
     </target>
 
-    <target name="add-hook-properties">
+    <target name="create-hook">
         <if test="${file::exists(path::combine(test-root,repos+'/hooks/post-commit'+hook-ext))}">
             <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
             <property name="propname" value="hook:commit-email"/>
