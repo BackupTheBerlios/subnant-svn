@@ -151,15 +151,14 @@ svn-bindir      subversion binary directory ***
 compress        set compression level 1 (lowest) to 9 (highest)
 incremental     set true for svnadmin --incremental switch
 deltas          set true for svnamdin --deltas switch
-sendmail        set true to email result
 
 *    If repos not set, all repositories under svn-root are dumped
 **   If rev not set, all revisions are dumped
 ***  If option not set, default value in subnant.config is used
 
 Examples:
-subnant dump
-subnant dump -D:repos=repo1,repo2 -D:rev=HEAD -D:sendmail=true
+subnant dump -D:sendmail=dump@example.com
+subnant dump -D:repos=repo1,repo2 -D:rev=HEAD
 subnant dump -D:svn-root=/svnroot/repos -D:compress=9
 ]]>
         </echo>

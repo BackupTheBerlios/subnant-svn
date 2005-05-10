@@ -22,10 +22,6 @@ $Id$
 
 Control access to repository using start-commit hook 
 
-Options:
-sendmail        set true to email result
-
-Examples:
 ]]>
         </echo>
     </target>

@@ -18,17 +18,25 @@ $Id$
             <property name="test-fs" value="bdb"/>
             <call target="test-repo"/>
         </if>
-        <delete dir="${test-root}" if="${directory::exists(test-root)}" unless="${keep-test=='true'}"/>
+        <if test="${keep-test=='false' and directory::exists(test-root)}">
+            <!-- Allow for processes still accessing test area -->
+            <sleep seconds="5"/>
+            <delete dir="${test-root}" failonerror="false"/>
+            <if test="${directory::exists(test-root)}">
+                <sleep seconds="5"/>
+                <delete dir="${test-root}" failonerror="true"/>
+            </if>
+        </if>
         <echo message="Test complete" level="Warning"/>
         <echo message="${string::pad-right('Test complete',60,' ')}(${subnant::get-elapsed-time(test-started)})" file="${subnant-output}" append="true"/>
     </target>
 
     <target name="init">
         <property name="test-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="keep-test" value="false" unless="${property::exists('keep-test') and string::to-lower(keep-test)=='true'}"/>
-        <property name="no-bdb"    value="false" unless="${property::exists('no-bdb') and string::to-lower(no-bdb)=='true'}"/>
-        <property name="no-fsfs"   value="false" unless="${property::exists('no-fsfs') and string::to-lower(no-fsfs)=='true'}"/>
-        <property name="test-root" value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),tstamp)}" unless="${property::exists('test-root')}"/>
+        <property name="keep-test"    value="false" unless="${property::exists('keep-test') and string::to-lower(keep-test)=='true'}"/>
+        <property name="no-bdb"       value="false" unless="${property::exists('no-bdb') and string::to-lower(no-bdb)=='true'}"/>
+        <property name="no-fsfs"      value="false" unless="${property::exists('no-fsfs') and string::to-lower(no-fsfs)=='true'}"/>
+        <property name="test-root"    value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),tstamp)}" unless="${property::exists('test-root')}"/>
         <mkdir dir="${test-root}" unless="${directory::exists(test-root)}"/>
     </target>
 
@@ -37,15 +45,14 @@ $Id$
     </target>
 
     <target name="init-server">
-        <property name="svn-root"     value="${test-root}"/>
-        <property name="test-dump"    value="${path::combine(test-root,'dumps')}"/>
-        <property name="test-hotcopy" value="${path::combine(test-root,'hotcopy')}"/>
-        <property name="dump-root"    value="${test-dump}"/>
-        <property name="hotcopy-root" value="${test-hotcopy}"/>
         <property name="hook-ext"     value=".bat" if="${platform::is-win32()}"/>
         <property name="hook-ext"     value=".sh"  if="${platform::is-unix()}"/>
-        <mkdir dir="${test-dump}"    unless="${directory::exists(test-dump)}"/>
-        <mkdir dir="${test-hotcopy}" unless="${directory::exists(test-hotcopy)}"/>
+        <property name="svn-root"     value="${path::combine(test-root,'repos')}"/>
+        <property name="dump-root"    value="${path::combine(test-root,'dumps')}"/>
+        <property name="hotcopy-root" value="${path::combine(test-root,'hotcopy')}"/>
+        <mkdir dir="${svn-root}"     unless="${directory::exists(svn-root)}"/>
+        <mkdir dir="${dump-root}"    unless="${directory::exists(dump-root)}"/>
+        <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}"/>
     </target>
 
     <target name="test-repo" depends="init-client,init-server">
@@ -53,7 +60,7 @@ $Id$
         <echo message="[Testing ${test-fs} repository]" file="${subnant-output}" append="true"/>
         <property name="repos"      value="${'test-repo-'+test-fs}"/>
         <property name="fs-type"    value="${test-fs}"/>
-        <property name="test-repos" value="${path::combine(test-root,repos)}"/>
+        <property name="test-repos" value="${path::combine(svn-root,repos)}"/>
         <property name="wc"         value="${path::combine(test-root,'wc-'+test-fs)}"/>
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
@@ -65,8 +72,6 @@ $Id$
         <ifnot test="${property::exists('target')}">
             <!-- Core targets -->
             <property name="test-target" value="config"/>
-            <call target="run-test"/>
-            <property name="test-target" value="install"/>
             <call target="run-test"/>
             <!-- Client targets -->
             <property name="test-target" value="bugtraq"/>
@@ -106,8 +111,8 @@ $Id$
         <echo message="[Testing ${test-target}]" level="Warning"/>
         <echo message="[Testing ${test-target}]" file="${subnant-output}" append="true"/>
         <property name="build-path" value=""/>
-        <!-- Core targets: config,install -->
-        <if test="${test-target=='config' or test-target=='install'}">
+        <!-- Core targets: config -->
+        <if test="${test-target=='config'}">
             <property name="build-path" value="../tests"/>
         </if>
         <!-- Client targets: bugtraq -->
@@ -129,9 +134,9 @@ $Id$
     </target>
 
     <target name="create-workingcopy">
-        <if test="${directory::exists(test-root) and directory::exists(wc)==false}">
+        <if test="${directory::exists(test-root) and directory::exists(path::combine(test-root,wc))==false}">
             <mkdir dir="${wc}"/>
-            <property name="uri" value='${subnant::to-uri(path::combine(test-root,repos))}'/>
+            <property name="uri" value='${subnant::to-uri(path::combine(svn-root,repos))}'/>
             <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
                 <arg value="checkout"/>
                 <arg value="${uri}"/>
@@ -142,8 +147,15 @@ $Id$
     </target>
 
     <target name="create-hook">
-        <property name="hook-script" value="${path::combine(test-root,repos+'/hooks/'+hook+hook-ext)}"/>
-        <copy file="../../hooks/${hook}${hook-ext}.example" tofile="${hook-script}" unless="${file::exists(hook-script)}"/>
+        <property name="hook-script" value="${path::combine(svn-root,repos+'/hooks/'+hook+hook-ext)}"/>
+        <!-- Use user-defined hook before example but only if repos hook doesn't already exist -->
+        <if test="${file::exists('../../hooks/${hook}${hook-ext}') and file::exists(hook-script)==false}">
+            <copy file="../../hooks/${hook}${hook-ext}" tofile="${hook-script}"/>
+        </if>
+        <!-- Use example hook as last resort if repos hook doesn't exist -->
+        <if test="${file::exists('../../hooks/${hook}${hook-ext}.example') and file::exists(hook-script)==false}">
+            <copy file="../../hooks/${hook}${hook-ext}.example" tofile="${hook-script}"/>
+        </if>
         <echo message="Created hook ${path::get-file-name(hook-script)}" level="Warning"/>
     </target>
 
@@ -155,11 +167,34 @@ $Id$
             <arg value="${wc}"/>
         </exec>
         <if test="${exec-result=='0'}">
-            <echo message="Set ${propname} property in ${wc}" level="Warning"/>
+            <echo message="Set property ${propname}" level="Warning"/>
         </if>
         <if test="${exec-result!='0'}">
-            <echo message="*** ERROR setting property ${propname} to ${propval}" file="${subnant-output}" append="true"/>
-            <echo message="*** ERROR setting property ${propname} to ${propval}" level="Warning"/>
+            <echo message="*** ERROR setting property ${propname} to ${propval} in ${wc} ***" file="${subnant-output}" append="true"/>
+            <echo message="*** ERROR setting property ${propname} to ${propval} in ${wc} ***" level="Warning"/>
+        </if>
+    </target>
+
+    <target name="proplist">
+        <property name="svnlook-file" value="${exec-output}-svnlook-result"/>
+        <exec program="${svnlook}" failonerror="${failonerror}" output="${svnlook-file}" resultproperty="exec-result">
+            <arg value="proplist"/>
+            <arg value="${path::combine(svn-root,repos)}"/>
+            <arg value="/"/>
+        </exec>
+        <if test="${exec-result=='0'}">
+            <loadfile file="${svnlook-file}" property="proplist"/>
+            <property name="proplist" value="${string::trim(proplist)}"/>
+            <if test="${string::contains(proplist,propfind)}">
+                <echo message="Found ${propfind} in property list" level="Warning"/>
+            </if>
+            <ifnot test="${string::contains(proplist,propfind)}">
+                <fail message="*** ERROR couldn't find ${propfind} in property list ***"/>
+            </ifnot>
+        </if>
+        <delete file="${svnlook-file}" if="${file::exists(svnlook-file)}"/>
+        <if test="${exec-result!='0'}">
+            <fail message="*** ERROR getting property list ***"/>
         </if>
     </target>
 
@@ -172,7 +207,7 @@ $Id$
             <echo message="Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)}" level="Warning"/>
         </if>
         <if test="${svn-result!='0' and commit-should-pass=='false'}">
-            <echo message="Committing ${path::get-file-name(wc)} to ${path::get-file-name(repos)} failed as expected" level="Warning"/>
+            <echo message="Commit failed as expected" level="Warning"/>
         </if>
         <if test="${svn-result=='0' and commit-should-pass=='false'}">
             <fail message="*** ERROR Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} when it should have failed ***"/>
@@ -185,14 +220,14 @@ $Id$
     <target name="search-log">
         <exec program="${svnlook}" output="${exec-output}" append="false" failonerror="${failonerror}" resultproperty="svnlook-result">
             <arg value="log"/>
-            <arg value="${path::combine(test-root,repos)}"/>
+            <arg value="${path::combine(svn-root,repos)}"/>
         </exec>
         <loadfile file="${exec-output}" property="test-output"/>
         <if test="${string::contains(test-output,test-message)}">
-            <echo message="Found log ${test-message} in repository" level="Warning"/>
+            <echo message='Found log "${test-message}" in repository' level="Warning"/>
         </if>
         <ifnot test="${string::contains(test-output,test-message)}">
-            <fail message="Did not find log ${test-message} in repository"/>
+            <fail message='Did not find log "${test-message}" in repository'/>
         </ifnot>
     </target>
 
@@ -200,15 +235,18 @@ $Id$
         <echo level="Warning">
             <![CDATA[test: usage: subnant test [-D:<option>=<value>]
 
-Call Subnant targets in a test environment
+Call Subnant targets in a test environment to ensure they
+pass rudimentary testing.  Accepted test targets are:
+
+bugtraq, config, create, dump, hotcopy, load, migrate, verify,
+commit-access, commit-allower, commit-email, commit-message,
+propchange-access, propchange-email
 
 Options:
 target          comma separated list of test targets *
-test-root       override (temporary) test root directory
 keep-test       set true to keep data created by test
-no-bdb          set true to not test bdb repository
-no-fsfs         set true to not test fsfs repository
-sendmail        set true to email result
+no-bdb          set true to not test bdb style repository
+no-fsfs         set true to not test fsfs style repository
 
 * If no target set, all main targets are tested
 

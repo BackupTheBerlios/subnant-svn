@@ -79,15 +79,14 @@ verify          set true to verify hotcopy **
 svn-root        repository root directory **
 hotcopy-root    hotcopy root directory **
 svn-bindir      Subversion binary directory **
-sendmail        set true to email result
 
 *   If repos not set, all repositories under svn-root are backed up
 **  If option not set, default value in subnant.config is used
 
 Examples:
-subnant hotcopy
+subnant hotcopy -D:sendmail=true
 subnant hotcopy -D:repos=repo1,repo2 -D:verify=true
-subnant hotcopy -D:hotcopy-root=/svnroot/hotcopy -D:sendmail=true
+subnant hotcopy -D:hotcopy-root=/svnroot/hotcopy
 ]]>
         </echo>
     </target>

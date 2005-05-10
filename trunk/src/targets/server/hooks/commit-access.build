@@ -29,9 +29,6 @@ Required:
 repos           full path to repository
 txn             Subversion transaction number
 
-Options:
-sendmail        set true to email result
-
 Examples:
 subnant commit-access -D:repos=/path/to/repo -D:txn=1-1
 ]]>

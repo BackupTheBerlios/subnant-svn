@@ -22,9 +22,6 @@ $Id$
 
 Control access to repository property changes using pre-propchange hook 
 
-Options:
-sendmail        set true to email result
-
 Examples:
 ]]>
         </echo>

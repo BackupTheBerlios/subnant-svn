@@ -21,13 +21,18 @@ $Id$
 Copyright (C) 2005 Simon McKenna
 http://subnant.berlios.de
 
-Usage: subnant <target> [<target>] [-D:<option>=<value>]
+Usage: 
+subnant <target> [<target>] [-D:<option>=<value>]
+
+Options:
+sendmail        email result of <target> if property is set true
+                (uses default in config) or set as email address
 
 Examples:
 subnant -projecthelp
 subnant config
 subnant help test
-subnant test
+subnant test -D:sendmail=test@example.com
 subnant hotcopy dump -D:sendmail=true
 subnant create verify dump -D:repos=repo1,repo2
 subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
@@ -159,11 +164,11 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <property name="exec-output" value="${path::combine(path::get-temp-path(),'exec-output'+tstamp)}"/>
         <!-- Define file used to store <exec> task result across targets -->
         <property name="exec-result" value="${path::combine(path::get-temp-path(),'exec-result'+tstamp)}"/>        
-        <!-- Define file used for Subnant output (used when sendmail=true) -->
+        <!-- Define file used for Subnant output (used when sendmail property set) -->
         <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+tstamp)}"/>
         <!-- ::TODO:: Investigate option for UTC instead of server localtime output? -->
-        <echo file="${subnant-output}" append="false">Subnant started ${subnant::ticks-to-string(subnant-started)}
-</echo>
+        <echo message="Subnant started ${subnant::ticks-to-string(subnant-started)}" file="${subnant-output}" append="false"/>
+        <echo message="" file="${subnant-output}" append="true"/>
     </target>
    
     <target name="init-logs">
@@ -283,7 +288,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="finally">
-        <call target="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))=='true'}"/>
+        <call target="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))!='false'}"/>
         <call target="delete-temp-files"/>
     </target>
 
@@ -291,8 +296,8 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <fail unless="${property::exists('config')}" message="Email not sent as config file not yet set"/>
         <!-- Mail message is culmination of results from all targets executed -->
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
-            <echo file="${subnant-output}" append="true">
-${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::get-elapsed-time(subnant-started)} seconds)</echo>
+            <echo message="" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::get-elapsed-time(subnant-started)} seconds)" file="${subnant-output}" append="true"/>
             <loadfile file="${subnant-output}" property="message"/>
         </if>
         <ifnot test="${property::exists('subnant-output') and file::exists(subnant-output)}">
@@ -300,8 +305,13 @@ ${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-t
         </ifnot>
         <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail-from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail-host"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail-prefix"/>
+        <if test="${property::exists('sendmail')==true and string::trim(string::to-lower(sendmail))!='true'}">
+            <property name="mail-tolist" value="${sendmail}"/>
+        </if>
+        <ifnot test="${property::exists('mail-tolist')}">
+            <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
+        </ifnot>
         <echo level="Warning">Sending mail to ${mail-tolist}</echo>
         <mail mailhost="${mail-host}" from="${mail-from}" tolist="${mail-tolist}" subject="${mail-prefix} ${subject}" message="${message}">
             <attachments>
@@ -501,8 +511,7 @@ ${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-t
                 {
                     Console.Error.WriteLine(_message);           
                 }
-            }                
-            ]]>
+            }]]>
         </code>
     </script>
   

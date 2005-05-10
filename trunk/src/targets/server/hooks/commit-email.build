@@ -126,7 +126,7 @@ $Id$
     <target name="mail-revision-info">
         <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail-from"/>
         <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail-host"/>
-        <echo level="Warning" message="Sending commit-email for repository ${repo} on revision ${rev} to ${mail-tolist}"/>
+        <echo message="Sending commit-email for repository ${repo} on revision ${rev} to ${mail-tolist}" level="Warning"/>
         <mail mailhost="${mail-host}" from="${mail-from}" tolist="${mail-tolist}"
           subject="[${repo} commit] rev ${rev}">
             <files>
@@ -184,7 +184,6 @@ rev              revision number (must exist in repository)
 Options:
 no-diff-deleted  set true to not print differences for deleted files
 hook-prop        search for another property (not hook:commit-email)
-sendmail         set true to email result
 
 Examples:
 subnant commit-email -D:repos=/path/to/repo -D:rev=1 -D:no-diff-deleted=true

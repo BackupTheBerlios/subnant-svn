@@ -50,7 +50,6 @@ txn             Subversion transaction number
 
 Options:
 no-log-msg      override default message when no log entered
-sendmail        set true to email result
 
 Examples:
 subnant commit-message -D:repos=/path/to/repo -D:txn=1-1

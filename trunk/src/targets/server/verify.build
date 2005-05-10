@@ -51,7 +51,6 @@ Options:
 repos           comma separated list of repositories *
 svn-root        repository root directory **
 svn-bindir      Subversion binary directory **
-sendmail        set true to email result
 
 *  If repos not set, all repositories under svn-root are verified
 ** If option not set, default value in subnant.config is used

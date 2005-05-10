@@ -112,7 +112,6 @@ bdb-log-keep    set true for automatic log file removal  [Berkeley DB]
 bdb-txn-nosync  set true for fsync at transaction commit [Berkeley DB]
 no-svnserve     set true to not copy subnant/conf/svnserve.conf
 no-hooks        set true to not copy subnant/hooks/
-sendmail        set true to email result
 
 * If option not set, default value in subnant.config is used
 
