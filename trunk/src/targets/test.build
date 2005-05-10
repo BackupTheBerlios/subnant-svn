@@ -51,11 +51,14 @@ $Id$
         <mkdir dir="${svn-root}"     unless="${directory::exists(svn-root)}"/>
         <mkdir dir="${dump-root}"    unless="${directory::exists(dump-root)}"/>
         <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}"/>
+    </target>
+
+    <target name="init-hooks">
         <property name="hook-dir" value="${path::combine(subnant-root,'hooks')}"/>
         <property name="hook-ext" value=".bat" if="${platform::is-win32()}"/>
         <property name="hook-ext" value=".sh"  if="${platform::is-unix()}"/>
     </target>
-
+   
     <target name="test-repo" depends="init-client,init-server">
         <echo message="[Testing ${test-fs} repository]" level="Warning"/>
         <echo message="[Testing ${test-fs} repository]" file="${subnant-output}" append="true"/>
@@ -66,14 +69,11 @@ $Id$
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
                 <property name="test-target" value="${string::to-lower(string::trim(test-target))}"/>
-                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|config|create|dump|hotcopy|install|load|migrate|propchange-(access|email)|verify))" input="${test-target}"/>
+                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|propchange-(access|email)|verify))" input="${test-target}"/>
                 <call target="run-test"/>
             </foreach>
         </if>
         <ifnot test="${property::exists('target')}">
-            <!-- Core targets -->
-            <property name="test-target" value="config"/>
-            <call target="run-test"/>
             <!-- Client targets -->
             <property name="test-target" value="bugtraq"/>
             <call target="run-test"/>
@@ -112,10 +112,6 @@ $Id$
         <echo message="[Testing ${test-target}]" level="Warning"/>
         <echo message="[Testing ${test-target}]" file="${subnant-output}" append="true"/>
         <property name="build-path" value=""/>
-        <!-- Core targets: config -->
-        <if test="${test-target=='config'}">
-            <property name="build-path" value="../tests"/>
-        </if>
         <!-- Client targets: bugtraq -->
         <if test="${test-target=='bugtraq'}">
             <property name="build-path" value="../tests/client"/>
@@ -128,7 +124,9 @@ $Id$
         <if test="${test-target=='commit-access' or test-target=='commit-allower' or test-target=='commit-email' or test-target=='commit-message' or test-target=='propchange-access' or test-target=='propchange-email'}">
             <property name="build-path" value="../tests/server/hooks"/>
         </if>
-        <fail if="${build-path==''}" message="Unknown test target: ${test-target}"/>   
+        <fail if="${build-path==''}" message="Unknown test target: ${test-target}"/>
+        <!-- All tests need repository created if repos doesn't already exist -->
+        <nant buildfile="server/create.build" target="create" unless="${directory::exists(path::combine(svn-root,repos))}"/>
         <nant buildfile="${build-path}/${test-target}.build" target="test-${test-target}"/>
         <echo message="" level="Warning"/>
         <echo message="" file="${subnant-output}" append="true"/>
@@ -147,7 +145,7 @@ $Id$
         </if>
     </target>
 
-    <target name="create-hook">
+    <target name="create-hook" depends="init-hooks">
         <property name="hook-script" value="${path::combine(svn-root,repos+'/hooks/'+hook+hook-ext)}"/>
         <!-- Use user-defined hook before example but only if repos hook doesn't already exist -->
         <if test="${file::exists(path::combine(hook-dir,hook+hook-ext)) and file::exists(hook-script)==false}">
@@ -241,7 +239,7 @@ $Id$
 Call Subnant targets in a test environment to ensure they
 pass rudimentary testing.  Accepted test targets are:
 
-bugtraq, config, create, dump, hotcopy, load, migrate, verify,
+bugtraq, create, dump, hotcopy, load, migrate, verify,
 commit-access, commit-allower, commit-email, commit-message,
 propchange-access, propchange-email
 

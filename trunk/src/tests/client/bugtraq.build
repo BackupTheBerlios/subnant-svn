@@ -10,7 +10,6 @@ $Id$
 <project name="test-bugtraq" default="test-bugtraq">
 
     <target name="test-bugtraq">
-        <nant buildfile="../../targets/server/create.build" target="create" unless="${directory::exists(path::combine(svn-root,repos))}"/>
         <nant buildfile="../../targets/test.build" target="create-workingcopy"/>
         <nant buildfile="../../targets/client/bugtraq.build" target="bugtraq"/>
         <nant buildfile="../../targets/test.build" target="commit-workingcopy">

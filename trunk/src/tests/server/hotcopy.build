@@ -10,7 +10,11 @@ $Id$
 <project name="test-hotcopy" default="test-hotcopy">
 
     <target name="test-hotcopy">
-        <nant buildfile="../../targets/server/hotcopy.build" target="hotcopy"/>
+        <nant buildfile="../../targets/server/hotcopy.build" target="hotcopy">
+            <properties>
+                <property name="verify" value="true"/>   
+            </properties>
+        </nant>
     </target>
 
 </project>

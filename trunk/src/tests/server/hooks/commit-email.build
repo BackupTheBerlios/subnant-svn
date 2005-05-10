@@ -10,7 +10,6 @@ $Id$
 <project name="test-commit-email" default="test-commit-email">
 
     <target name="test-commit-email" depends="init">
-        <nant buildfile="../../../targets/server/create.build" target="create" unless="${directory::exists(path::combine(svn-root,repos))}"/>
         <nant buildfile="../../../targets/test.build" target="create-hook">
             <properties>
                 <property name="hook" value="post-commit"/>
