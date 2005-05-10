@@ -10,23 +10,37 @@ $Id$
 <project name="test-commit-message" default="test-commit-message">
 
     <target name="test-commit-message" depends="init">
-        <nant buildfile="../../../targets/test.build" target="create-hook"/>
+        <nant buildfile="../../../targets/server/create.build" target="create" unless="${directory::exists(path::combine(svn-root,repos))}"/>
+        <nant buildfile="../../../targets/test.build" target="create-hook">
+            <properties>
+                <property name="hook" value="pre-commit"/>
+            </properties>
+        </nant>        
         <nant buildfile="../../../targets/test.build" target="create-workingcopy"/>
-        <nant buildfile="../../../targets/test.build" target="propset"/>
-        <property name="test-message"       value=""/>
-        <property name="commit-should-pass" value="false"/>
-        <nant buildfile="../../../targets/test.build" target="commit-workingcopy"/>
-        <property name="test-message"       value="${message}"/>
-        <property name="commit-should-pass" value="true"/>
-        <nant buildfile="../../../targets/test.build" target="commit-workingcopy"/>
+        <nant buildfile="../../../targets/test.build" target="propset">
+            <properties>
+                <property name="propname" value="log-message-test"/>
+                <property name="propval"  value="42"/>
+            </properties>
+        </nant>        
+        <nant buildfile="../../../targets/test.build" target="commit-workingcopy">
+            <properties>
+                <property name="failonerror"        value="false"/>
+                <property name="test-message"       value=""/>
+                <property name="commit-should-pass" value="false"/>
+            </properties>
+        </nant>        
+        <nant buildfile="../../../targets/test.build" target="commit-workingcopy">
+            <properties>
+                <property name="failonerror"        value="true"/>
+                <property name="test-message"       value="${orig-message}"/>
+                <property name="commit-should-pass" value="true"/>
+            </properties>
+        </nant>        
     </target>
 
     <target name="init">
-        <property name="failonerror" value="false"/>
-        <property name="message"     value="${test-message}"/>
-        <property name="propname"    value="log-message-test"/>
-        <property name="propval"     value="AlienIsBeautiful"/>
-        <property name="hook"        value="pre-commit"/>
+        <property name="orig-message" value="${test-message}"/>
     </target>
 
 </project>

@@ -10,7 +10,7 @@ $Id$
 <project name="test-create" default="test-create">
 
     <target name="test-create">
-        <delete dir="${test-repos}" if="${directory::exists(test-repos)}"/>
+        <delete dir="${path::combine(svn-root,repos)}" if="${directory::exists(path::combine(svn-root,repos))}"/>
         <nant buildfile="../../targets/server/create.build" target="create"/>
     </target>
 

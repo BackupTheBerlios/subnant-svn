@@ -10,17 +10,33 @@ $Id$
 <project name="test-commit-email" default="test-commit-email">
 
     <target name="test-commit-email" depends="init">
-        <nant buildfile="../../../targets/test.build" target="create-hook"/>
+        <nant buildfile="../../../targets/server/create.build" target="create" unless="${directory::exists(path::combine(svn-root,repos))}"/>
+        <nant buildfile="../../../targets/test.build" target="create-hook">
+            <properties>
+                <property name="hook" value="post-commit"/>
+            </properties>
+        </nant>        
         <nant buildfile="../../../targets/test.build" target="create-workingcopy"/>
-        <nant buildfile="../../../targets/test.build" target="propset"/>
-        <nant buildfile="../../../targets/test.build" target="commit-workingcopy"/>
+        <nant buildfile="../../../targets/test.build" target="propset">
+            <properties>
+                <property name="propname" value="hook:commit-email"/>
+                <property name="propval"  value="${mail-tolist}"/>
+            </properties>
+        </nant>        
+        <nant buildfile="../../../targets/test.build" target="commit-workingcopy">
+            <properties>
+                <property name="hook" value="post-commit"/>
+                <property name="commit-should-pass" value="true"/>
+            </properties>
+        </nant>        
     </target>
 
     <target name="init">
-        <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
-        <property name="commit-should-pass" value="true"/>
-        <property name="propname"           value="hook:commit-email"/>
-        <property name="propval"            value="${mail-tolist}"/>
-        <property name="hook"               value="post-commit"/>
+        <if test="${property::exists('sendmail')==true and string::trim(string::to-lower(sendmail))!='true'}">
+            <property name="mail-tolist" value="${sendmail}"/>
+        </if>
+        <ifnot test="${property::exists('mail-tolist')}">
+            <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
+        </ifnot>
     </target>
 </project>

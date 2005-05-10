@@ -9,15 +9,20 @@ $Id$
 -->
 <project name="test-bugtraq" default="test-bugtraq">
 
-    <target name="test-bugtraq" depends="init">
-        <nant buildfile="../../targets/server/create.build"  target="create"  unless="${directory::exists(repos)}"/>
-        <nant buildfile="../../targets/test.build"           target="create-workingcopy"/>
-        <nant buildfile="../../targets/client/bugtraq.build" target="bugtraq" unless="${directory::exists(wc)}"/>
-        <nant buildfile="../../targets/test.build"           target="commit-workingcopy"/>
-    </target>
-
-    <target name="init">
-        <property name="commit-should-pass" value="true"/>
+    <target name="test-bugtraq">
+        <nant buildfile="../../targets/server/create.build" target="create" unless="${directory::exists(path::combine(svn-root,repos))}"/>
+        <nant buildfile="../../targets/test.build" target="create-workingcopy"/>
+        <nant buildfile="../../targets/client/bugtraq.build" target="bugtraq"/>
+        <nant buildfile="../../targets/test.build" target="commit-workingcopy">
+            <properties>
+                <property name="commit-should-pass" value="true"/>
+            </properties>
+        </nant>        
+        <nant buildfile="../../targets/test.build" target="proplist">
+            <properties>
+                <property name="propfind" value="bugtraq"/>
+            </properties>
+        </nant>        
     </target>
 
 </project>
