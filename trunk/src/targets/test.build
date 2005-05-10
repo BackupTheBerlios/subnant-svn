@@ -45,14 +45,15 @@ $Id$
     </target>
 
     <target name="init-server">
-        <property name="hook-ext"     value=".bat" if="${platform::is-win32()}"/>
-        <property name="hook-ext"     value=".sh"  if="${platform::is-unix()}"/>
         <property name="svn-root"     value="${path::combine(test-root,'repos')}"/>
         <property name="dump-root"    value="${path::combine(test-root,'dumps')}"/>
         <property name="hotcopy-root" value="${path::combine(test-root,'hotcopy')}"/>
         <mkdir dir="${svn-root}"     unless="${directory::exists(svn-root)}"/>
         <mkdir dir="${dump-root}"    unless="${directory::exists(dump-root)}"/>
         <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}"/>
+        <property name="hook-dir" value="${path::combine(subnant-root,'hooks')}"/>
+        <property name="hook-ext" value=".bat" if="${platform::is-win32()}"/>
+        <property name="hook-ext" value=".sh"  if="${platform::is-unix()}"/>
     </target>
 
     <target name="test-repo" depends="init-client,init-server">
@@ -149,14 +150,16 @@ $Id$
     <target name="create-hook">
         <property name="hook-script" value="${path::combine(svn-root,repos+'/hooks/'+hook+hook-ext)}"/>
         <!-- Use user-defined hook before example but only if repos hook doesn't already exist -->
-        <if test="${file::exists('../../hooks/${hook}${hook-ext}') and file::exists(hook-script)==false}">
-            <copy file="../../hooks/${hook}${hook-ext}" tofile="${hook-script}"/>
+        <if test="${file::exists(path::combine(hook-dir,hook+hook-ext)) and file::exists(hook-script)==false}">
+            <copy file="${path::combine(hook-dir,hook+hook-ext)}" tofile="${hook-script}"/>
+            <echo message="Created hook ${path::get-file-name(hook-script)} from /hooks/${hook}${hook-ext}" level="Warning"/>
         </if>
         <!-- Use example hook as last resort if repos hook doesn't exist -->
-        <if test="${file::exists('../../hooks/${hook}${hook-ext}.example') and file::exists(hook-script)==false}">
-            <copy file="../../hooks/${hook}${hook-ext}.example" tofile="${hook-script}"/>
+        <if test="${file::exists(path::combine(hook-dir,hook+hook-ext+'.example')) and file::exists(hook-script)==false}">
+            <copy file="${path::combine(hook-dir,hook+hook-ext+'.example')}" tofile="${hook-script}"/>
+            <echo message="Created hook ${path::get-file-name(hook-script)} from /hooks/${hook}${hook-ext}.example" level="Warning"/>
         </if>
-        <echo message="Created hook ${path::get-file-name(hook-script)}" level="Warning"/>
+        <fail unless="${file::exists(hook-script)}" message="*** ERROR creating hook ${hook} ***"/>
     </target>
 
     <target name="propset">
