@@ -146,6 +146,7 @@ $Id$
     </target>
 
     <target name="create-hook" depends="init-hooks">
+        <!-- ::TODO:: Should this write the subnant target calling create-hook instead of copying? -->
         <property name="hook-script" value="${path::combine(svn-root,repos+'/hooks/'+hook+hook-ext)}"/>
         <!-- Use user-defined hook before example but only if repos hook doesn't already exist -->
         <if test="${file::exists(path::combine(hook-dir,hook+hook-ext)) and file::exists(hook-script)==false}">
