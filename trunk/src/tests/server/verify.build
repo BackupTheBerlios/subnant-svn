@@ -10,7 +10,13 @@ $Id$
 <project name="test-verify" default="test-verify">
 
     <target name="test-verify">
-        <nant buildfile="../../targets/server/verify.build" target="verify"/>
+        <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create">
+            <properties>
+                <property name="no-hooks"    value="true"/>
+                <property name="no-svnserve" value="true"/>
+            </properties>
+        </nant>
+        <nant buildfile="${subnant-root}/src/targets/server/verify.build" target="verify"/>
     </target>
 
 </project>

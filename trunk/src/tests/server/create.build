@@ -10,8 +10,12 @@ $Id$
 <project name="test-create" default="test-create">
 
     <target name="test-create">
-        <delete dir="${path::combine(svn-root,repos)}" if="${directory::exists(path::combine(svn-root,repos))}"/>
-        <nant buildfile="../../targets/server/create.build" target="create"/>
+        <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create">
+            <properties>
+                <property name="no-hooks"    value="true"/>
+                <property name="no-svnserve" value="true"/>
+            </properties>
+        </nant>
     </target>
 
 </project>
