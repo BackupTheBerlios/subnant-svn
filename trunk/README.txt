@@ -125,6 +125,8 @@ Repository hook targets:
 
     Provides granular access control to a repository using pre-commit hook
 
+	For more information:
+    http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/access-control.html
 
   * commit-allower
 
@@ -137,6 +139,9 @@ Repository hook targets:
     property on parent directory(s) of committed files.  
     
     Shows who, why, what, when and where revision changes were made
+
+	For more information:
+    http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/commit-email.html
 
 
   * commit-message
@@ -182,19 +187,18 @@ Other targets:
 
   * test
 
-    Tests Subnant using configuration in subnant.config
+    Tests Subnant targets in a test environment
 
 
 Using hook targets:
 
-    // Create hook scripts by cloning example
+    // Create hook script by cloning example
     cd subnant/hooks
     copy post-commit.bat.example post-commit.bat
-    copy post-propchange.bat.example post-propchange.bat
     [edit if necessary to suit your setup]
 
     // Run test to check hooks are working and email is being sent
-    subnant test
+    subnant test -D:target=commit-email
 
     // Create new repository (or copy hook script into repos/conf)
     // any hook scripts in subnant/conf are copied into repository
