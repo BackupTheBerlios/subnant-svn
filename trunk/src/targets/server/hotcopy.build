@@ -35,7 +35,7 @@ $Id$
 
     <target name="svnadmin-hotcopy">
         <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
-        <echo level="Warning" message="Hotcopying repository ${repo}"/>
+        <echo level="Warning" message="Hotcopying ${repo}"/>
         <delete dir="${path::combine(hotcopy-root,repo)}" if="${directory::exists(path::combine(hotcopy-root,repo))}"/>
         <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="hotcopy-result">
             <arg value="hotcopy"/>
@@ -44,7 +44,7 @@ $Id$
             <arg value="--clean-logs"/>
         </exec>
         <if test="${hotcopy-result=='0'}">
-            <echo message="${string::pad-right('Hotcopied repository '+repo,60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Hotcopied '+repo,60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
             <if test="${verify-after-hotcopy=='true'}">
                 <nant buildfile="verify.build" target="verify">
                     <properties>
@@ -57,7 +57,7 @@ $Id$
             </if>
         </if>
         <if test="${hotcopy-result!='0'}">
-            <echo message="${string::pad-right('*** ERROR hotcopying repository '+repo+' ***',60,' ')}" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('*** ERROR hotcopying '+repo+' ***',60,' ')}" file="${subnant-output}" append="true"/>
             <property name="hotcopy-ok" value="false"/>
         </if>
     </target>

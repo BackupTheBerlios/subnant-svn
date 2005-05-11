@@ -27,17 +27,17 @@ $Id$
 
     <target name="svnadmin-verify">
         <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
-        <echo level="Warning" message="Verifying repository ${repo}"/>
+        <echo level="Warning" message="Verifying ${repo}"/>
         <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="verify-result">
             <arg value="verify"/>
             <arg value="${path::combine(verify-svn-root,repo)}"/>
         </exec>
         <echo file="${exec-result}" message="${verify-result}"/>
         <if test="${verify-result=='0'}">
-            <echo message="${string::pad-right('Verified repository '+repo,60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Verified '+repo,60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${verify-result!='0'}">
-            <echo message="${'*** ERROR verifying repository '+repo+' ***'}" file="${subnant-output}" append="true"/>
+            <echo message="${'*** ERROR verifying '+repo+' ***'}" file="${subnant-output}" append="true"/>
             <property name="verify-ok" value="false"/>
         </if>
     </target>

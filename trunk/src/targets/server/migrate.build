@@ -33,7 +33,7 @@ $Id$
                 </properties>
             </nant>
         </foreach>
-        <echo file="${subnant-output}" append="true" message="${string::pad-right('Migration complete',60,' ')}(${subnant::get-elapsed-time(migration-started)})"/>
+        <echo message="${string::pad-right('Migration complete',60,' ')}(${subnant::get-elapsed-time(migration-started)})" file="${subnant-output}" append="true"/>
      </target>
 
     <target name="init">

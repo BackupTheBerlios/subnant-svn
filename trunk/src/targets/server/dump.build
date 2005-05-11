@@ -80,7 +80,7 @@ $Id$
 
     <target name="svnadmin-dump">
         <call target="init-dump"/>
-        <echo level="Warning" message="Dumping repository ${repo} ${string::trim(arg-revoption+' '+arg-revision+' '+arg-incremental+' '+arg-deltas)}"/>
+        <echo level="Warning" message="Dumping ${repo} ${string::trim(arg-revoption+' '+arg-revision+' '+arg-incremental+' '+arg-deltas)}"/>
         <exec program="${dump}" failonerror="${failonerror}" resultproperty="dump-result">
             <arg value="${svnadmin}"/>
             <arg value="${path::combine(svn-root,repo)}"/>
@@ -92,11 +92,11 @@ $Id$
         </exec>
         <echo file="${exec-result}" message="${dump-result}" append="false"/>
         <if test="${dump-result=='0'}">
-            <echo message="${string::pad-right('Dumped repository '+repo+'   ('+subnant::length-in-mb(file::get-length(dump-file))+'MB)',60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Dumped '+repo+'   ('+subnant::length-in-mb(file::get-length(dump-file))+'MB)',60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
             <call target="compress-dump-file" if="${ziplevel!='false'}"/>
         </if>
         <if test="${dump-result!='0'}">
-            <echo message="${'*** ERROR dumping repository '+repo+' ***'}" file="${subnant-output}" append="true"/>
+            <echo message="${'*** ERROR dumping '+repo+' ***'}" file="${subnant-output}" append="true"/>
             <delete file="${dump-file}" if="${file::exists(dump-file)}"/>
             <property name="dump-ok" value="false"/>
         </if>
@@ -117,7 +117,7 @@ $Id$
             <echo message="${string::pad-right('Compressed '+path::get-file-name(zip-file)+' ('+subnant::length-in-mb(file::get-length(zip-file))+'MB)',60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
         </if>
         <ifnot test="${file::exists(zip-file)}">
-            <echo message="${'*** ERROR compressing repository '+repo+' ***'}" file="${subnant-output}" append="true"/>
+            <echo message="${'*** ERROR compressing '+repo+' ***'}" file="${subnant-output}" append="true"/>
             <property name="dump-ok" value="false"/>
         </ifnot>
     </target>

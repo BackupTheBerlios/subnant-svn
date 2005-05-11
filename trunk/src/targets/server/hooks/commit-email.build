@@ -117,9 +117,8 @@ $Id$
             </foreach>
         </if>
         <if test="${string::get-length(prop-list)==0}">
-            <echo file="${subnant-output}" append="true"
-                message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)"/>
-            <echo level="Warning" message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)"/>
+            <echo message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)" file="${subnant-output}" append="true"/>
+            <echo message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)" level="Warning"/>
         </if>
     </target>
 

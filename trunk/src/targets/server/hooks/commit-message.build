@@ -17,19 +17,16 @@ $Id$
             <arg value="${txn}"/>
         </exec>
         <if test="${svnlook-result!='0' and failonerror!='false'}">
-            <echo file="${subnant-output}" message="*** ERROR executing svnlook log on repository ${repos} ***" append="true"/>
-            <echo level="Warning" message="*** ERROR executing svnlook log on repository ${repos} ***"/>
+            <echo message="*** ERROR executing svnlook log on repository ${repos} ***" file="${subnant-output}" append="true"/>
+            <echo message="*** ERROR executing svnlook log on repository ${repos} ***" level="Warning"/>
         </if>
         <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook log output file not found: ${exec-output} ***"/>
         <loadfile file="${exec-output}" property="log-message"/>
         <if test="${string::get-length(string::trim(log-message))==0}">
-            <echo file="${subnant-output}" append="true" message="Commit denied - no log message entered for repository ${repos} on transaction ${txn}"/>
+            <echo message="Commit denied - no log message entered for repository ${repos} on transaction ${txn}" file="${subnant-output}" append="true"/>
             <stderr message="${no-log-msg}"/>
             <fail message="${no-log-msg}"/>
         </if>
-        <ifnot test="${string::get-length(string::trim(log-message))==0}">
-            <echo file="${subnant-output}" append="true" message="Commit allowed - log message entered for repository ${repos} on transaction ${txn}"/>
-        </ifnot>
     </target>
    
     <target name="init">

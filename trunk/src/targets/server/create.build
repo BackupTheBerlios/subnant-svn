@@ -50,7 +50,7 @@ $Id$
     <target name="svnadmin-create">
         <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="repo"    value="${string::trim(repo)}"/>
-        <echo level="Warning" message="Creating ${create-fs-type} repository ${repo} in ${create-svn-root}"/>
+        <echo level="Warning" message="Creating ${repo} (${create-fs-type})"/>
         <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="create-result">
             <arg value="create"/>
             <arg value="--bdb-txn-nosync"     if="${create-fs-type=='bdb' and txn-nosync=='true'}"/>
@@ -62,12 +62,12 @@ $Id$
             <arg value="${path::combine(create-svn-root,repo)}"/>
         </exec>
         <if test="${create-result=='0'}">
-            <echo message="${string::pad-right('Created '+create-fs-type+' repository '+repo+' in '+create-svn-root,60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Created '+repo+' ('+create-fs-type+') in '+create-svn-root,60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
             <call target="copy-repos-conf"  unless="${property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true'}"/>
             <call target="copy-repos-hooks" unless="${property::exists('no-hooks') and string::to-lower(no-hooks)=='true'}"/>
         </if>
         <if test="${create-result!='0'}">
-            <echo message="*** ERROR creating ${create-fs-type} repository ${repo} in ${create-svn-root} ***" file="${subnant-output}" append="true"/>
+            <echo message="*** ERROR creating ${repo} (${create-fs-type}) in ${create-svn-root} ***" file="${subnant-output}" append="true"/>
             <property name="create-ok" value="false"/>
         </if>
     </target>
