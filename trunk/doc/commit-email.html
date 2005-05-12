@@ -15,6 +15,7 @@
     <style type="text/css">
         dt { font-weight: bold; }
         .term { border-bottom: 1px dotted black; }
+        .margin { margin-left: 1cm; }
     </style>
 
 </head>
@@ -41,11 +42,13 @@
 
             <p>Optionally, each email address can be suffixed with an equals sign followed by a
                 comma delimited list of svnlook subcommands to be executed, with the results
-                concatenated together to form the email content.  When no equals sign is found,
+                concatenated together to form the email content.  If no subcommands are found,
                 <code>svnlook diff</code> is executed.</p>
 
-            <p>Accepted svnlook subcommands are:<br />
-                <code>author, changed, date, diff, dirs-changed, history, info, log, tree</code></p>
+            <p>Accepted svnlook subcommands:</p>
+            
+            <p><code class="margin">author, changed, date, diff, dirs-changed, history,
+                info, log, tree</code></p>
 
             <p>e.g. To send an email to <var>patches@example.com</var> displaying the differences between
                 the current and previous revision (what has changed), and to email 
@@ -53,7 +56,7 @@
                 part of the repository, the <em>hook:commit-email</em> property is set to the following
                 values on the repository root:</p>
 
-            <p><samp>patches@example.com<br />
+            <p class="margin"><samp>patches@example.com<br />
                 details@example.com=author,date,log,changed</samp></p>
         </dd>
 

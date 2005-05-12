@@ -15,6 +15,7 @@
     <style type="text/css">
         dt { font-weight: bold; }
         .term { border-bottom: 1px dotted black; }
+        .margin { margin-left: 1cm; }
     </style>
 
 </head>
@@ -54,7 +55,7 @@
                 of the repository, <em>hook:commit-access</em> is set to the following values on
                 the repository root:</p>
 
-            <p><samp>admin1<br />
+            <p class="margin"><samp>admin1<br />
                 user1</samp></p>
         </dd>
 
@@ -84,7 +85,7 @@
                 these rights to any part of the repository, the <em>hook:propchange-access</em>
                 property is set to the following values on the repository root:</p>
 
-            <p><samp>hook:propchange-access=admin1<br />
+            <p class="margin"><samp>hook:propchange-access=admin1<br />
                 hook:commit-access=admin1,user1<br />
                 *=user1</samp></p>
 
@@ -94,14 +95,14 @@
                 <em>hook:propchange-access</em> property on the <var>/admin-only</var>
                 directory:</p>
 
-            <p><samp>hook:commit-access=!user1</samp></p>
+            <p class="margin"><samp>hook:commit-access=!user1</samp></p>
 
             <p>If <var>admin1</var> also wanted to prevent <var>user1</var> from committing in
                 <samp>/admin-only</samp>, then <var>admin1</var> would set the following value to
                 the <em>hook:commit-access</em> property on the <samp>/admin-only</samp>
                 directory:</p>
 
-            <p><samp>!user1</samp></p>
+            <p class="margin"><samp>!user1</samp></p>
         </dd>
 
         <dt><dfn>hook: </dfn><span class="term">pre-commit</span></dt>

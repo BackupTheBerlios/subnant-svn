@@ -146,8 +146,8 @@ $Id$
         <fail unless="${property::exists('hook')}"      message="hook property not defined"/>
         <fail unless="${property::exists('hook-exec')}" message="hook-exec property not defined"/>
         <property name="hook-script" value="${path::combine(svn-root,repos+'/hooks/'+hook+hook-ext)}"/>
-        <!-- Problem: user-defined hook scripts, especially post-commit scripts, will envariably spawn
-             processes so that the server is not waiting for them to complete, the problem with doing
+        <!-- ::TODO:: Ponder: user-defined hook scripts, especially post-commit scripts, will envariably 
+             spawn processes so that the server is not waiting for them to complete, the problem with doing
              this in a test environment is deletion of repositories can be blocked due to file locks.
              So for the time being we create scripts from each test to ensure no conflict.
         <if test="${file::exists(hook-script)}">

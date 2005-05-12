@@ -176,7 +176,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <xmlpeek file="${config}" xpath="/configuration/logs/max-age" property="logs-max-age"/>
         <xmlpeek file="${config}" xpath="/configuration/logs/archive" property="archive"/>
         <property name="archive" value="${string::trim(string::to-lower(archive))}"/>
-        <foreach item="File" property="log-file" if="${logs-max-age!='false' and logs-max-age&gt;='0'}">
+        <foreach item="File" property="log-file" if="${int::parse(logs-max-age)&gt;=0}">
             <in>
                 <items>
                     <include name="${path::combine(logdir,'*.log')}"/>
@@ -184,7 +184,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
                 </items>
             </in>
             <do>
-                <if test="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-max-age))}">
+                <if test="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-max-age)) and subnant::can-delete-file(log-file)}">
                     <zip if="${archive=='true'}" zipfile="${path::combine(logdir,'archive.zip')}" failonerror="false" ziplevel="9" comment="Subnant logs">
                         <fileset>
                             <!--<include name="${archived-logs}"/> ::TODO:: Append zip? Or unzip to temp and re-add? -->
@@ -334,9 +334,6 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
    
     <!-- Custom functions and tasks -->
     <script language="C#" prefix="subnant">
-        <imports>
-            <import namespace="System.Diagnostics"/>   
-        </imports>
         <code>
             <![CDATA[
             /// <summary>
@@ -489,6 +486,24 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
                 }
  
                 return dirsResult.Trim();
+            }
+
+            /// <summary>
+            /// Try and open a file for appending to determine if file is able to be deleted.
+            /// </summary>
+            [Function("can-delete-file")]
+            public bool canDeleteFile(string filename)
+            {
+                try
+                {
+                   StreamWriter w = File.AppendText(filename);
+                   w.Close();                
+                }
+                catch
+                {
+                    return false;
+                }
+                return true;
             }
 
             /// <summary>
