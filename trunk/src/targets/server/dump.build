@@ -14,10 +14,10 @@ $Id$
             <call target="svnadmin-dump"/>
         </foreach>
         <if test="${dump-ok=='true'}">
-            <echo message="${string::pad-right('Dump complete',60,' ')}(${subnant::get-elapsed-time(dump-started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Dump complete',60,' ')}(${subnant::format-elapsed-time(dump-started)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${dump-ok!='true'}">
-            <fail message="${string::pad-right('Dump completed with errors!',60,' ')}(${subnant::get-elapsed-time(dump-started)})"/>
+            <fail message="${string::pad-right('Dump completed with errors!',60,' ')}(${subnant::format-elapsed-time(dump-started)})"/>
         </if>
     </target>
 
@@ -92,7 +92,7 @@ $Id$
         </exec>
         <echo file="${exec-result}" message="${dump-result}" append="false"/>
         <if test="${dump-result=='0'}">
-            <echo message="${string::pad-right('Dumped '+repo+'   ('+subnant::length-in-mb(file::get-length(dump-file))+'MB)',60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Dumped '+repo,60,' ')}(${subnant::format-length(file::get-length(dump-file),false)+' in '+subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
             <call target="compress-dump-file" if="${ziplevel!='false'}"/>
         </if>
         <if test="${dump-result!='0'}">
@@ -114,7 +114,7 @@ $Id$
         </zip>
         <if test="${file::exists(zip-file)}">
             <delete file="${dump-file}" if="${file::exists(zip-file)}"/>
-            <echo message="${string::pad-right('Compressed '+path::get-file-name(zip-file)+' ('+subnant::length-in-mb(file::get-length(zip-file))+'MB)',60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Compressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-length(file::get-length(zip-file),false)+' in '+subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
         </if>
         <ifnot test="${file::exists(zip-file)}">
             <echo message="${'*** ERROR compressing '+repo+' ***'}" file="${subnant-output}" append="true"/>

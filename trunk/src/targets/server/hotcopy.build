@@ -14,10 +14,10 @@ $Id$
             <call target="svnadmin-hotcopy"/>
         </foreach>
         <if test="${hotcopy-ok=='true'}">
-            <echo message="${string::pad-right('Hotcopy complete',60,' ')}(${subnant::get-elapsed-time(hotcopy-started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Hotcopy complete',60,' ')}(${subnant::format-elapsed-time(hotcopy-started)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${hotcopy-ok!='true'}">
-            <fail message="${string::pad-right('Hotcopy completed with errors!',60,' ')}(${subnant::get-elapsed-time(hotcopy-started)})"/>
+            <fail message="${string::pad-right('Hotcopy completed with errors!',60,' ')}(${subnant::format-elapsed-time(hotcopy-started)})"/>
         </if>
     </target>
 
@@ -44,7 +44,7 @@ $Id$
             <arg value="--clean-logs"/>
         </exec>
         <if test="${hotcopy-result=='0'}">
-            <echo message="${string::pad-right('Hotcopied '+repo,60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Hotcopied '+repo,60,' ')}(${subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
             <if test="${verify-after-hotcopy=='true'}">
                 <nant buildfile="verify.build" target="verify">
                     <properties>

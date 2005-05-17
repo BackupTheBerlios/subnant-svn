@@ -14,7 +14,7 @@ $Id$
             <call target="svnadmin-verify"/>
         </foreach>
         <if test="${verify-ok!='true'}">
-            <fail message="${string::pad-right('Verify completed with errors!',60,' ')}(${subnant::get-elapsed-time(verify-started)})"/>
+            <fail message="${string::pad-right('Verify completed with errors!',60,' ')}(${subnant::format-elapsed-time(verify-started)})"/>
         </if>
     </target>
 
@@ -34,7 +34,7 @@ $Id$
         </exec>
         <echo file="${exec-result}" message="${verify-result}"/>
         <if test="${verify-result=='0'}">
-            <echo message="${string::pad-right('Verified '+repo,60,' ')}(${subnant::get-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Verified '+repo,60,' ')}(${subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${verify-result!='0'}">
             <echo message="${'*** ERROR verifying '+repo+' ***'}" file="${subnant-output}" append="true"/>

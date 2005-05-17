@@ -297,7 +297,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <!-- Mail message is culmination of results from all targets executed -->
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
             <echo message="" file="${subnant-output}" append="true"/>
-            <echo message="${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::get-elapsed-time(subnant-started)} seconds)" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::format-elapsed-time(subnant-started)})" file="${subnant-output}" append="true"/>
             <loadfile file="${subnant-output}" property="message"/>
         </if>
         <ifnot test="${property::exists('subnant-output') and file::exists(subnant-output)}">
@@ -394,7 +394,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
 
                 if (directory == null)
                 {
-                    return string.Empty;
+                    return String.Empty;
                 }
                 else
                 {
@@ -413,16 +413,6 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             }
 
             /// <summary>
-            /// Display elapsed time in seconds to 2 decimal places using ticks for accuracy   
-            /// </summary>
-            [Function("get-elapsed-time")]
-            public string getElapsedTime(long ticks)
-            {
-                TimeSpan elapsed = TimeSpan.FromTicks(DateTime.Now.Ticks - ticks);
-                return Math.Round(elapsed.TotalSeconds, 2).ToString();
-            }
-
-            /// <summary>
             /// Subversion somtimes wants an Uri instead of path   
             /// </summary>
             [Function("to-uri")]
@@ -433,12 +423,63 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             }
 
             /// <summary>
-            /// Display length of file in MB instead of bytes
+            /// Display elapsed time using ticks for accuracy
             /// </summary>
-            [Function("length-in-mb")]
-            public string getLengthInMb(double length)
+            [Function("format-elapsed-time")]
+            public string formatElapsedTime(long ticks)
             {
-                return Math.Round(((length/1024)/1024), 4).ToString();
+                TimeSpan elapsed = TimeSpan.FromTicks(DateTime.Now.Ticks - ticks);
+
+                if (elapsed.TotalSeconds < 1)
+                {
+                    return String.Format("{0:F2} milliseconds", elapsed.TotalMilliseconds);
+                }
+                else if (elapsed.TotalMinutes < 1)
+                {
+                    return String.Format("{0:F2} seconds", elapsed.TotalSeconds);
+                }
+                else if (elapsed.TotalHours < 1)
+                {
+                    return String.Format("{0:F2} minutes", elapsed.TotalMinutes);
+                }
+                else
+                {
+                    return String.Format("{0:F2} hours", elapsed.TotalHours);
+                }
+            }
+
+            /// <summary>
+            /// Display length of file in Bytes or KB or MB or GB
+            /// </summary>
+            [Function("format-length")]
+            public string formatLength(double length, bool useKibi)
+            {
+                int denominator = 1000;
+                string kibi = String.Empty;
+
+                if (useKibi)
+                {
+                    denominator = 1024;
+                    kibi = "i";
+                }
+
+                // Unable to use switch as demoninator is not constant
+                if (length < denominator)
+                {
+                    return String.Format("{0:F0} Bytes", length);
+                }
+                else if (length < (denominator*denominator))
+                {
+                    return String.Format("{0:F2} K{1}B", (length/denominator), kibi);
+                }
+                else if (length < (denominator*denominator*denominator))
+                {
+                    return String.Format("{0:F2} M{1}B", ((length/denominator)/denominator), kibi);
+                }
+                else
+                {
+                    return String.Format("{0:F2} G{1}B", (((length/denominator)/denominator)/denominator), kibi);
+                }
             }
 
             /// <summary>
