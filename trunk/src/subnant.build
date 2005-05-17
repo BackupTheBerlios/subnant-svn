@@ -432,15 +432,15 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
 
                 if (elapsed.TotalSeconds < 1)
                 {
-                    return String.Format("{0:F2} milliseconds", elapsed.TotalMilliseconds);
+                    return String.Format("{0:F0} ms", elapsed.TotalMilliseconds);
                 }
                 else if (elapsed.TotalMinutes < 1)
                 {
-                    return String.Format("{0:F2} seconds", elapsed.TotalSeconds);
+                    return String.Format("{0:F2} sec", elapsed.TotalSeconds);
                 }
                 else if (elapsed.TotalHours < 1)
                 {
-                    return String.Format("{0:F2} minutes", elapsed.TotalMinutes);
+                    return String.Format("{0:F2} min", elapsed.TotalMinutes);
                 }
                 else
                 {
@@ -466,7 +466,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
                 // Unable to use switch as demoninator is not constant
                 if (length < denominator)
                 {
-                    return String.Format("{0:F0} Bytes", length);
+                    return String.Format("{0:F0} bytes", length);
                 }
                 else if (length < (denominator*denominator))
                 {
