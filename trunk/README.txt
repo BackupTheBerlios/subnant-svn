@@ -14,9 +14,9 @@ $Id$
 
 Goals:
 
-  * Backup multiple repositiories (hotcopy+verify|dump+compress,email result)
+  * Backup multiple repositiories (hotcopy+verify|dump+compress->email result)
 
-  * Migrate multiple repositories (verify,dump,create,load,verify)
+  * Migrate multiple repositories (verify->dump->create->load->verify)
 
   * Define standard repository configuration (conf,hooks), then make it easy
     to create repositories to standard, automatically included in backups
@@ -123,10 +123,12 @@ Repository hook targets:
 
   * commit-access
 
-    Provides granular access control to a repository using pre-commit hook
+    Provides granular access control to a repository using pre-commit hook in
+    conjunction with Subversion properties.
 
 	For more information:
     http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/access-control.html
+
 
   * commit-allower
 
@@ -138,7 +140,7 @@ Repository hook targets:
     Sends email using post-commit hook by reading Subversion hook:commit-email
     property on parent directory(s) of committed files.  
     
-    Shows who, why, what, when and where revision changes were made
+    Can show who, why, what, when and where revision changes were made
 
 	For more information:
     http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/commit-email.html
@@ -160,7 +162,7 @@ Repository hook targets:
     Sends email on post-commit or post-revprop-change hook using Subversion
     property hook:propchange-email on parent directory(s) of committed files
 
-    Shows who, why, what, when and where revision property changes were made
+    Can show who, why, what, when and where revision property changes were made
 
 
 Working copy targets:
@@ -169,7 +171,7 @@ Working copy targets:
 
     Sets bugtraq properties defined in subnant.config
 
-    For information about bug tracking integration with Subversion:
+    For information about bug tracking integration with Subversion and clients:
     http://tortoisesvn.tigris.org/docs/TortoiseSVN_en/ch04s10.html
 
 

@@ -87,17 +87,17 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/server/hooks/commit-email.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="commit-message" description="Ensure log message entered by using pre-commit hook"
+    <target name="commit-message" description="Ensure log message entered using pre-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/commit-message.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="propchange-access" description="Control property access using pre-revprop-change hook"
+    <target name="propchange-access" description="Control property access using pre-commit or pre-revprop hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/propchange-access.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="propchange-email" description="Email property changes using post-revprop-change hook"
+    <target name="propchange-email" description="Email property changes using post-commit or post-revprop hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/propchange-email.build" target="${subnant::get-target()}"/>
     </target>
@@ -430,17 +430,13 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             {
                 TimeSpan elapsed = TimeSpan.FromTicks(DateTime.Now.Ticks - ticks);
 
-                if (elapsed.TotalSeconds < 1)
+                if (elapsed.TotalMinutes < 5)
                 {
-                    return String.Format("{0:F0} ms", elapsed.TotalMilliseconds);
+                    return String.Format("{0:F2} seconds", elapsed.TotalSeconds);
                 }
-                else if (elapsed.TotalMinutes < 1)
+                else if (elapsed.TotalHours < 2)
                 {
-                    return String.Format("{0:F2} sec", elapsed.TotalSeconds);
-                }
-                else if (elapsed.TotalHours < 1)
-                {
-                    return String.Format("{0:F2} min", elapsed.TotalMinutes);
+                    return String.Format("{0:F2} minutes", elapsed.TotalMinutes);
                 }
                 else
                 {
