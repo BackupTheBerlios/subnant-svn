@@ -22,8 +22,8 @@ $Id$
         <property name="create-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="create-ok"      value="true"/>
         <!-- Assign config values to properties so long as they haven't been passed as a command-line parameter -->
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/fs-type"    property="fs-type"    unless="${property::exists('fs-type')}"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/config-dir" property="config-dir" unless="${property::exists('config-dir')}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/fs-type"    property="fs-type"    unless="${property::exists('fs-type')}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/config-dir" property="config-dir" unless="${property::exists('config-dir')}"/>
         <!-- Ready properties -->
         <property name="create-fs-type"    value="${string::trim(string::to-lower(fs-type))}"/>
         <property name="create-config-dir" value="${string::trim(config-dir)}"/>

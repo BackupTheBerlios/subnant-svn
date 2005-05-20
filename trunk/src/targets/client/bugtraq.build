@@ -43,13 +43,13 @@ $Id$
    
     <target name="init">
         <!-- Read bugtraq properties from config -->
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/message"       property="bugtraq-message"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/append"        property="bugtraq-append"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/url"           property="bugtraq-url"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/label"         property="bugtraq-label"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/number"        property="bugtraq-number"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/warnifnoissue" property="bugtraq-warnifnoissue"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/logregex"      property="bugtraq-logregex"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/message"       property="bugtraq-message"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/append"        property="bugtraq-append"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/url"           property="bugtraq-url"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/label"         property="bugtraq-label"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/number"        property="bugtraq-number"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/warnifnoissue" property="bugtraq-warnifnoissue"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/logregex"      property="bugtraq-logregex"/>
         <!-- Ready properties -->
         <property name="bugtraq-append"        value="${string::trim(string::to-lower(bugtraq-append))}"/>
         <property name="bugtraq-number"        value="${string::trim(string::to-lower(bugtraq-number))}"/>

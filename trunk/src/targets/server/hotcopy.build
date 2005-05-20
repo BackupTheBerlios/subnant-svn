@@ -25,8 +25,8 @@ $Id$
         <property name="hotcopy-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="failonerror"     value="false"/>
         <property name="hotcopy-ok"      value="true"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/hotcopy-root"   property="hotcopy-root"         unless="${property::exists('hotcopy-root')}"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/verify-hotcopy" property="verify-after-hotcopy" unless="${property::exists('verify')}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/hotcopy-root"   property="hotcopy-root"         unless="${property::exists('hotcopy-root')}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/verify-hotcopy" property="verify-after-hotcopy" unless="${property::exists('verify')}"/>
         <property name="verify-after-hotcopy" value="${verify}" if="${property::exists('verify')}"/>
         <property name="verify-after-hotcopy" value="${string::to-lower(string::trim(verify-after-hotcopy))}"/>
         <fail unless="${directory::exists(hotcopy-root)}" message="hotcopy-root is invalid or does not exist in filesystem: ${hotcopy-root}"/>

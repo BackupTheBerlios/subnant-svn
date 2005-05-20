@@ -11,9 +11,21 @@ $Id$
 
     <description>Subversion administration using NAnt</description>
 
-    <!-- Main targets -->
-
-    <!-- Default target -->
+    <!-- Global properties -->
+    <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
+    <!-- Use timestamp to (nearly) remove risk of simultaneous calls using same log/result/output files -->
+    <tstamp property="subnant-tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
+    <property name="nant.onsuccess"  value="on-success"/>
+    <property name="nant.onfailure"  value="on-failure"/>
+    <!-- Subnant fails on <exec> errors by default, however some targets shouldn't fail on svn error  -->
+    <property name="failonerror"    value="true"/>
+    <property name="exec-output"    value="${path::combine(path::get-temp-path(),'exec-output-'+subnant-tstamp)}"/>
+    <property name="exec-result"    value="${path::combine(path::get-temp-path(),'exec-result-'+subnant-tstamp)}"/>        
+    <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+subnant-tstamp)}"/>
+    <property name="subnant-root"   value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"/>
+    <property name="subnant-config" value="${path::combine(path::combine(subnant-root,'conf'),'subnant.config')}"/>
+   
+    <!-- Main targets (start with default) -->
     <target name="help" description="Display help">
         <if test="${subnant::get-targets-count()==1}">
             <echo level="Warning">
@@ -126,46 +138,28 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
 
     <!-- Sub targets -->
     <target name="init">
-        <property name="nant.onsuccess" value="on-success"/>
-        <property name="nant.onfailure" value="on-failure"/>
-        <tstamp property="tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
-        <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <!-- By default Subnant will fail on any <exec> task errors, however some for targets
-             (e.g. backups on multiple repositories and post-commit) an svn error shouldn't always
-             trigger failure.  So make failonerror property switchable and use a variable for result -->
-        <property name="failonerror" value="true"/>
-        <!-- Initalise and verify subnant core -->
         <call target="init-subnant"/>
-        <!-- If we're not displaying help cycle logs -->
         <call target="init-logs" unless="${subnant::get-target()=='help'}"/>
     </target>
 
     <target name="init-subnant">
-        <property name="subnant-root" value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"
-            unless="${property::exists('subnant-root')}"/>
         <!-- Assign and verify config file unless already set from command-line -->
-        <property name="config" value="${path::combine(subnant-root,'conf/subnant.config')}" unless="${property::exists('config')}"/>
-        <fail unless="${file::exists(config)}" message="File not found: ${path::get-file-name(config)}"/>
+        <fail unless="${file::exists(subnant-config)}" message="File not found: ${path::get-file-name(subnant-config)}"/>
         <!-- Define location and file used for standard NAnt build log -->
-        <xmlpeek file="${config}" xpath="/configuration/logs/logdir" property="logdir" unless="${property::exists('logdir')}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/logdir" property="logdir" unless="${property::exists('logdir')}"/>
         <property name="logdir" value="${path::combine(subnant-root,'logs')}" unless="${property::exists('logdir') and string::get-length(string::trim(logdir))&gt;0}"/>
         <mkdir dir="${logdir}" unless="${directory::exists(logdir)}"/>
-        <property name="nant-output" value="${path::combine(logdir,'subnant-'+tstamp+'.log')}"/>
+        <property name="nant-output" value="${path::combine(logdir,'subnant-'+subnant-tstamp+'.log')}"/>
         <!-- Load NAntContrib to create and control log file -->
-        <xmlpeek file="${config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir" unless="${property::exists('nantcontrib-bindir')}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir" unless="${property::exists('nantcontrib-bindir')}"/>
         <loadtasks assembly="${nantcontrib-bindir}/NAnt.Contrib.Tasks.dll"/>
         <!-- Note: Anything before this task will not be logged -->
         <record name="${nant-output}" level="Info" action="Start"/>
         <!-- Assign default Subversion directory unless already set from command-line -->
-        <xmlpeek file="${config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}"/>
         <!-- Verify Subversion directory is valid if set -->
         <fail if="${string::get-length(svn-bindir)&gt;0 and directory::exists(svn-bindir)!=true}" message="Subversion binary directory doesn't exist: ${svn-bindir}"/>
         <!-- Define file used for <exec> task output -->
-        <property name="exec-output" value="${path::combine(path::get-temp-path(),'exec-output'+tstamp)}"/>
-        <!-- Define file used to store <exec> task result across targets -->
-        <property name="exec-result" value="${path::combine(path::get-temp-path(),'exec-result'+tstamp)}"/>        
-        <!-- Define file used for Subnant output (used when sendmail property set) -->
-        <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+tstamp)}"/>
         <!-- ::TODO:: Investigate option for UTC instead of server localtime output? -->
         <echo message="Subnant started ${subnant::ticks-to-string(subnant-started)}" file="${subnant-output}" append="false"/>
         <echo message="" file="${subnant-output}" append="true"/>
@@ -173,8 +167,8 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
    
     <target name="init-logs">
         <!-- Use maximum file age defined in config -->
-        <xmlpeek file="${config}" xpath="/configuration/logs/max-age" property="logs-max-age"/>
-        <xmlpeek file="${config}" xpath="/configuration/logs/archive" property="archive"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/max-age" property="logs-max-age"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/archive" property="archive"/>
         <property name="archive" value="${string::trim(string::to-lower(archive))}"/>
         <foreach item="File" property="log-file" if="${int::parse(logs-max-age)&gt;=0}">
             <in>
@@ -200,7 +194,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
 
     <target name="init-repos">
         <!-- Assign svn-root unless already set from command-line -->
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/svn-root" property="svn-root" unless="${property::exists('svn-root')}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/svn-root" property="svn-root" unless="${property::exists('svn-root')}"/>
         <fail unless="${directory::exists(svn-root)}" message="Repository root directory doesn't exist: ${svn-root}"/>
     </target>
 
@@ -293,7 +287,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="mail">
-        <fail unless="${property::exists('config')}" message="Email not sent as config file not yet set"/>
+        <fail unless="${property::exists('subnant-config')}" message="Email not sent as config file not yet set"/>
         <!-- Mail message is culmination of results from all targets executed -->
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
             <echo message="" file="${subnant-output}" append="true"/>
@@ -303,14 +297,14 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <ifnot test="${property::exists('subnant-output') and file::exists(subnant-output)}">
             <property name="message" value="No output generated by Subnant log (problem before record start?)"/>
         </ifnot>
-        <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail-from"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail-host"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail-prefix"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from"   property="mail-from"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host"   property="mail-host"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/prefix" property="mail-prefix"/>
         <if test="${property::exists('sendmail')==true and string::trim(string::to-lower(sendmail))!='true'}">
             <property name="mail-tolist" value="${sendmail}"/>
         </if>
         <ifnot test="${property::exists('mail-tolist')}">
-            <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
+            <xmlpeek file="${subnant-config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
         </ifnot>
         <echo level="Warning">Sending mail to ${mail-tolist}</echo>
         <mail mailhost="${mail-host}" from="${mail-from}" tolist="${mail-tolist}" subject="${mail-prefix} ${subject}" message="${message}">

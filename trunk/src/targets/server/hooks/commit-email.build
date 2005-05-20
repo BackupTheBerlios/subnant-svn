@@ -123,8 +123,8 @@ $Id$
     </target>
 
     <target name="mail-revision-info">
-        <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail-from"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail-host"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from"   property="mail-from"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host"   property="mail-host"/>
         <echo message="Sending commit-email for repository ${repo} on revision ${rev} to ${mail-tolist}" level="Warning"/>
         <mail mailhost="${mail-host}" from="${mail-from}" tolist="${mail-tolist}"
           subject="[${repo} commit] rev ${rev}">

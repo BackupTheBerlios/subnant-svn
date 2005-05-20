@@ -12,9 +12,9 @@ $Id$
     <!-- Main (default) Target -->
     <target name="propchange-email" depends="init,get-hook-emails,get-propchange-details">
         <if test="${string::get-length(mail-tolist)&gt;0}">
-            <xmlpeek file="${config}" xpath="/configuration/mail/from"   property="mail-from"/>
-            <xmlpeek file="${config}" xpath="/configuration/mail/host"   property="mail-host"/>
-            <xmlpeek file="${config}" xpath="/configuration/mail/prefix" property="mail-prefix"/>
+            <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from"   property="mail-from"/>
+            <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host"   property="mail-host"/>
+            <xmlpeek file="${subnant-config}" xpath="/configuration/mail/prefix" property="mail-prefix"/>
             <echo level="Warning" message="Sending propchange-email for repository ${repo} on revision ${rev} to ${mail-tolist}"/>
             <mail mailhost="${mail-host}" from="${mail-from}" tolist="${mail-tolist}"
               subject="[${repo} propchange] rev ${rev}">

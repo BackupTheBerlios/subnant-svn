@@ -28,12 +28,12 @@ $Id$
         <property name="keep-test"    value="false" unless="${property::exists('keep-test') and string::to-lower(keep-test)=='true'}"/>
         <property name="no-bdb"       value="false" unless="${property::exists('no-bdb') and string::to-lower(no-bdb)=='true'}"/>
         <property name="no-fsfs"      value="false" unless="${property::exists('no-fsfs') and string::to-lower(no-fsfs)=='true'}"/>
-        <property name="test-root"    value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),tstamp)}" unless="${property::exists('test-root')}"/>
+        <property name="test-root"    value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),subnant-tstamp)}" unless="${property::exists('test-root')}"/>
         <mkdir dir="${test-root}" unless="${directory::exists(test-root)}"/>
     </target>
 
     <target name="init-client">
-        <property name="test-message" value="${'message for test '+tstamp}"/>
+        <property name="test-message" value="${'message for test '+subnant-tstamp}"/>
     </target>
 
     <target name="init-server">

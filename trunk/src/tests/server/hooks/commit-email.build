@@ -42,7 +42,7 @@ $Id$
             <property name="mail-tolist" value="${sendmail}"/>
         </if>
         <ifnot test="${property::exists('mail-tolist')}">
-            <xmlpeek file="${config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
+            <xmlpeek file="${subnant-config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
         </ifnot>
     </target>
 

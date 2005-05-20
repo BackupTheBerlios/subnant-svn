@@ -11,7 +11,7 @@ $Id$
 
     <target name="config" depends="init">
         <echo level="Warning">
-            <![CDATA[Config file: ${path::get-file-name(config)}
+            <![CDATA[Config file: ${path::get-file-name(subnant-config)}
 
 Program locations:
 
@@ -57,26 +57,26 @@ logregex            ${bugtraq-logregex}
     <target name="init">
         <!-- ::TODO:: Parse automatically from subnant.config? -->
         <!-- Get all properties except for nantcontrib-bindir, svn-bindir & logdir (defined already) -->
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/svn-root"        property="svn-root"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/dump-root"       property="dump-root"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/hotcopy-root"    property="hotcopy-root"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/fs-type"         property="fs-type"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/config-dir"      property="config-dir"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/verify-hotcopy"  property="verify-hotcopy"/>
-        <xmlpeek file="${config}" xpath="/configuration/svn-repos/compress-dump"   property="compress-dump"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/from"                 property="mail-from"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/host"                 property="mail-host"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/tolist"               property="mail-tolist"/>
-        <xmlpeek file="${config}" xpath="/configuration/mail/prefix"               property="mail-prefix"/>
-        <xmlpeek file="${config}" xpath="/configuration/logs/max-age"              property="max-age"/>
-        <xmlpeek file="${config}" xpath="/configuration/logs/archive"              property="archive"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/message"           property="bugtraq-message"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/append"            property="bugtraq-append"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/url"               property="bugtraq-url"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/label"             property="bugtraq-label"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/number"            property="bugtraq-number"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/warnifnoissue"     property="bugtraq-warnifnoissue"/>
-        <xmlpeek file="${config}" xpath="/configuration/bugtraq/logregex"          property="bugtraq-logregex"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/svn-root"        property="svn-root"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root"       property="dump-root"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/hotcopy-root"    property="hotcopy-root"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/fs-type"         property="fs-type"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/config-dir"      property="config-dir"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/verify-hotcopy"  property="verify-hotcopy"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/compress-dump"   property="compress-dump"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from"                 property="mail-from"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host"                 property="mail-host"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/tolist"               property="mail-tolist"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/prefix"               property="mail-prefix"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/max-age"              property="max-age"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/archive"              property="archive"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/message"           property="bugtraq-message"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/append"            property="bugtraq-append"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/url"               property="bugtraq-url"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/label"             property="bugtraq-label"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/number"            property="bugtraq-number"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/warnifnoissue"     property="bugtraq-warnifnoissue"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/logregex"          property="bugtraq-logregex"/>
         <!-- Ready program location settings -->
         <property name="nantcontrib-dir" value="[not set - path used]" if="${string::get-length(nantcontrib-bindir)==0}"/>
         <property name="nantcontrib-dir" value="${nantcontrib-bindir}" unless="${string::get-length(nantcontrib-bindir)==0}"/>
@@ -115,16 +115,10 @@ logregex            ${bugtraq-logregex}
         <echo level="Warning">
             <![CDATA[config: usage: subnant config [-D:<option>=<value>]
 
-Displays configuration settings for Subnant
-
-Options:
-config          name of alternative configuration file *
-
-* If config not set, default file subnant.config is used
+Displays configuration settings from subnant/conf/subnant.config
 
 Examples:
 subnant config
-subnant config -D:config=/path/to/file.config
 ]]>
         </echo>
     </target>
