@@ -55,8 +55,7 @@ $Id$
         <fail unless="${directory::exists(dump-root)}" message="dump-root is invalid or does not exist in filesystem: ${dump-root}"/>
         <fail if="${dump-incremental!='false' and dump-incremental!='true'}" message="incremental must be set true or false"/>
         <fail if="${dump-deltas!='false' and dump-deltas!='true'}" message="deltas must be set true or false"/>
-        <fail if="${ziplevel!='false' and int::parse(ziplevel)&lt;1 and int::parse(ziplevel)&gt;9}"
-            message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
+        <fail if="${ziplevel!='false' and int::parse(ziplevel)&lt;1 and int::parse(ziplevel)&gt;9}" message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
     </target>
 
     <target name="init-windows" if="${platform::is-win32()}">

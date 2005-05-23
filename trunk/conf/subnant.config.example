@@ -4,7 +4,7 @@
 
     <nantcontrib-bindir
         description="Location of NAntContrib binary files"
-        conditional="If empty assumes NAntContrib can be found in environment path">C:\Program Files\NAntContrib\bin</nantcontrib-bindir>
+        conditional="If empty assumes NAntContrib in NAnt/bin">C:\Program Files\NAntContrib\bin</nantcontrib-bindir>
 
     <svn-bindir
         description="Default location of Subversion binary files"

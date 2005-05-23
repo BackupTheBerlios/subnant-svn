@@ -13,11 +13,11 @@ $Id$
 
     <!-- Global properties -->
     <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
-    <!-- Use timestamp to (nearly) remove risk of simultaneous calls using same log/result/output files -->
+    <!-- Use timestamp to greatly reduce risk of simultaneous calls using same log|result|output files -->
     <tstamp property="subnant-tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
     <property name="nant.onsuccess"  value="on-success"/>
     <property name="nant.onfailure"  value="on-failure"/>
-    <!-- Subnant fails on <exec> errors by default, however some targets shouldn't fail on svn error  -->
+    <!-- Subnant fails by default on <exec> errors, however some targets shouldn't fail on an svn error -->
     <property name="failonerror"    value="true"/>
     <property name="exec-output"    value="${path::combine(path::get-temp-path(),'exec-output-'+subnant-tstamp)}"/>
     <property name="exec-result"    value="${path::combine(path::get-temp-path(),'exec-result-'+subnant-tstamp)}"/>        
@@ -25,7 +25,7 @@ $Id$
     <property name="subnant-root"   value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"/>
     <property name="subnant-config" value="${path::combine(path::combine(subnant-root,'conf'),'subnant.config')}"/>
    
-    <!-- Main targets (start with default) -->
+    <!-- Main targets (starts with default) -->
     <target name="help" description="Display help">
         <if test="${subnant::get-targets-count()==1}">
             <echo level="Warning">
@@ -36,7 +36,7 @@ http://subnant.berlios.de
 Usage: 
 subnant <target> [<target>] [-D:<option>=<value>]
 
-Options:
+Global options:
 sendmail        email result of <target> if property is set true
                 (uses default in config) or set as email address
 
@@ -143,34 +143,28 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="init-subnant">
-        <!-- Assign and verify config file unless already set from command-line -->
         <fail unless="${file::exists(subnant-config)}" message="File not found: ${path::get-file-name(subnant-config)}"/>
-        <!-- Define location and file used for standard NAnt build log -->
-        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/logdir" property="logdir" unless="${property::exists('logdir')}"/>
-        <property name="logdir" value="${path::combine(subnant-root,'logs')}" unless="${property::exists('logdir') and string::get-length(string::trim(logdir))&gt;0}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir"/>
+        <property name="nantcontrib-bindir" value="${nant::get-base-directory()}" unless="${string::get-length(string::trim(nantcontrib-bindir))>0 and directory::exists(nantcontrib-bindir)}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/logdir" property="logdir"/>
+        <property name="logdir" value="${path::combine(subnant-root,'logs')}" if="${string::get-length(string::trim(logdir))==0}"/>
         <mkdir dir="${logdir}" unless="${directory::exists(logdir)}"/>
         <property name="nant-output" value="${path::combine(logdir,'subnant-'+subnant-tstamp+'.log')}"/>
-        <!-- Load NAntContrib to create and control log file -->
-        <xmlpeek file="${subnant-config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir" unless="${property::exists('nantcontrib-bindir')}"/>
-        <loadtasks assembly="${nantcontrib-bindir}/NAnt.Contrib.Tasks.dll"/>
+        <loadtasks assembly="${path::combine(nantcontrib-bindir,'NAnt.Contrib.Tasks.dll')}"/>
         <!-- Note: Anything before this task will not be logged -->
         <record name="${nant-output}" level="Info" action="Start"/>
-        <!-- Assign default Subversion directory unless already set from command-line -->
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}"/>
-        <!-- Verify Subversion directory is valid if set -->
-        <fail if="${string::get-length(svn-bindir)&gt;0 and directory::exists(svn-bindir)!=true}" message="Subversion binary directory doesn't exist: ${svn-bindir}"/>
-        <!-- Define file used for <exec> task output -->
+        <fail if="${string::get-length(svn-bindir)>0 and directory::exists(svn-bindir)!=true}" message="Subversion binary directory not found: ${svn-bindir}"/>
         <!-- ::TODO:: Investigate option for UTC instead of server localtime output? -->
         <echo message="Subnant started ${subnant::ticks-to-string(subnant-started)}" file="${subnant-output}" append="false"/>
         <echo message="" file="${subnant-output}" append="true"/>
     </target>
    
     <target name="init-logs">
-        <!-- Use maximum file age defined in config -->
         <xmlpeek file="${subnant-config}" xpath="/configuration/logs/max-age" property="logs-max-age"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/logs/archive" property="archive"/>
         <property name="archive" value="${string::trim(string::to-lower(archive))}"/>
-        <foreach item="File" property="log-file" if="${int::parse(logs-max-age)&gt;=0}">
+        <foreach item="File" property="log-file" if="${int::parse(logs-max-age)>=0}">
             <in>
                 <items>
                     <include name="${path::combine(logdir,'*.log')}"/>
@@ -193,13 +187,11 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="init-repos">
-        <!-- Assign svn-root unless already set from command-line -->
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/svn-root" property="svn-root" unless="${property::exists('svn-root')}"/>
         <fail unless="${directory::exists(svn-root)}" message="Repository root directory doesn't exist: ${svn-root}"/>
     </target>
 
     <target name="init-wc">
-        <!-- Assign wc to current directory unless already set from command-line -->
         <property name="wc" value="${directory::get-current-directory()}" unless="${property::exists('wc')}"/>
     </target>
 
@@ -216,7 +208,6 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="verify-repos-exists" if="${subnant::get-target()!='help'}">
-        <!-- Verify repositories exist if repos set from command-line -->
         <if test="${property::exists('repos')}">
             <if test="${string::get-length(repos)==0}">
                 <fail message="repos was set but no value entered"/>
@@ -229,7 +220,6 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="verify-wc-exists" if="${subnant::get-target()!='help'}">
-        <!-- Verify current directory or wc option is a working copy -->
         <fail if="${string::get-length(wc)==0}" message="Option wc was defined but no value set"/>
         <foreach item="String" in="${wc}" delim="," property="path">
             <ifnot test="${file::exists(path::combine(path,'.svn/format')) or file::exists(path::combine(path,'_svn/format'))}">
@@ -239,19 +229,17 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="build-repos-list" if="${subnant::get-target()!='help'}">
-        <!-- Build list of all repositories under svn-root if command-line option not set -->
         <ifnot test="${property::exists('repos')}">
             <property name="repos" value=""/>
             <foreach item="Folder" in="${svn-root}" property="repo">
                 <do>
                     <loadfile file="${path::combine(repo,'format')}" property="fs-format" failonerror="false"/>
-                    <if test="${int::parse(fs-format)&gt;0}">
+                    <if test="${int::parse(fs-format)>0}">
                         <property name="repos" value="${repos+subnant::return-directory-name(repo)+','}"/>
                     </if>
                 </do>
             </foreach>
-            <!-- Trim trailing comma -->
-            <if test="${string::get-length(repos)&gt;0}">
+            <if test="${string::get-length(repos)>0}">
                 <property name="repos" value="${string::substring(repos,0,string::get-length(repos)-1)}"/>
             </if>
             <if test="${string::get-length(repos)==0}">
@@ -288,14 +276,13 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
 
     <target name="mail">
         <fail unless="${property::exists('subnant-config')}" message="Email not sent as config file not yet set"/>
-        <!-- Mail message is culmination of results from all targets executed -->
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
             <echo message="" file="${subnant-output}" append="true"/>
             <echo message="${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::format-elapsed-time(subnant-started)})" file="${subnant-output}" append="true"/>
             <loadfile file="${subnant-output}" property="message"/>
         </if>
         <ifnot test="${property::exists('subnant-output') and file::exists(subnant-output)}">
-            <property name="message" value="No output generated by Subnant log (problem before record start?)"/>
+            <property name="message" value="No output generated by Subnant log (problem before record start? run from console for info)"/>
         </ifnot>
         <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from"   property="mail-from"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host"   property="mail-host"/>
@@ -326,7 +313,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         </if>
     </target>
    
-    <!-- Custom functions and tasks -->
+    <!-- Custom functions and tasks, bundled into single <script> until NAnt 0.85rc4 released -->
     <script language="C#" prefix="subnant">
         <code>
             <![CDATA[
