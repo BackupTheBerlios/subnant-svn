@@ -13,7 +13,7 @@ $Id$
         <foreach item="String" delim="," in="${upgrade-repos}" property="repo">
             <property name="fs-type-file" value="${path::combine(upgrade-svn-root,repo+'/db/fs-type')}"/>
             <if test="${file::exists(fs-type-file)}">
-                <loadfile file="${path::combine(upgrade-svn-root,repo+'/db/fs-type')}" property="fs-type" failonerror="true"/>
+                <loadfile file="${fs-type-file}" property="fs-type" failonerror="true"/>
                 <property name="fs-type" value="${string::trim(string::to-lower(fs-type))}"/>
             </if>
             <!-- svn pre 1.1 had no repos/db/fs-type file (or choice!), so assume bdb if repos/format exists -->   
