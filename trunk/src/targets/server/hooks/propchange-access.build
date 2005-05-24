@@ -20,7 +20,7 @@ $Id$
         <echo level="Warning">
             <![CDATA[propchange-access: usage: subnant propchange-access [-D:<option>=<value>]
 
-Control access to repository property changes using pre-propchange hook 
+Control access to revision property changes using pre-revprop-change hook 
 
 Examples:
 ]]>

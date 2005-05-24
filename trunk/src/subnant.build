@@ -78,6 +78,11 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/server/migrate.build" target="${subnant::get-target()}"/>
     </target>
 
+    <target name="upgrade-bdb" description="Upgrade bdb repositories"
+        depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
+        <nant buildfile="targets/server/upgrade-bdb.build" target="${subnant::get-target()}"/>
+    </target>
+
     <target name="verify" description="Verify repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
         <nant buildfile="targets/server/verify.build" target="${subnant::get-target()}"/>

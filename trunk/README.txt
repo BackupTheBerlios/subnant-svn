@@ -114,6 +114,11 @@ Repository targets:
     repository targets (create, load and verify)
 
 
+  * upgrade-bdb
+
+	Upgrade bdb style repositories
+
+
   * verify
 
     Verify some or all repositories in svn-root
@@ -124,9 +129,9 @@ Repository hook targets:
   * commit-access
 
     Provides granular access control to a repository using pre-commit hook in
-    conjunction with Subversion properties.
+    conjunction with Subversion properties
 
-	For more information:
+    For more information:
     http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/access-control.html
 
 
@@ -138,11 +143,11 @@ Repository hook targets:
   * commit-email
 
     Sends email using post-commit hook by reading Subversion hook:commit-email
-    property on parent directory(s) of committed files.  
+    property on parent directory(s) of committed files  
     
     Can show who, why, what, when and where revision changes were made
 
-	For more information:
+    For more information:
     http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/commit-email.html
 
 
@@ -153,14 +158,17 @@ Repository hook targets:
 
   * propchange-access
 
-    Provides granular access control to repository property changes using
-    pre-commit or pre-revprop-change hook
+    Provides granular access control to revision property changes using
+    pre-revprop-change hook in conjunction with Subversion properties
+
+    For more information:
+    http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/access-control.html  
 
 
   * propchange-email
 
-    Sends email on post-commit or post-revprop-change hook using Subversion
-    property hook:propchange-email on parent directory(s) of committed files
+    Sends email on post-revprop-change hook using Subversion property
+    hook:propchange-email on parent directory(s) of committed files
 
     Can show who, why, what, when and where revision property changes were made
 

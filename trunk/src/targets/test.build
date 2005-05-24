@@ -67,7 +67,7 @@ $Id$
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
                 <property name="test-target" value="${string::to-lower(string::trim(test-target))}"/>
-                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|propchange-(access|email)|verify))" input="${test-target}"/>
+                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|propchange-(access|email)|upgrade-bdb|verify))" input="${test-target}"/>
                 <call target="run-test"/>
             </foreach>
         </if>
@@ -85,6 +85,8 @@ $Id$
             <property name="test-target" value="load"/>
             <call target="run-test"/>
             <property name="test-target" value="migrate"/>
+            <call target="run-test"/>
+            <property name="test-target" value="upgrade-bdb"/>
             <call target="run-test"/>
             <property name="test-target" value="verify"/>
             <call target="run-test"/>
@@ -116,8 +118,8 @@ $Id$
         <if test="${test-target=='bugtraq'}">
             <property name="build-path" value="../tests/client"/>
         </if>
-        <!-- Server targets: create,dump,hotcopy,load,migrate,verify -->
-        <if test="${test-target=='create' or test-target=='dump' or test-target=='hotcopy' or test-target=='load' or test-target=='migrate' or test-target=='verify'}">
+        <!-- Server targets: create,dump,hotcopy,load,migrate,upgrade-bdb,verify -->
+        <if test="${test-target=='create' or test-target=='dump' or test-target=='hotcopy' or test-target=='load' or test-target=='migrate' or test-target=='upgrade-bdb' or test-target=='verify'}">
             <property name="build-path" value="../tests/server"/>
         </if>
         <!-- Hook targets: commit-access,commit-allower,commit-email,commit-message,propchange-access,propchange-email -->
@@ -183,14 +185,14 @@ $Id$
     </target>
 
     <target name="proplist">
-        <property name="svnlook-result" value="${exec-output}-svnlook-result"/>
-        <exec program="${svnlook}" failonerror="${failonerror}" output="${svnlook-result}" resultproperty="exec-result">
+        <property name="svnlook-file" value="${exec-output}-svnlook-result"/>
+        <exec program="${svnlook}" failonerror="${failonerror}" output="${svnlook-file}" resultproperty="exec-result">
             <arg value="proplist"/>
             <arg value="${path::combine(svn-root,repos)}"/>
             <arg value="/"/>
         </exec>
         <if test="${exec-result=='0'}">
-            <loadfile file="${svnlook-result}" property="proplist"/>
+            <loadfile file="${svnlook-file}" property="proplist"/>
             <property name="proplist" value="${string::trim-end(proplist)}"/>
             <if test="${string::contains(proplist,propfind)}">
                 <echo message="Found ${propfind} in property list" file="${subnant-output}" append="true"/>
@@ -200,7 +202,7 @@ $Id$
                 <fail message="*** ERROR ${propfind} not found in property list ***"/>
             </ifnot>
         </if>
-        <delete file="${svnlook-result}" if="${file::exists(svnlook-result)}"/>
+        <delete file="${svnlook-file}" if="${file::exists(svnlook-file)}"/>
         <if test="${exec-result!='0'}">
             <fail message="*** ERROR getting property list ***"/>
         </if>

@@ -54,18 +54,15 @@ $Id$
         <!-- Temporary solution until ::TODO:: above is done-->
         <copy file="${exec-output}" tofile="${dir-list}"/> 
         <!-- Don't fail if hook:commit-email property not found -->
+        <property name="orig-failonerror" value="${failonerror}"/>
         <property name="failonerror" value="false"/>
         <!-- Search for hook:commit-email property in each directory found -->
         <foreach item="Line" in="${dir-list}" property="dir-check">
             <property name="subcommand" value="propget"/>
             <call target="exec-svnlook"/>
-            <!-- If hook:commit-email found, add each address only once -->
             <if test="${svnlook-result=='0'}">
-                <!-- Email addresses may be line delimited -->
                 <foreach item="Line" in="${exec-output}" property="address-line">
-                    <!-- Replace , with ; as per spec for mail target -->
                     <property name="address-line" value="${string::replace(address-line,',',';')}"/>
-                    <!-- Email addresses may be ; delimited -->
                     <foreach item="String" delim=";" in="${address-line}" property="address">
                         <!-- Only add address if it doesn't already exist in list -->
                         <property name="mail-tolist" value="${mail-tolist};${address}"
@@ -77,9 +74,7 @@ $Id$
         <!-- Trim start of address list to remove ; if it exists -->
         <property name="mail-tolist" value="${string::substring(mail-tolist,1,string::get-length(mail-tolist)-1)}"
             if="${string::starts-with(mail-tolist,';')}"/>
-        <!-- Done searching for hook:commit-email, so turn failonerror back on -->
-        <property name="failonerror" value="true"/>
-        <!-- Delete our temp directory list -->
+        <property name="failonerror" value="${orig-failonerror}"/>
         <delete file="${dir-list}" if="${file::exists(dir-list)}"/>
     </target>
 
@@ -99,8 +94,8 @@ $Id$
             <!-- Set optional parameter (used by get-commit-details) -->
             <arg value="--no-diff-delete" if="${subcommand=='diff' and property::exists('no-diff-delete') and string::trim(string::to-lower(no-diff-delete))=='true'}"/>
         </exec>
-        <echo if="${svnlook-result!='0' and failonerror!='false'}" file="${subnant-output}" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" append="true"/>
-        <echo if="${svnlook-result!='0' and failonerror!='false'}" level="Warning" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***"/>
+        <echo if="${svnlook-result!='0' and failonerror!='false'}" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}" append="true"/>
+        <echo if="${svnlook-result!='0' and failonerror!='false'}" message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" level="Warning"/>
         <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***"/>
     </target>
 
@@ -108,17 +103,21 @@ $Id$
         <echo level="Warning">
             <![CDATA[propchange-email: usage: subnant propchange-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
 
-Email svnlook diff for a single revision.
+Sends email about revision property changes in a committed revision.
 
-Finds email addresses using Subversion property hook:propchange-email
-on directory of affected file(s).  Will recursive up the directory
-tree back to the root node searching for hook:propchange-email property.
+Searches for email addresses using Subversion hook:propchange-email property
+on directory or parent directories of affected file(s).  Multiple email
+addresses can be stored as line delimited values.
 
-Typically used in post-propchange hook, but can be called independently.
+Output generated in email defaults to svnlook diff for revision, but may
+be defined in hook:propchange-email for each address using address=subcommand
+syntax, e.g. subnant@example.com=info,diff  
 
-Multiple email addresses stored in hook:commit-email property may be
-comma or semi-comma or line separated.
-            
+Accepted svnlook subcommands are:
+author, changed, date, diff, dirs-changed, history, info, log, tree
+
+Normally used with post-revprop-change hook, but may be called independently.            
+
 Required:
 repos            full path to repository
 rev              revision number (must exist in repository)

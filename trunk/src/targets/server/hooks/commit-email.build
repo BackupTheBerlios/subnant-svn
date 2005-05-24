@@ -42,6 +42,7 @@ $Id$
 
     <target name="find-hook-prop">
         <!-- Don't fail svnlook if hook:commit-email property not found -->
+        <property name="orig-failonerror" value="${failonerror}"/>
         <property name="failonerror" value="false"/>
         <!-- Search for hook:commit-email property in each directory -->
         <foreach item="Line" in="${dir-file}" property="dir-check">
@@ -60,8 +61,7 @@ $Id$
         <!-- Trim start of list to remove semi-comma (if it exists) -->
         <property name="prop-list" value="${string::substring(prop-list,1,string::get-length(prop-list)-1)}"
             if="${string::starts-with(prop-list,';')}"/>
-        <!-- Done searching, so turn failonerror back on -->
-        <property name="failonerror" value="true"/>
+        <property name="failonerror" value="${orig-failonerror}"/>
     </target>
 
     <target name="build-revision-info">

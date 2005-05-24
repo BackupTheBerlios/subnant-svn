@@ -1,0 +1,148 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$
+-->
+<project name="upgrade-bdb" default="upgrade-bdb">
+
+    <target name="upgrade-bdb" depends="init">
+        <foreach item="String" delim="," in="${upgrade-repos}" property="repo">
+            <loadfile file="${path::combine(upgrade-svn-root,repo+'/db/fs-type')}" property="fs-type" failonerror="true"/>
+            <property name="fs-type" value="${string::trim(string::to-lower(fs-type))}" />
+            <if test="${fs-type=='bdb'}">
+                <call target="svnadmin-recover"/>
+                <nant buildfile="${subnant-root}/src/targets/server/hotcopy.build" target="hotcopy">
+                    <properties>
+                        <property name="hotcopy-repos" value="${repo}"/>   
+                        <property name="verify"        value="true"/>   
+                        <property name="no-total"      value="true"/>   
+                    </properties>
+                </nant>
+                <call target="svnadmin-list-unused-dblogs"/>
+                <call target="delete-files"/>
+            </if>
+        </foreach>
+        <property name="failonerror" value="${orig-failonerror}"/>
+        <echo message="${string::pad-right('Upgrade complete',60,' ')}(${subnant::format-elapsed-time(upgrade-started)})" file="${subnant-output}" append="true"/>
+    </target>
+
+    <target name="init">
+        <property name="upgrade-started"  value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="upgrade-repos"    value="${repos}"    unless="${property::exists('upgrade-repos')}"/>
+        <property name="upgrade-svn-root" value="${svn-root}" unless="${property::exists('upgrade-svn-root')}"/>
+        <property name="upgrade-ok"       value="true"/>
+        <property name="orig-failonerror" value="${failonerror}"/>
+        <property name="failonerror"      value="true"/>
+        <property name="svnadmin-file"    value="${exec-output}-svnadmin-result"/>
+        <property name="unused-dblogs"    value=""/>
+    </target>
+
+    <target name="svnadmin-recover">
+        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
+        <echo level="Warning" message="Recovering ${repo}"/>
+        <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="upgrade-result">
+            <arg value="recover"/>
+            <arg value="${path::combine(upgrade-svn-root,repo)}"/>
+        </exec>
+        <echo file="${exec-result}" message="${upgrade-result}"/>
+        <if test="${upgrade-result=='0'}">
+            <echo message="${string::pad-right('Recovered '+repo,60,' ')}(${subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+        </if>
+        <if test="${upgrade-result!='0'}">
+            <echo message="${'*** ERROR recovering '+repo+' ***'}" file="${subnant-output}" append="true"/>
+            <property name="upgrade-ok" value="false"/>
+        </if>
+    </target>
+
+    <target name="svnadmin-list-unused-dblogs">
+        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="unused-dblogs" value=""/>
+        <echo level="Warning" message="Listing unused-dblogs in ${repo}"/>
+        <exec program="${svnadmin}" failonerror="${failonerror}" output="${svnadmin-file}" resultproperty="upgrade-result">
+            <arg value="list-unused-dblogs"/>
+            <arg value="${path::combine(upgrade-svn-root,repo)}"/>
+        </exec>
+        <echo file="${exec-result}" message="${upgrade-result}"/>
+        <if test="${upgrade-result=='0'}">
+            <loadfile file="${svnadmin-file}" property="unused-dblogs" if="${file::exists(svnadmin-file)}"/>
+            <property name="unused-dblogs" value="${string::trim(unused-dblogs)}" />
+            <if test="${string::get-length(unused-dblogs)>0}">
+                <echo message="${string::pad-right('Unused dblogs:',60,' ')}(${subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+                <echo message="${unused-dblogs}" file="${subnant-output}" append="true"/>
+                <echo message="${unused-dblogs}" level="Warning"/>
+            </if>
+            <if test="${string::get-length(unused-dblogs)==0}">
+                <echo message="${string::pad-right('No unused dblogs found in '+repo,60,' ')}(${subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+                <echo message="No unused dblogs found in ${repo}" level="Warning"/>
+            </if>
+        </if>
+        <delete file="${svnadmin-file}" if="${file::exists(svnadmin-file)}"/>
+        <if test="${upgrade-result!='0'}">
+            <echo message="${'*** ERROR listing unused dblogs '+repo+' ***'}" file="${subnant-output}" append="true"/>
+            <property name="upgrade-ok" value="false"/>
+        </if>
+    </target>
+
+    <target name="delete-files">
+        <if test="${string::get-length(unused-dblogs)>0}">
+            <foreach item="Line" in="${unused-dblogs}" property="dblog">
+                <property name="dblog" value="${string::trim(dblog)}" />
+                <if test="${file::exists(dblog)}">
+                    <echo message="Deleting ${dblog}" level="Warning"/>
+                    <delete file="${dblog}"/>
+                    <echo message="Deleted ${dblog}" file="${subnant-output}" append="true"/>
+                </if>
+            </foreach>
+        </if>
+        <foreach item="File" property="dbfile">
+            <in>
+                <items>
+                    <include name="${path::combine(upgrade-svn-root,repo+'/db/__db.00?')}"/>
+                </items>
+            </in>
+            <do>
+                <echo message="Deleting ${dbfile}" level="Warning"/>
+                <delete file="${dbfile}"/>
+                <echo message="Deleted ${dbfile}" file="${subnant-output}" append="true"/>
+            </do>
+        </foreach>
+    </target>
+
+    <target name="help">
+        <echo level="Warning">
+            <![CDATA[upgrade-bdb: usage: subnant upgrade-bdb [-D:<option>=<value>]
+
+Upgrade bdb repositories by:
+-- running "svnadmin recover"
+-- performing a hotcopy and then verifying the hotcopy
+-- running "svnadmin list-unused-dblogs" and deleting resulting files
+-- deleting all "repos/db/__db.00?" files
+
+e.g. Subversion 1.2.0 upgraded BerkeleyDB from version 4.2.52 to 4.3.27,
+for bdb repositories running on Windows with Subversion 1.1.4 or earlier,
+upgrade actions are required, and this target automates the process.
+
+NOTE: Make sure nobody is using the repository (stop Apache/svnserve,
+      restrict access via file:// when running this target
+
+Options:
+repos           comma separated list of repositories *
+svn-root        repository root directory **
+svn-bindir      Subversion binary directory **
+
+*  If repos not set, all repositories under svn-root are verified
+** If option not set, default value in subnant.config is used
+
+Examples:
+subnant upgrade-bdb
+subnant upgrade-bdb -D:repos=repo1,repo2
+subnant upgrade-bdb -D:svn-bindir=/svn-1.1.4/bin
+]]>
+        </echo>
+    </target>
+   
+</project>

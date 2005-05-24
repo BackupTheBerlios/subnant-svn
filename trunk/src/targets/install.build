@@ -26,7 +26,7 @@ $Id$
 
     <target name="install-windows" if="${platform::is-win32()}">
         <echo file="${wrapper}" append="false">@echo off</echo>
-        <echo file="${wrapper}" append="true">nant -emacs -indent:-4 -quiet -nologo -buildfile:"${subnant-root}\src\subnant.build" %*</echo>
+        <echo file="${wrapper}" append="true">nant -emacs -indent:-8 -quiet -nologo -buildfile:"${subnant-root}\src\subnant.build" %*</echo>
         <echo message="Created ${wrapper} wrapper script" level="Warning"/>
         <echo message="Searching environment path for ${install-bindir}" level="Warning"/>
         <if test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}">
@@ -39,7 +39,7 @@ $Id$
 
     <target name="install-linux" if="${platform::is-unix()}">
         <echo file="${wrapper}" append="false">#!/bin/sh</echo>
-        <echo file="${wrapper}" append="true">nant -emacs -indent:-4 -quiet -nologo -buildfile:${subnant-root}/src/subnant.build $@</echo>
+        <echo file="${wrapper}" append="true">nant -emacs -indent:-8 -quiet -nologo -buildfile:${subnant-root}/src/subnant.build $@</echo>
         <exec program="chmod" commandline="a+x ${path::combine(install-bindir, 'subnant')}" failonerror="${failonerror}" resultproperty="exec-result" />
         <echo message="Created ${wrapper} wrapper script" level="Warning"/>
     </target>

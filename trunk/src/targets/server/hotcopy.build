@@ -10,10 +10,10 @@ $Id$
 <project name="hotcopy" default="hotcopy">
 
     <target name="hotcopy" depends="init">
-        <foreach item="String" delim="," in="${repos}" property="repo">
+        <foreach item="String" delim="," in="${hotcopy-repos}" property="repo">
             <call target="svnadmin-hotcopy"/>
         </foreach>
-        <if test="${hotcopy-ok=='true'}">
+        <if test="${hotcopy-ok=='true' and no-total!='true'}">
             <echo message="${string::pad-right('Hotcopy complete',60,' ')}(${subnant::format-elapsed-time(hotcopy-started)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${hotcopy-ok!='true'}">
@@ -23,8 +23,9 @@ $Id$
 
     <target name="init">
         <property name="hotcopy-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="failonerror"     value="false"/>
         <property name="hotcopy-ok"      value="true"/>
+        <property name="hotcopy-repos"   value="${repos}" unless="${property::exists('hotcopy-repos')}"/>
+        <property name="no-total"        value="false"    unless="${property::exists('no-total')}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/hotcopy-root"   property="hotcopy-root"         unless="${property::exists('hotcopy-root')}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/verify-hotcopy" property="verify-after-hotcopy" unless="${property::exists('verify')}"/>
         <property name="verify-after-hotcopy" value="${verify}" if="${property::exists('verify')}"/>

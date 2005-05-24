@@ -10,10 +10,10 @@ $Id$
 <project name="dump" default="dump">
 
     <target name="dump" depends="init">
-        <foreach item="String" delim="," in="${repos}" property="repo">
+        <foreach item="String" delim="," in="${dump-repos}" property="repo">
             <call target="svnadmin-dump"/>
         </foreach>
-        <if test="${dump-ok=='true'}">
+        <if test="${dump-ok=='true' and no-total!='true'}">
             <echo message="${string::pad-right('Dump complete',60,' ')}(${subnant::format-elapsed-time(dump-started)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${dump-ok!='true'}">
@@ -24,7 +24,7 @@ $Id$
     <target name="init" depends="init-windows,init-linux">
         <property name="dump-started"     value="${datetime::get-ticks(datetime::now())}"/>
         <property name="rev"              value="false" unless="${property::exists('rev')}"/>
-        <property name="failonerror"      value="false"/>
+        <!--<property name="failonerror"      value="false"/>-->
         <property name="dump-incremental" value="false"/>
         <property name="dump-deltas"      value="false"/>
         <property name="dump-ok"          value="true"/>
@@ -35,6 +35,8 @@ $Id$
         <property name="youngest"         value=""/>
         <property name="oldest"           value=""/>
         <!-- Read in defaults -->
+        <property name="dump-repos"       value="${repos}" unless="${property::exists('dump-repos')}"/>
+        <property name="no-total"         value="false"    unless="${property::exists('no-total')}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root"     property="dump-root" unless="${property::exists('dump-root')}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/compress-dump" property="ziplevel"  unless="${property::exists('compress')}"/>
         <!-- Assign from parameters -->
