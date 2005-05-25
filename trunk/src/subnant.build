@@ -420,13 +420,9 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             {
                 TimeSpan elapsed = TimeSpan.FromTicks(DateTime.Now.Ticks - ticks);
 
-                if (!showText)
+                if (!showText || (elapsed.TotalMinutes < 5))
                 {
                     return String.Format("{0:F2}", elapsed.TotalSeconds);
-                }
-                if (elapsed.TotalMinutes < 5)
-                {
-                    return String.Format("{0:F2} seconds", elapsed.TotalSeconds);
                 }
                 else if (elapsed.TotalHours < 2)
                 {
