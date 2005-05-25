@@ -13,8 +13,11 @@ $Id$
         <foreach item="String" delim="," in="${verify-repos}" property="repo">
             <call target="svnadmin-verify"/>
         </foreach>
+        <if test="${verify-ok=='true' and no-total!='true'}">
+            <echo message="${string::pad-right('Verify complete',60,' ')}(${subnant::format-elapsed-time(verify-started, true)})" file="${subnant-output}" append="true"/>
+        </if>
         <if test="${verify-ok!='true'}">
-            <fail message="${string::pad-right('Verify completed with errors!',60,' ')}(${subnant::format-elapsed-time(verify-started)})"/>
+            <fail message="${string::pad-right('Verify completed with errors!',60,' ')}(${subnant::format-elapsed-time(verify-started, true)})"/>
         </if>
     </target>
 
@@ -22,6 +25,7 @@ $Id$
         <property name="verify-started"  value="${datetime::get-ticks(datetime::now())}"/>
         <property name="verify-repos"    value="${repos}"    unless="${property::exists('verify-repos')}"/>
         <property name="verify-svn-root" value="${svn-root}" unless="${property::exists('verify-svn-root')}"/>
+        <property name="no-total"        value="false"       unless="${property::exists('no-total')}"/>
         <property name="verify-ok"       value="true"/>
     </target>
 
@@ -34,7 +38,7 @@ $Id$
         </exec>
         <echo file="${exec-result}" message="${verify-result}"/>
         <if test="${verify-result=='0'}">
-            <echo message="${string::pad-right('Verified '+repo,60,' ')}(${subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Verified '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${verify-result!='0'}">
             <echo message="${'*** ERROR verifying '+repo+' ***'}" file="${subnant-output}" append="true"/>

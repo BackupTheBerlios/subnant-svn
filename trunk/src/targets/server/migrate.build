@@ -34,7 +34,7 @@ $Id$
             </nant>
             <echo message="::TODO:: Copy existing hooks from old repos into new repos (overwrite default hooks)" level="Warning"/>
         </foreach>
-        <echo message="${string::pad-right('Migration complete',60,' ')}(${subnant::format-elapsed-time(migration-started)})" file="${subnant-output}" append="true"/>
+        <echo message="${string::pad-right('Migration complete',60,' ')}(${subnant::format-elapsed-time(migration-started, true)})" file="${subnant-output}" append="true"/>
      </target>
 
     <target name="init">

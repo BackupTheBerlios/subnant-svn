@@ -34,7 +34,7 @@ $Id$
             </if>
         </foreach>
         <property name="failonerror" value="${orig-failonerror}"/>
-        <echo message="${string::pad-right('Upgrade complete',60,' ')}(${subnant::format-elapsed-time(upgrade-started)})" file="${subnant-output}" append="true"/>
+        <echo message="${string::pad-right('Upgrade complete',60,' ')}(${subnant::format-elapsed-time(upgrade-started, true)})" file="${subnant-output}" append="true"/>
     </target>
 
     <target name="init">
@@ -57,7 +57,7 @@ $Id$
         </exec>
         <echo file="${exec-result}" message="${upgrade-result}"/>
         <if test="${upgrade-result=='0'}">
-            <echo message="${string::pad-right('Recovered '+repo,60,' ')}(${subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Recovered '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${upgrade-result!='0'}">
             <echo message="${'*** ERROR recovering '+repo+' ***'}" file="${subnant-output}" append="true"/>
@@ -78,12 +78,12 @@ $Id$
             <loadfile file="${svnadmin-file}" property="unused-dblogs" if="${file::exists(svnadmin-file)}"/>
             <property name="unused-dblogs" value="${string::trim(unused-dblogs)}" />
             <if test="${string::get-length(unused-dblogs)>0}">
-                <echo message="${string::pad-right('Unused dblogs:',60,' ')}(${subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+                <echo message="${string::pad-right('Unused dblogs:',60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
                 <echo message="${unused-dblogs}" file="${subnant-output}" append="true"/>
                 <echo message="${unused-dblogs}" level="Warning"/>
             </if>
             <if test="${string::get-length(unused-dblogs)==0}">
-                <echo message="${string::pad-right('No unused dblogs found in '+repo,60,' ')}(${subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+                <echo message="${string::pad-right('No unused dblogs found in '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
                 <echo message="No unused dblogs found in ${repo}" level="Warning"/>
             </if>
         </if>

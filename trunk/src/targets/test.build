@@ -20,7 +20,7 @@ $Id$
         </if>
         <delete dir="${test-root}" if="${keep-test=='false' and directory::exists(test-root)}"/>
         <echo message="Test complete" level="Warning"/>
-        <echo message="${string::pad-right('Test complete',60,' ')}(${subnant::format-elapsed-time(test-started)})" file="${subnant-output}" append="true"/>
+        <echo message="${string::pad-right('Test complete',60,' ')}(${subnant::format-elapsed-time(test-started, true)})" file="${subnant-output}" append="true"/>
     </target>
 
     <target name="init">

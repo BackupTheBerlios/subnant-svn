@@ -14,7 +14,7 @@ $Id$
             <call target="svnadmin-create"/>
         </foreach>
         <if test="${create-ok!='true'}">
-            <fail message="${string::pad-right('Create completed with errors!',60,' ')}(${subnant::format-elapsed-time(create-started)})"/>
+            <fail message="${string::pad-right('Create completed with errors!',60,' ')}(${subnant::format-elapsed-time(create-started, false)})"/>
         </if>
     </target>
 
@@ -62,7 +62,7 @@ $Id$
             <arg value="${path::combine(create-svn-root,repo)}"/>
         </exec>
         <if test="${create-result=='0'}">
-            <echo message="${string::pad-right('Created '+repo+' ('+create-fs-type+') in '+create-svn-root,60,' ')}(${subnant::format-elapsed-time(started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Created '+repo+' ('+create-fs-type+') in '+create-svn-root,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
             <call target="copy-repos-conf"  unless="${property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true'}"/>
             <call target="copy-repos-hooks" unless="${property::exists('no-hooks') and string::to-lower(no-hooks)=='true'}"/>
         </if>

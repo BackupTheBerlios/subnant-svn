@@ -18,7 +18,7 @@ $Id$
                 <arg value="${path::combine(load-svn-root,load-repos)}"/>
                 <arg value="${load-dump}"/>
             </exec>
-            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Loaded '+load-repos,60,' ')}(${subnant::format-elapsed-time(load-started)})" append="true"/>
+            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Loaded '+load-repos,60,' ')}(${subnant::format-elapsed-time(load-started, true)})" append="true"/>
             <echo if="${exec-result!='0'}" file="${subnant-output}" message="${'*** ERROR loading '+load-repos+' ***'}" append="true"/>
         </foreach>
     </target>

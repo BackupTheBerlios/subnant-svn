@@ -161,7 +161,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}"/>
         <fail if="${string::get-length(svn-bindir)>0 and directory::exists(svn-bindir)!=true}" message="Subversion binary directory not found: ${svn-bindir}"/>
         <!-- ::TODO:: Investigate option for UTC instead of server localtime output? -->
-        <echo message="Subnant started ${subnant::ticks-to-string(subnant-started)}" file="${subnant-output}" append="false"/>
+        <echo message="Subnant started ${subnant::ticks-to-string(subnant-started)} (time in seconds unless noted)" file="${subnant-output}" append="false"/>
         <echo message="" file="${subnant-output}" append="true"/>
     </target>
    
@@ -283,7 +283,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <fail unless="${property::exists('subnant-config')}" message="Email not sent as config file not yet set"/>
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
             <echo message="" file="${subnant-output}" append="true"/>
-            <echo message="${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::format-elapsed-time(subnant-started)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::format-elapsed-time(subnant-started, true)})" file="${subnant-output}" append="true"/>
             <loadfile file="${subnant-output}" property="message"/>
         </if>
         <ifnot test="${property::exists('subnant-output') and file::exists(subnant-output)}">
@@ -391,6 +391,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             /// <summary>
             /// Display DateTime string from ticks
             /// </summary>
+            /// <param name="ticks">DateTime to convert</param>
             [Function("ticks-to-string")]
             public string getDateTimeFromTicks(Int64 ticks)
             {
@@ -401,6 +402,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             /// <summary>
             /// Subversion somtimes wants an Uri instead of path   
             /// </summary>
+            /// <param name="path">Path to convert</param>
             [Function("to-uri")]
             public string pathToUriString(string path)
             {
@@ -411,11 +413,17 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             /// <summary>
             /// Display elapsed time using ticks for accuracy
             /// </summary>
+            /// <param name="ticks">DateTime in ticks of end period</param>
+            /// <param name="showText">Option to display time format, or show in seconds with no text</param>
             [Function("format-elapsed-time")]
-            public string formatElapsedTime(long ticks)
+            public string formatElapsedTime(long ticks, bool showText)
             {
                 TimeSpan elapsed = TimeSpan.FromTicks(DateTime.Now.Ticks - ticks);
 
+                if (!showText)
+                {
+                    return String.Format("{0:F2}", elapsed.TotalSeconds);
+                }
                 if (elapsed.TotalMinutes < 5)
                 {
                     return String.Format("{0:F2} seconds", elapsed.TotalSeconds);
@@ -433,6 +441,8 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             /// <summary>
             /// Display length of file in Bytes or KB or MB or GB
             /// </summary>
+            /// <param name="length">Length in bytes to convert</param>
+            /// <param name="useKibi">Calculate and show in Kibi format</param>
             [Function("format-length")]
             public string formatLength(double length, bool useKibi)
             {
@@ -470,6 +480,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             /// Initial purpose is to convert 'svnlook dirs-changed' output
             /// so that all parent directories are tested once for hook-prop.
             /// </summary>
+            /// <param name="dirsChanged">List of dirs-changed</param>
             [Function("build-dir-list")]
             public string buildDirList(string dirsChanged)
             {
@@ -514,6 +525,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             /// <summary>
             /// Try and open a file for appending to determine if file is able to be deleted.
             /// </summary>
+            /// <param name="filename">File to test</param>
             [Function("can-delete-file")]
             public bool canDeleteFile(string filename)
             {
