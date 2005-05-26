@@ -20,11 +20,11 @@ $Id$
     <!-- Subnant fails by default on <exec> errors, however some targets shouldn't fail on an svn error -->
     <property name="failonerror"    value="true"/>
     <property name="exec-output"    value="${path::combine(path::get-temp-path(),'exec-output-'+subnant-tstamp)}"/>
-    <property name="exec-result"    value="${path::combine(path::get-temp-path(),'exec-result-'+subnant-tstamp)}"/>        
+    <property name="exec-result"    value="${path::combine(path::get-temp-path(),'exec-result-'+subnant-tstamp)}"/>
     <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+subnant-tstamp)}"/>
     <property name="subnant-root"   value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"/>
     <property name="subnant-config" value="${path::combine(path::combine(subnant-root,'conf'),'subnant.config')}"/>
-   
+
     <!-- Main targets (starts with default) -->
     <target name="help" description="Display help">
         <if test="${subnant::get-targets-count()==1}">
@@ -109,12 +109,12 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/server/hooks/commit-message.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="propchange-access" description="Control property access using pre-commit or pre-revprop hook"
+    <target name="propchange-access" description="Control revision property access using pre-revprop hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/propchange-access.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="propchange-email" description="Email property changes using post-commit or post-revprop hook"
+    <target name="propchange-email" description="Email revision property changes using post-revprop hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/propchange-email.build" target="${subnant::get-target()}"/>
     </target>
@@ -317,7 +317,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             <delete file="${exec-result}"/>
         </if>
     </target>
-   
+
     <!-- Custom functions and tasks, bundled into single <script> until NAnt 0.85rc4 released -->
     <script language="C#" prefix="subnant">
         <code>
@@ -486,7 +486,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
                 string    dirsResult = String.Empty;
                 string    tempPath   = String.Empty;
                 string    dirSplit   = "/";
-    
+
                 foreach (string dir in dirsList)
                 {
                     tempPath = String.Empty;
@@ -565,7 +565,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
                 
                 protected override void ExecuteTask()
                 {
-                    Console.Error.WriteLine(_message);           
+                    Console.Error.WriteLine(_message);
                 }
                 
                 #endregion Override implementation of Task
