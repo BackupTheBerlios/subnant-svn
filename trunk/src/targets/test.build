@@ -175,8 +175,8 @@ $Id$
             <arg value="${wc}"/>
         </exec>
         <if test="${exec-result=='0'}">
-            <echo message="Set ${propname} property" file="${subnant-output}" append="true"/>
-            <echo message="Set ${propname} property" level="Warning"/>
+            <echo message="Set ${propname} property to ${propval}" file="${subnant-output}" append="true"/>
+            <echo message="Set ${propname} property to ${propval}" level="Warning"/>
         </if>
         <if test="${exec-result!='0'}">
             <echo message="*** ERROR setting property ${propname} to ${propval} in ${wc} ***" file="${subnant-output}" append="true"/>

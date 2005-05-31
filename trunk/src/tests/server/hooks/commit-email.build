@@ -23,6 +23,7 @@ $Id$
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy"/>
+        <!-- hook:commit-email with no values (i.e. default to diff) -->
         <nant buildfile="${subnant-root}/src/targets/test.build" target="propset">
             <properties>
                 <property name="propname" value="hook:commit-email"/>
@@ -31,7 +32,20 @@ $Id$
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
-                <property name="hook" value="post-commit"/>
+                <property name="test-message"       value="message for hook:commit-email test on svnlook diff"/>
+                <property name="commit-should-pass" value="true"/>
+            </properties>
+        </nant>
+        <!-- hook:commit-email with all acceptable values and a bogus value -->
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="propset">
+            <properties>
+                <property name="propname" value="hook:commit-email"/>
+                <property name="propval"  value="${mail-tolist} = author,changed , date ,diff,dirs-changed,history,info,log,tree,bogus"/>
+            </properties>
+        </nant>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
+            <properties>
+                <property name="test-message"       value="message for hook:commit-email test on all svnlook accepted values"/>
                 <property name="commit-should-pass" value="true"/>
             </properties>
         </nant>

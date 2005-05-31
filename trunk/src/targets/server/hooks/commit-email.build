@@ -65,9 +65,8 @@ $Id$
     </target>
 
     <target name="build-revision-info">
-        <!-- Now that we have filtered list of addresses, search for svnlook subcommands -->
+        <!-- Now we've filtered list of addresses, search for svnlook subcommands -->
         <property name="found-subcommand" value="${string::contains(prop-list,'=')}"/>
-        <!-- No subcommands found?  Easy, all emails sent at once using svnlook diff -->
         <ifnot test="${found-subcommand}">
             <property name="mail-tolist" value="${prop-list}"/>
             <property name="subcommand"  value="diff"/>
@@ -75,7 +74,6 @@ $Id$
             <copy file="${exec-output}" tofile="${svnlook-file}"/>
             <call target="mail-revision-info"/>
         </ifnot>
-        <!-- We found subcommands?  Okay, send each email independently -->
         <!-- ::TODO:: This needs refactoring to group addresses by matching subcommands, I doubt there
              is an easy way in NAnt, so a custom script will need to be created to build the list e.g.
              autobot1@example.com   (no subcommand - use diff)
@@ -85,17 +83,17 @@ $Id$
         -->
         <if test="${found-subcommand}">
             <foreach item="String" in="${prop-list}" delim=";" property="prop-line">
+                <property name="prop-line" value="${string::trim(prop-line)}"/>
                 <!-- Check again...just in case some of the address have no subcommands-->
-                <property name="no-subcommands" value="${string::contains(prop-line,'=')}"/>
-                <!-- Love those double negatives :) -->
-                <ifnot test="${no-subcommands}">
+                <property name="has-subcommands" value="${string::contains(prop-line,'=')}"/>
+                <ifnot test="${has-subcommands}">
                     <property name="mail-tolist" value="${prop-line}"/>
                     <property name="subcommand"  value="diff"/>
                     <call target="exec-svnlook"/>
                     <copy file="${exec-output}" tofile="${svnlook-file}"/>
                     <call target="mail-revision-info"/>
                 </ifnot>
-                <if test="${no-subcommands}">
+                <if test="${has-subcommands}">
                     <property name="mail-tolist" value="${string::substring(prop-line,0,string::index-of(prop-line,'='))}"/>
                     <property name="subcommands" value="${string::replace(prop-line,mail-tolist+'=','')}"/>
                     <!-- Execute svnlook for each subcommand found building list -->
@@ -109,8 +107,18 @@ $Id$
                                 if="${subcommand=='author' or subcommand=='changed' or subcommand=='date' or subcommand=='log'}"/>
                             <call target="exec-svnlook"/>
                             <loadfile file="${exec-output}" property="temp-prop"/>
-                            <echo file="${svnlook-file}" append="true" message="${prefix}${temp-prop}"/>
+                            <if test="${subcommand=='author' or subcommand=='date'}">
+                                <echo message="${prefix}${temp-prop}" file="${svnlook-file}" append="true"/>
+                            </if>
+                            <ifnot test="${subcommand=='author' or subcommand=='date'}">
+                                <echo message="${prefix}"    file="${svnlook-file}" append="true"/>
+                                <echo message="${temp-prop}" file="${svnlook-file}" append="true"/>
+                            </ifnot>
                         </if>
+                        <!-- Don't fail on invalid subcommand, instead send email detailing error -->   
+                        <ifnot test="${valid==subcommand}">
+                            <echo message="Error: Invalid svnlook subcommand: ${subcommand} in property: ${hook-prop}" file="${svnlook-file}" append="true"/>
+                        </ifnot>
                     </foreach>
                     <call target="mail-revision-info"/>
                 </if>
