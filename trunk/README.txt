@@ -116,7 +116,7 @@ Repository targets:
 
   * upgrade-bdb
 
-	Upgrade bdb style repositories
+    Upgrade bdb style repositories
 
 
   * verify
