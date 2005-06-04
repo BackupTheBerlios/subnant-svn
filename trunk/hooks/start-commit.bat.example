@@ -33,4 +33,4 @@ REM
 REM
 REM Visit http://subnant.berlios.de for details on command below
 
-subnant commit-allower -D:repos="%1" -D:user="%2"
+subnant commit-allower -D:repos=%1 -D:user=%2
