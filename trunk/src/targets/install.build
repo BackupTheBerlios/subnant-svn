@@ -29,12 +29,10 @@ $Id$
         <echo file="${wrapper}" append="true">nant -emacs -indent:-8 -quiet -nologo -buildfile:"${subnant-root}\src\subnant.build" %*</echo>
         <echo message="Created ${wrapper} wrapper script" level="Warning"/>
         <echo message="Searching environment path for ${install-bindir}" level="Warning"/>
-        <if test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}">
-            <echo message="Found in path, subnant command should be available" level="Warning"/>
-        </if>
-        <ifnot test="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}">
-            <echo message="Not found, please add ${install-bindir} to your environment path" level="Warning"/>
-        </ifnot>
+        <echo message="Found in path, subnant command should be available" level="Warning"
+            unless="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}"/>
+        <echo message="Not found, please add ${install-bindir} to your environment path" level="Warning"
+            unless="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}"/>
     </target>
 
     <target name="install-linux" if="${platform::is-unix()}">

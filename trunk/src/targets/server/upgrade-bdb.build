@@ -17,9 +17,9 @@ $Id$
                 <property name="fs-type" value="${string::trim(string::to-lower(fs-type))}"/>
             </if>
             <!-- svn pre 1.1 had no repos/db/fs-type file (or choice!), so assume bdb if repos/format exists -->   
-            <ifnot test="${file::exists(fs-type-file)}">
+            <if test="${not file::exists(fs-type-file)}">
                 <property name="fs-type" value="bdb" if="${file::exists(path::combine(upgrade-svn-root,repo+'/format'))}"/>
-            </ifnot>
+            </if>
             <if test="${fs-type=='bdb'}">
                 <call target="svnadmin-recover"/>
                 <nant buildfile="${subnant-root}/src/targets/server/hotcopy.build" target="hotcopy">

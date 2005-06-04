@@ -71,7 +71,7 @@ $Id$
                 <call target="run-test"/>
             </foreach>
         </if>
-        <ifnot test="${property::exists('target')}">
+        <if test="${not property::exists('target')}">
             <!-- Client targets -->
             <property name="test-target" value="bugtraq"/>
             <call target="run-test"/>
@@ -103,7 +103,7 @@ $Id$
             <call target="run-test"/>
             <property name="test-target" value="propchange-email"/>
             <call target="run-test"/>
-        </ifnot>
+        </if>
         <echo message="" level="Warning"/>
         <echo message="" file="${subnant-output}" append="true"/>
     </target>
@@ -159,12 +159,12 @@ $Id$
             <echo message="(Note: Test might fail deleting repository if hook spawns process)" level="Warning"/>
         </if>
         -->
-        <ifnot test="${file::exists(hook-script)}">
+        <if test="${not file::exists(hook-script)}">
             <echo message="${hook-exec}" file="${hook-script}" append="false"/>
             <fail unless="${file::exists(hook-script)}" message="*** ERROR creating hook ${hook} ***"/>
             <echo message="Created hook ${path::get-file-name(hook-script)}" file="${subnant-output}" append="true"/>
             <echo message="Created hook ${path::get-file-name(hook-script)}" level="Warning"/>
-        </ifnot>
+        </if>
     </target>
 
     <target name="propset">
@@ -198,9 +198,9 @@ $Id$
                 <echo message="Found ${propfind} in property list" file="${subnant-output}" append="true"/>
                 <echo message="Found ${propfind} in property list" level="Warning"/>
             </if>
-            <ifnot test="${string::contains(proplist,propfind)}">
+            <if test="${not string::contains(proplist,propfind)}">
                 <fail message="*** ERROR ${propfind} not found in property list ***"/>
-            </ifnot>
+            </if>
         </if>
         <delete file="${svnlook-file}" if="${file::exists(svnlook-file)}"/>
         <if test="${exec-result!='0'}">
@@ -239,9 +239,9 @@ $Id$
             <echo message='Found log "${test-message}" in repository' file="${subnant-output}" append="true"/>
             <echo message='Found log "${test-message}" in repository' level="Warning"/>
         </if>
-        <ifnot test="${string::contains(test-output,test-message)}">
+        <if test="${not string::contains(test-output,test-message)}">
             <fail message='Did not find log "${test-message}" in repository'/>
-        </ifnot>
+        </if>
     </target>
 
     <target name="help">

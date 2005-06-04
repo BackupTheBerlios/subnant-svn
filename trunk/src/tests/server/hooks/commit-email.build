@@ -19,7 +19,7 @@ $Id$
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-hook">
             <properties>
                 <property name="hook"      value="post-commit"/>
-                <property name="hook-exec" value='subnant commit-email -D:repos="${hook-param}1" -D:rev="${hook-param}2"'/>
+                <property name="hook-exec" value="subnant commit-email -D:repos=${hook-param}1 -D:rev=${hook-param}2"/>
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy"/>
@@ -45,7 +45,7 @@ $Id$
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
-                <property name="test-message"       value="message for hook:commit-email test on all svnlook accepted values"/>
+                <property name="test-message"       value="message for hook:commit-email test on all svnlook accepted values and a bogus value"/>
                 <property name="commit-should-pass" value="true"/>
             </properties>
         </nant>
@@ -55,9 +55,9 @@ $Id$
         <if test="${property::exists('sendmail')==true and string::trim(string::to-lower(sendmail))!='true'}">
             <property name="mail-tolist" value="${sendmail}"/>
         </if>
-        <ifnot test="${property::exists('mail-tolist')}">
+        <if test="${not property::exists('mail-tolist')}">
             <xmlpeek file="${subnant-config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
-        </ifnot>
+        </if>
     </target>
 
 </project>

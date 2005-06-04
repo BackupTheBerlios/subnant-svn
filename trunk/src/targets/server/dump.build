@@ -61,11 +61,11 @@ $Id$
     </target>
 
     <target name="init-windows" if="${platform::is-win32()}">
-        <property name="dump" value="${path::combine(subnant-root,'src\inc\dump.bat')}"/>
+        <property name="dump" value="${path::combine(subnant-root,'src\include\dump.bat')}"/>
     </target>
 
     <target name="init-linux" if="${platform::is-unix()}">
-        <property name="dump" value="${path::combine(subnant-root,'src/inc/dump.sh')}"/>
+        <property name="dump" value="${path::combine(subnant-root,'src/include/dump.sh')}"/>
     </target>
 
     <target name="init-dump">
@@ -117,10 +117,10 @@ $Id$
             <delete file="${dump-file}" if="${file::exists(zip-file)}"/>
             <echo message="${string::pad-right('Compressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-length(file::get-length(zip-file),false)+' - '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
         </if>
-        <ifnot test="${file::exists(zip-file)}">
-            <echo message="${'*** ERROR compressing '+repo+' ***'}" file="${subnant-output}" append="true"/>
+        <if test="${not file::exists(zip-file)}">
+            <echo message="${'*** ERROR compressing '+repo+' (zip not created) ***'}" file="${subnant-output}" append="true"/>
             <property name="dump-ok" value="false"/>
-        </ifnot>
+        </if>
     </target>
 
     <target name="help">
