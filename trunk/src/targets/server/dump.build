@@ -92,7 +92,7 @@ $Id$
             <arg value="${arg-deltas}"/>
         </exec>
         <echo file="${exec-result}" message="${dump-result}" append="false"/>
-        <if test="${dump-result=='0'}">
+        <if test="${dump-result=='0' and file::exists(dump-file)}">
             <echo message="${string::pad-right('Dumped '+repo,60,' ')}(${subnant::format-length(file::get-length(dump-file),false)+' - '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
             <call target="compress-dump-file" if="${ziplevel!='false'}"/>
         </if>

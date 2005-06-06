@@ -10,36 +10,62 @@ $Id$
 <project name="load" default="load">
 
     <target name="load" depends="init">
-        <foreach item="String" delim="," in="${load-dumps}" property="load-dump">
-            <call target="init-load"/>
-            <echo level="Warning" message="Loading ${load-repos}"/>
-            <exec program="${load}" failonerror="${failonerror}" resultproperty="exec-result">
-                <arg value="${svnadmin}"/>
-                <arg value="${path::combine(load-svn-root,load-repos)}"/>
-                <arg value="${load-dump}"/>
-            </exec>
-            <echo if="${exec-result=='0'}" file="${subnant-output}" message="${string::pad-right('Loaded '+load-repos,60,' ')}(${subnant::format-elapsed-time(load-started, true)})" append="true"/>
-            <echo if="${exec-result!='0'}" file="${subnant-output}" message="${'*** ERROR loading '+load-repos+' ***'}" append="true"/>
+        <foreach item="String" delim="," in="${load-dumps}" property="dump-file">
+            <call target="svnadmin-load"/>
         </foreach>
+        <if test="${load-ok=='true' and no-total!='true'}">
+            <echo message="${string::pad-right('Load complete',60,' ')}(${subnant::format-elapsed-time(load-started, true)})" file="${subnant-output}" append="true"/>
+        </if>
+        <if test="${load-ok!='true'}">
+            <fail message="${string::pad-right('Load completed with errors!',60,' ')}(${subnant::format-elapsed-time(load-started, true)})"/>
+        </if>
     </target>
 
-    <target name="init" depends="init-windows,init-linux">
-        <fail unless="${property::exists('dumps')}" message="Can't load repository as dumps property not defined"/>
-        <property name="load-dumps"    value="${dumps}"    unless="${property::exists('load-dumps')}"/>   
-        <property name="load-svn-root" value="${svn-root}" unless="${property::exists('load-svn-root')}"/>
+    <target name="init">
+        <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <fail unless="${property::exists('dumps')}" message="Dumps property not defined"/>
+        <property name="load-ok"        value="true"/>
+        <property name="load-dumps"     value="${dumps}"     unless="${property::exists('load-dumps')}"/>   
+        <property name="load-dump-root" value="${dump-root}" unless="${property::exists('load-dump-root')}"/>
+        <property name="load-svn-root"  value="${svn-root}"  unless="${property::exists('load-svn-root')}"/>
     </target>
 
-    <target name="init-windows" if="${platform::is-win32()}">
-        <property name="load" value="${path::combine(subnant-root,'src\inc\dump.bat')}"/>
-    </target>
-
-    <target name="init-linux" if="${platform::is-unix()}">
-        <property name="load" value="{path::combine(subnant-root,'src/inc/dump.sh')}"/>
+    <target name="svnadmin-load">
+        <call target="init-load"/>
+        <echo level="Warning" message="Loading ${load-repos}"/>
+        <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="exec-result">
+            <arg line='load "${path::combine(load-svn-root,load-repos)}" &lt; "${dump-file}"'/>
+        </exec>
+        <if test="${exec-result=='0'}">
+            <echo message="${string::pad-right('Loaded '+load-repos,60,' ')}(${subnant::format-elapsed-time(started, true)})" file="${subnant-output}" append="true"/>
+        </if>
+        <if test="${exec-result!='0'}">
+            <echo message="${'*** ERROR loading '+load-repos+' ***'}" file="${subnant-output}" append="true"/>
+        </if>
     </target>
 
     <target name="init-load">
-        <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="started"      value="${datetime::get-ticks(datetime::now())}"/>
         <property name="load-repos"   value=""/>
+        <property name="compressed"   value="false"/>
+        <call target="uncompress-dump-file" if="${string::to-lower(path::get-extension(load-dump))=='zip'}"/>
+    </target>
+
+    <target name="uncompress-dump-file">
+        <property name="started"    value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="compressed" value="true"/>
+        <property name="zip-file"   value="${dump-file}"/>
+        <property name="dump-dir"   value="${path::combine(path::get-temp-path(),'subnant-load-'+dump-file+'-'+subnant-tstamp)}"/>
+        <echo level="Warning" message="Uncompressing ${path::get-file-name(dump-file)}"/>
+        <unzip zipfile="${zip-file}" todir="${dump-dir}" failonerror="${failonerror}"/>
+        <property name="dump-file"  value="${path::combine(dump-dir,get-file-name-without-extension(dump-file)}"/>
+        <if test="${file::exists(dump-file)}">
+            <echo message="${string::pad-right('Uncompressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-length(file::get-length(zip-file),false)+' - '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
+        </if>
+        <if test="${not file::exists(zip-file)}">
+            <echo message="${'*** ERROR compressing '+repo+' (zip not created) ***'}" file="${subnant-output}" append="true"/>
+            <property name="dump-ok" value="false"/>
+        </if>
     </target>
 
     <target name="help">
@@ -55,15 +81,16 @@ Note: Dump filename format is assumed to match Subnant dump target
 filename format, a mismatch may cause incremental loads to fail
 
 Required:
-dumps           comma separated list of repository dumps to load
+dumps           comma separated list of dumps under dump-root to load from
 
 Options:
-repos           comma separated list of repositories (count must match dumps)
-dump-root       repository dump directory *
-svn-root        repository root directory *
-svn-bindir      Subversion binary directory *
+repos           comma separated list of repositories to load into *
+dump-root       repository dump directory **
+svn-root        repository root directory **
+svn-bindir      Subversion binary directory **
 
-* If option not set, default value in subnant.config is used
+* Dumps filename is used if option not set, or if set count must match dumps
+** If option not set, default value in subnant.config is used
 
 Examples:
 subnant load -D:dumps=repo1.dump.zip,repo2.dump
