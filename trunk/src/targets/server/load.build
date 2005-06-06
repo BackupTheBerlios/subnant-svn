@@ -21,42 +21,67 @@ $Id$
         </if>
     </target>
 
-    <target name="init">
+    <target name="init" depends="init-windows,init-linux">
         <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
         <fail unless="${property::exists('dumps')}" message="Dumps property not defined"/>
         <property name="load-ok"        value="true"/>
-        <property name="load-dumps"     value="${dumps}"     unless="${property::exists('load-dumps')}"/>   
-        <property name="load-dump-root" value="${dump-root}" unless="${property::exists('load-dump-root')}"/>
-        <property name="load-svn-root"  value="${svn-root}"  unless="${property::exists('load-svn-root')}"/>
+        <property name="load-dumps"     value="${dumps}" unless="${property::exists('load-dumps')}"/>   
+        <property name="rev"            value="false"    unless="${property::exists('rev')}"/>
+        <if test="${rev=='false'}">
+            <property name="arg-revoption" value=""/>
+            <property name="arg-revision"  value=""/>
+        </if>
+        <if test="${rev!='false'}">
+            <property name="arg-revoption" value="--revision"/>
+            <property name="arg-revision"  value="${rev}"/>
+        </if>
+    </target>
+
+    <target name="init-windows" if="${platform::is-win32()}">
+        <property name="load" value="${path::combine(subnant-root,'src\include\load.bat')}"/>
+    </target>
+
+    <target name="init-linux" if="${platform::is-unix()}">
+        <property name="load" value="${path::combine(subnant-root,'src/include/load.sh')}"/>
+    </target>
+
+    <target name="init-load">
+        <property name="started"    value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="repo"       value="${path::get-file-name-without-extension(dump-file)}"/>
+        <property name="dump-file"  value="${path::combine(path::combine(dump-root,repo),dump-file)}"/>
+        <property name="dump-file"  value="${dump-file+'.dump'}"     if="${file::exists(dump-file+'.dump')}"     unless="${file::exists(dump-file)}"/>
+        <property name="dump-file"  value="${dump-file+'.dump.zip'}" if="${file::exists(dump-file+'.dump.zip')}" unless="${file::exists(dump-file)}"/>
+        <property name="compressed" value="false"/>
+        <call target="uncompress-dump-file" if="${string::to-lower(path::get-extension(dump-file))=='.zip'}"/>
+        <fail unless="${file::exists(dump-file)}" message="Dumpfile not found ${dump-file}"/>
     </target>
 
     <target name="svnadmin-load">
         <call target="init-load"/>
-        <echo level="Warning" message="Loading ${load-repos}"/>
-        <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="exec-result">
-            <arg line='load "${path::combine(load-svn-root,load-repos)}" &lt; "${dump-file}"'/>
+        <echo message="Loading ${repo} into ${path::combine(svn-root,repo)} from ${dump-file}" level="Warning"/>
+        <exec program="${load}" failonerror="${failonerror}" resultproperty="load-result">
+            <arg value="${svnadmin}"/>
+            <arg value="${path::combine(svn-root,repo)}"/>
+            <arg value="${dump-file}"/>
+            <arg value="${arg-revoption}"/>
+            <arg value="${arg-revision}"/>
         </exec>
+        <!-- Remove temporary file if uncompressed -->
+        <delete if="${compressed}" file="${dump-file}"/>   
         <if test="${exec-result=='0'}">
-            <echo message="${string::pad-right('Loaded '+load-repos,60,' ')}(${subnant::format-elapsed-time(started, true)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Loaded '+repo,60,' ')}(${subnant::format-elapsed-time(started, true)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${exec-result!='0'}">
-            <echo message="${'*** ERROR loading '+load-repos+' ***'}" file="${subnant-output}" append="true"/>
+            <echo message="${'*** ERROR loading '+repo+' ***'}" file="${subnant-output}" append="true"/>
         </if>
-    </target>
-
-    <target name="init-load">
-        <property name="started"      value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="load-repos"   value=""/>
-        <property name="compressed"   value="false"/>
-        <call target="uncompress-dump-file" if="${string::to-lower(path::get-extension(load-dump))=='zip'}"/>
     </target>
 
     <target name="uncompress-dump-file">
         <property name="started"    value="${datetime::get-ticks(datetime::now())}"/>
         <property name="compressed" value="true"/>
         <property name="zip-file"   value="${dump-file}"/>
-        <property name="dump-dir"   value="${path::combine(path::get-temp-path(),'subnant-load-'+dump-file+'-'+subnant-tstamp)}"/>
-        <echo level="Warning" message="Uncompressing ${path::get-file-name(dump-file)}"/>
+        <property name="dump-dir"   value="${path::combine(path::get-temp-path(),'subnant-load-'+subnant-tstamp+'-'+repo)}"/>
+        <echo message="Uncompressing ${path::get-file-name(dump-file)}" level="Warning"/>
         <unzip zipfile="${zip-file}" todir="${dump-dir}" failonerror="${failonerror}"/>
         <property name="dump-file"  value="${path::combine(dump-dir,get-file-name-without-extension(dump-file)}"/>
         <if test="${file::exists(dump-file)}">
@@ -81,16 +106,17 @@ Note: Dump filename format is assumed to match Subnant dump target
 filename format, a mismatch may cause incremental loads to fail
 
 Required:
-dumps           comma separated list of dumps under dump-root to load from
+dumps           comma separated list of dumps under dump-root to load from *
 
 Options:
-repos           comma separated list of repositories to load into *
-dump-root       repository dump directory **
-svn-root        repository root directory **
-svn-bindir      Subversion binary directory **
+repos           comma separated list of repositories to load into **
+dump-root       repository dump directory ***
+svn-root        repository root directory ***
+svn-bindir      Subversion binary directory ***
 
-* Dumps filename is used if option not set, or if set count must match dumps
-** If option not set, default value in subnant.config is used
+*   .dump then .dump.zip tested when extension not supplied
+**  Dumps filename is used if option not set, or if set count must match dumps
+*** If option not set, default value in subnant.config is used
 
 Examples:
 subnant load -D:dumps=repo1.dump.zip,repo2.dump

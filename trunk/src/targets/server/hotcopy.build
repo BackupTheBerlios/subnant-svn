@@ -81,8 +81,8 @@ svn-root        repository root directory **
 hotcopy-root    hotcopy root directory **
 svn-bindir      Subversion binary directory **
 
-*   If repos not set, all repositories under svn-root are backed up
-**  If option not set, default value in subnant.config is used
+*  If repos not set, all repositories under svn-root are backed up
+** If option not set, default value in subnant.config is used
 
 Examples:
 subnant hotcopy -D:sendmail=true

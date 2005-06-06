@@ -24,16 +24,11 @@ $Id$
     <target name="init" depends="init-windows,init-linux">
         <property name="dump-started"     value="${datetime::get-ticks(datetime::now())}"/>
         <property name="rev"              value="false" unless="${property::exists('rev')}"/>
-        <!--<property name="failonerror"      value="false"/>-->
         <property name="dump-incremental" value="false"/>
         <property name="dump-deltas"      value="false"/>
         <property name="dump-ok"          value="true"/>
-        <property name="arg-revoption"    value=""/>
-        <property name="arg-revision"     value=""/>
         <property name="arg-incremental"  value=""/>
         <property name="arg-deltas"       value=""/>
-        <property name="youngest"         value=""/>
-        <property name="oldest"           value=""/>
         <!-- Read in defaults -->
         <property name="dump-repos"       value="${repos}" unless="${property::exists('dump-repos')}"/>
         <property name="no-total"         value="false"    unless="${property::exists('no-total')}"/>
@@ -49,8 +44,14 @@ $Id$
         <property name="dump-incremental" value="${string::to-lower(string::trim(dump-incremental))}"/>
         <property name="dump-deltas"      value="${string::to-lower(string::trim(dump-deltas))}"/>
         <!-- Assign switches -->
-        <property name="arg-revoption"    value="--revision"    if="${rev!='false'}"/>
-        <property name="arg-revision"     value="${rev}"        if="${rev!='false'}"/>
+        <if test="${rev=='false'}">
+            <property name="arg-revoption" value=""/>
+            <property name="arg-revision"  value=""/>
+        </if>
+        <if test="${rev!='false'}">
+            <property name="arg-revoption" value="--revision"/>
+            <property name="arg-revision"  value="${rev}"/>
+        </if>
         <property name="arg-incremental"  value="--incremental" if="${dump-incremental=='true'}"/>
         <property name="arg-deltas"       value="--deltas"      if="${dump-deltas=='true'}"/>
         <!-- Verify properties -->
@@ -153,9 +154,9 @@ compress        set compression level 1 (lowest) to 9 (highest)
 incremental     set true for svnadmin --incremental switch
 deltas          set true for svnamdin --deltas switch
 
-*    If repos not set, all repositories under svn-root are dumped
-**   If rev not set, all revisions are dumped
-***  If option not set, default value in subnant.config is used
+*   If repos not set, all repositories under svn-root are dumped
+**  If rev not set, all revisions are dumped
+*** If option not set, default value in subnant.config is used
 
 Examples:
 subnant dump -D:sendmail=dump@example.com
