@@ -99,7 +99,7 @@ $Id$
                     <!-- Execute svnlook for each subcommand found building list -->
                     <foreach item="String" in="${subcommands}" delim="," property="subcommand">
                         <property name="subcommand" value="${string::trim(string::to-lower(subcommand))}"/>
-                        <regex pattern="(?'valid'.*(author|changed|date|diff|dirs-changed|history|info|log|tree))" input="${subcommand}"/>
+                        <regex pattern="(?'valid'.*(author|changed|date|diff|dirs-changed|history|info|log|tree))" input="${subcommand}" failonerror="false"/>
                         <if test="${valid==subcommand}">
                             <property name="prefix" value=""/>
                             <!-- Add capitalised prefix if appropriate -->
