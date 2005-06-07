@@ -18,14 +18,15 @@ Goals:
 
   * Migrate multiple repositories (verify->dump->create->load->verify)
 
-  * Define standard repository configuration (conf,hooks), then make it easy
-    to create repositories to standard, automatically included in backups
-
   * Provide hook-script functionality similar to Subversion's own scripts,
     but without the need for third party tools (Perl,Python,sendmail,etc)
 
+  * Define standard repository configuration (conf,hooks), then make it easy
+    to create repositories to standard, automatically included in backups and
+    migrations as they are created under a standard svn-root directory
 
-Pre-requisites:
+
+Prerequisites:
 
   * .NET runtime >= 1.1 or Mono runtime >= 1.1.6
 
@@ -67,7 +68,7 @@ Setup:
 
 Run:
 
-  // Help for each main target is available
+  // Project help and help for each main target is available
   subnant -projecthelp
   subnant help
   subnant help hotcopy
@@ -87,7 +88,8 @@ Repository targets:
   * create
 
     Create one or more repositories under svn-root using configuration in
-    subnant.config, optionally setting up hook scripts and configuration files
+    subnant.config, optionally copying hook scripts and configuration files
+    from subnant/conf
 
 
   * dump
