@@ -74,8 +74,7 @@ $Id$
         <property name="repo"      value="${subnant::return-directory-name(repo)}"/>
         <property name="dump-dir"  value="${dump-root+'/'+repo}"/>
         <property name="dump-file" value="${path::combine(dump-dir,repo)}"/>
-        <property name="dump-file" if="${rev!='false'}"             value="${dump-file+'.r'+string::replace(arg-revision,':','-')}"/>
-        <property name="dump-file" if="${dump-incremental=='true'}" value="${dump-file+'.incr'}"/>
+        <property name="dump-file" if="${rev!='false'}" value="${dump-file+'.r'+string::replace(arg-revision,':','-')}"/>
         <property name="dump-file" value="${dump-file+'.dump'}"/>
         <mkdir dir="${dump-dir}" unless="${directory::exists(dump-dir)}"/>
     </target>
@@ -94,7 +93,7 @@ $Id$
         </exec>
         <echo file="${exec-result}" message="${dump-result}" append="false"/>
         <if test="${dump-result=='0' and file::exists(dump-file)}">
-            <echo message="${string::pad-right('Dumped '+repo,60,' ')}(${subnant::format-length(file::get-length(dump-file),false)+' - '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
+           <echo message="${string::pad-right('Dumped '+repo,60,' ')}(${subnant::format-length(file::get-length(dump-file),false)+' - '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
             <call target="compress-dump-file" if="${ziplevel!='false'}"/>
         </if>
         <if test="${dump-result!='0'}">
@@ -128,21 +127,22 @@ $Id$
         <echo level="Warning">
             <![CDATA[dump: usage: subnant dump [-D:<option>=<value>]
 
-Dump and compress repositories from svn-root to dump-root
+Dump and optionally compress repositories from svn-root to dump-root
 
-Dumpfile is based upon the name of the repository, the revision or
-revision range being dumped, and whether it is an incremental dump
+Dump filename is based upon the name of the repository, the revision
+or revision range being dumped and whether it is compressed
 
-Dumpfile format: <repos>.[r[oldest-][youngest]][.incr].dump[.zip]   
+Dump filename format: <repos>.[rX[-Y]].dump[.zip]
 
-Example dumpfiles:
-repos1.dump              dump of all available revisions
-repos1.dump.zip          compressed dump of all revisions
-repos1.r5-10.dump        dump of revisions 5 to 10
-repos1.r10.incr.dump     incremental dump of revision 10
-repos1.r5-10.incr.dump   incremental dump of revisions 5 to 10
+Where X is the oldest and Y is the youngest revision
 
-Note: Dumpfile format is assumed by the Subnant load target
+Example filenames:
+repo1.dump              dump of all available revisions
+repo1.r1.dump           dump of revision 1
+repo1.r1-11.dump        dump of revisions 1 to 11
+repo1.r1-11.dump.zip    compressed dump of revisions 1 to 11
+
+Note: Dump filename format is assumed by the Subnant load target
 
 Options:
 repos           comma separated list of repositories to dump *
@@ -160,8 +160,7 @@ deltas          set true for svnamdin --deltas switch
 
 Examples:
 subnant dump -D:sendmail=dump@example.com
-subnant dump -D:repos=repo1,repo2 -D:rev=HEAD
-subnant dump -D:svn-root=/svnroot/repos -D:compress=9
+subnant dump -D:repos=repo1,repo2 -D:svn-root=/svnroot/repos -D:compress=9
 ]]>
         </echo>
     </target>

@@ -24,9 +24,9 @@ $Id$
     <target name="init" depends="init-windows,init-linux">
         <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
         <fail unless="${property::exists('dumps')}" message="Dumps property not defined"/>
-        <property name="load-ok"        value="true"/>
-        <property name="load-dumps"     value="${dumps}" unless="${property::exists('load-dumps')}"/>   
-        <property name="rev"            value="false"    unless="${property::exists('rev')}"/>
+        <property name="load-ok"    value="true"/>
+        <property name="load-dumps" value="${dumps}" unless="${property::exists('load-dumps')}"/>   
+        <property name="rev"        value="false"    unless="${property::exists('rev')}"/>
         <if test="${rev=='false'}">
             <property name="arg-revoption" value=""/>
             <property name="arg-revision"  value=""/>
@@ -35,6 +35,7 @@ $Id$
             <property name="arg-revoption" value="--revision"/>
             <property name="arg-revision"  value="${rev}"/>
         </if>
+        <property name="temp-dir" value=""/>
     </target>
 
     <target name="init-windows" if="${platform::is-win32()}">
@@ -47,7 +48,12 @@ $Id$
 
     <target name="init-load">
         <property name="started"    value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="repo"       value="${path::get-file-name-without-extension(dump-file)}"/>
+        <property name="repo" value="${path::get-file-name-without-extension(dump-file)}"/>
+        <!-- Subnant dump filename format: <repos>.[rX[-Y]].dump[.zip] -->
+        <if test="${string::contains(dump-file,'.')}">
+            <property name="repo" value="${string::substring(dump-file,0,string::index-of(dump-file,'.'))}"/>
+        </if>
+<echo message="repo = ${repo}" level="Warning"/>
         <property name="dump-file"  value="${path::combine(path::combine(dump-root,repo),dump-file)}"/>
         <property name="dump-file"  value="${dump-file+'.dump'}"     if="${file::exists(dump-file+'.dump')}"     unless="${file::exists(dump-file)}"/>
         <property name="dump-file"  value="${dump-file+'.dump.zip'}" if="${file::exists(dump-file+'.dump.zip')}" unless="${file::exists(dump-file)}"/>
@@ -66,8 +72,9 @@ $Id$
             <arg value="${arg-revoption}"/>
             <arg value="${arg-revision}"/>
         </exec>
-        <!-- Remove temporary file if uncompressed -->
-        <delete if="${compressed}" file="${dump-file}"/>   
+        <if test="${compressed and directory::exists(temp-dir)}">
+            <delete dir="${temp-dir}"/>
+        </if>
         <if test="${exec-result=='0'}">
             <echo message="${string::pad-right('Loaded '+repo,60,' ')}(${subnant::format-elapsed-time(started, true)})" file="${subnant-output}" append="true"/>
         </if>
@@ -80,10 +87,10 @@ $Id$
         <property name="started"    value="${datetime::get-ticks(datetime::now())}"/>
         <property name="compressed" value="true"/>
         <property name="zip-file"   value="${dump-file}"/>
-        <property name="dump-dir"   value="${path::combine(path::get-temp-path(),'subnant-load-'+subnant-tstamp+'-'+repo)}"/>
+        <property name="temp-dir"   value="${path::combine(path::get-temp-path(),'subnant-load-'+subnant-tstamp+'-'+repo)}"/>
         <echo message="Uncompressing ${path::get-file-name(dump-file)}" level="Warning"/>
-        <unzip zipfile="${zip-file}" todir="${dump-dir}" failonerror="${failonerror}"/>
-        <property name="dump-file"  value="${path::combine(dump-dir,get-file-name-without-extension(dump-file)}"/>
+        <unzip zipfile="${zip-file}" todir="${temp-dir}" failonerror="${failonerror}"/>
+        <property name="dump-file"  value="${path::combine(temp-dir,path::get-file-name-without-extension(dump-file))}"/>
         <if test="${file::exists(dump-file)}">
             <echo message="${string::pad-right('Uncompressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-length(file::get-length(zip-file),false)+' - '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
         </if>
@@ -97,29 +104,28 @@ $Id$
         <echo level="Warning">
             <![CDATA[load: usage: subnant load -D:dumps=<value> [-D:<option>=<value>]
 
-Load repositories from dumps, uncompressing if dump has .zip extension
+Load repositories from dumps, optionally uncompressing into temporary
+directory (and then removing afterwards) if dump has .zip extension
 
-If repos option is not passed, repository name is assumed to match 
-first part of filename. e.g.:
+Dump filename format is assumed to match: <repos>.[rX[-Y]].dump[.zip]
 
-Note: Dump filename format is assumed to match Subnant dump target
-filename format, a mismatch may cause incremental loads to fail
+Where X is the oldest and Y is the youngest revision, or when X is
+wildcarded using * and Y is not passed, all available dumps for the
+repository are loaded in ascending order
 
 Required:
 dumps           comma separated list of dumps under dump-root to load from *
 
 Options:
-repos           comma separated list of repositories to load into **
-dump-root       repository dump directory ***
-svn-root        repository root directory ***
-svn-bindir      Subversion binary directory ***
+dump-root       repository dump directory **
+svn-root        repository root directory **
+svn-bindir      Subversion binary directory **
 
-*   .dump then .dump.zip tested when extension not supplied
-**  Dumps filename is used if option not set, or if set count must match dumps
-*** If option not set, default value in subnant.config is used
+*  .dump then .dump.zip tested for existance if extension not supplied
+** If option not set, default value in subnant.config is used
 
 Examples:
-subnant load -D:dumps=repo1.dump.zip,repo2.dump
+subnant load -D:dumps=repo1,repo2.dump,repo3.dump.zip
 subnant load -D:dumps=repo1.dump -D:dump-root=/svnroot/dumps
 ]]>
         </echo>
