@@ -11,9 +11,9 @@ $Id$
 
     <description>Subversion administration using NAnt</description>
 
-    <!-- Load homegrown functions and tasks -->
-    <nant buildfile="include/functions.build"/>
-    <nant buildfile="include/tasks.build"/>
+    <!-- Load custom functions and tasks -->
+    <nant buildfile="include/custom-functions.build"/>
+    <nant buildfile="include/custom-tasks.build"/>
 
     <!-- Global properties -->
     <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
