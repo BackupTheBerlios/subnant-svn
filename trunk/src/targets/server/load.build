@@ -47,24 +47,25 @@ $Id$
     </target>
 
     <target name="init-load">
-        <property name="started"    value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="repo" value="${path::get-file-name-without-extension(dump-file)}"/>
+        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
+        <property name="repo"    value="${path::get-file-name-without-extension(dump-file)}"/>
         <!-- Subnant dump filename format: <repos>.[rX[-Y]].dump[.zip] -->
         <if test="${string::contains(dump-file,'.')}">
             <property name="repo" value="${string::substring(dump-file,0,string::index-of(dump-file,'.'))}"/>
         </if>
-<echo message="repo = ${repo}" level="Warning"/>
         <property name="dump-file"  value="${path::combine(path::combine(dump-root,repo),dump-file)}"/>
         <property name="dump-file"  value="${dump-file+'.dump'}"     if="${file::exists(dump-file+'.dump')}"     unless="${file::exists(dump-file)}"/>
         <property name="dump-file"  value="${dump-file+'.dump.zip'}" if="${file::exists(dump-file+'.dump.zip')}" unless="${file::exists(dump-file)}"/>
         <property name="compressed" value="false"/>
+<echo message="repo: ${path::combine(svn-root,repo)}" level="Warning"/>
+<echo message="dump: ${dump-file}" level="Warning"/>
         <call target="uncompress-dump-file" if="${string::to-lower(path::get-extension(dump-file))=='.zip'}"/>
         <fail unless="${file::exists(dump-file)}" message="Dumpfile not found ${dump-file}"/>
     </target>
 
     <target name="svnadmin-load">
         <call target="init-load"/>
-        <echo message="Loading ${repo} into ${path::combine(svn-root,repo)} from ${dump-file}" level="Warning"/>
+        <echo message="Loading ${path::get-file-name(dump-file)}" level="Warning"/>
         <exec program="${load}" failonerror="${failonerror}" resultproperty="load-result">
             <arg value="${svnadmin}"/>
             <arg value="${path::combine(svn-root,repo)}"/>
@@ -89,6 +90,7 @@ $Id$
         <property name="zip-file"   value="${dump-file}"/>
         <property name="temp-dir"   value="${path::combine(path::get-temp-path(),'subnant-load-'+subnant-tstamp+'-'+repo)}"/>
         <echo message="Uncompressing ${path::get-file-name(dump-file)}" level="Warning"/>
+        <mkdir dir="${temp-dir}" unless="${directory::exists(temp-dir)}"/>
         <unzip zipfile="${zip-file}" todir="${temp-dir}" failonerror="${failonerror}"/>
         <property name="dump-file"  value="${path::combine(temp-dir,path::get-file-name-without-extension(dump-file))}"/>
         <if test="${file::exists(dump-file)}">
@@ -121,7 +123,7 @@ dump-root       repository dump directory **
 svn-root        repository root directory **
 svn-bindir      Subversion binary directory **
 
-*  .dump then .dump.zip tested for existance if extension not supplied
+*  Extensions .dump and .dump.zip searched if not supplied
 ** If option not set, default value in subnant.config is used
 
 Examples:
