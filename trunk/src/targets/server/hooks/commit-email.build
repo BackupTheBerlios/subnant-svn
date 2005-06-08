@@ -84,7 +84,7 @@ $Id$
         <if test="${found-subcommand}">
             <foreach item="String" in="${prop-list}" delim=";" property="prop-line">
                 <property name="prop-line" value="${string::trim(prop-line)}"/>
-                <!-- Check again...just in case some of the address have no subcommands-->
+                <!-- Check again...just in case some of the addresses have no subcommands -->
                 <property name="has-subcommands" value="${string::contains(prop-line,'=')}"/>
                 <if test="${not has-subcommands}">
                     <property name="mail-tolist" value="${prop-line}"/>
@@ -98,9 +98,10 @@ $Id$
                     <property name="subcommands" value="${string::replace(prop-line,mail-tolist+'=','')}"/>
                     <!-- Execute svnlook for each subcommand found building list -->
                     <foreach item="String" in="${subcommands}" delim="," property="subcommand">
+                        <property name="valid" value="false"/>
                         <property name="subcommand" value="${string::trim(string::to-lower(subcommand))}"/>
                         <regex pattern="(?'valid'.*(author|changed|date|diff|dirs-changed|history|info|log|tree))" input="${subcommand}" failonerror="false"/>
-                        <if test="${valid==subcommand}">
+                        <if test="${valid==subcommand}" >
                             <property name="prefix" value=""/>
                             <!-- Add capitalised prefix if appropriate -->
                             <property name="prefix" value="${string::to-upper(string::substring(subcommand,0,1))+string::substring(subcommand,1,string::get-length(subcommand)-1)+': '}"
@@ -116,8 +117,8 @@ $Id$
                             </if>
                         </if>
                         <!-- Don't fail on invalid subcommand, instead send email detailing error -->   
-                        <if test="${not valid==subcommand}">
-                            <echo message="Error: Invalid svnlook subcommand: ${subcommand} in property: ${hook-prop}" file="${svnlook-file}" append="true"/>
+                        <if test="${valid!=subcommand}">
+                            <echo message="Warning: ${hook-prop} property has invalid svnlook subcommand '${subcommand}'" file="${svnlook-file}" append="true"/>
                         </if>
                     </foreach>
                     <call target="mail-revision-info"/>
@@ -168,11 +169,11 @@ $Id$
         <echo level="Warning">
             <![CDATA[commit-email: usage: subnant commit-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
 
-Sends email about a committed revision.
+Sends email about a committed revision
 
 Searches for email addresses using Subversion hook:commit-email property
 on directory or parent directories of affected file(s).  Multiple email
-addresses can be stored as line delimited values.
+addresses can be stored in the property as line delimited values
 
 Output generated in email defaults to svnlook diff for revision, but may
 be defined in hook:commit-email for each address using address=subcommand
@@ -181,7 +182,7 @@ syntax, e.g. subnant@example.com=info,diff
 Accepted svnlook subcommands are:
 author, changed, date, diff, dirs-changed, history, info, log, tree
 
-Normally used with post-commit hook, but may be called independently.
+Normally used with post-commit hook, but may be called independently
             
 Required:
 repos            full path to repository
@@ -189,7 +190,7 @@ rev              revision number (must exist in repository)
 
 Options:
 no-diff-deleted  set true to not print differences for deleted files
-hook-prop        search for another property (not hook:commit-email)
+hook-prop        search for another property (i.e. not hook:commit-email)
 
 Examples:
 subnant commit-email -D:repos=/path/to/repo -D:rev=1 -D:no-diff-deleted=true

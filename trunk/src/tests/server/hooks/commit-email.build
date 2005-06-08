@@ -40,7 +40,7 @@ $Id$
         <nant buildfile="${subnant-root}/src/targets/test.build" target="propset">
             <properties>
                 <property name="propname" value="hook:commit-email"/>
-                <property name="propval"  value="${mail-tolist} = author,changed , date ,diff,dirs-changed,history,info,log,tree,bogus"/>
+                <property name="propval"  value="${mail-tolist} = author,date , changed ,diff,dirs-changed,history,info,log,tree,bogus"/>
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
