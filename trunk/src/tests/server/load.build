@@ -10,8 +10,7 @@ $Id$
 <project name="test-load" default="test-load">
 
     <target name="test-load">
-        <!-- Test load from standard dump: create->checkout->commit->dump->create->load->verify -->
-        <echo message="[Test load from standard dump]" level="Warning"/>
+        <log-echo message="[Test load from standard dump]" file="${subnant-output}"/>
         <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create">
             <properties>
                 <property name="no-hooks"    value="true"/>
@@ -40,8 +39,7 @@ $Id$
         </nant>
         <nant buildfile="${subnant-root}/src/targets/server/verify.build" target="verify"/>
 
-        <!-- Test load from compressed dump -->
-        <echo message="[Test load from compressed dump]" level="Warning"/>
+        <log-echo message="[Test load from compressed dump]" file="${subnant-output}"/>
         <echo message="Deleting ${repos}" level="Warning"/>
         <delete dir="${path::combine(svn-root,repos)}"/>
         <delete dir="${path::combine(dump-root,repos)}"/>
@@ -73,8 +71,7 @@ $Id$
         </nant>
         <nant buildfile="${subnant-root}/src/targets/server/verify.build" target="verify"/>
 
-        <!-- Test load from incremental dump -->
-        <echo message="[Test load from incremental dump]" level="Warning"/>
+        <log-echo message="[Test load from incremental dump]" file="${subnant-output}"/>
         <echo message="Deleting ${repos}" level="Warning"/>
         <delete dir="${path::combine(svn-root,repos)}"/>
         <delete dir="${path::combine(dump-root,repos)}"/>

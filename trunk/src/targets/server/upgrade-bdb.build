@@ -78,13 +78,11 @@ $Id$
             <loadfile file="${svnadmin-file}" property="unused-dblogs" if="${file::exists(svnadmin-file)}"/>
             <property name="unused-dblogs" value="${string::trim(unused-dblogs)}" />
             <if test="${string::get-length(unused-dblogs)>0}">
-                <echo message="${string::pad-right('Unused dblogs:',60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
-                <echo message="${unused-dblogs}" file="${subnant-output}" append="true"/>
-                <echo message="${unused-dblogs}" level="Warning"/>
+                <log-echo message="${string::pad-right('Unused dblogs:',60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}"/>
+                <log-echo message="${unused-dblogs}" file="${subnant-output}"/>
             </if>
             <if test="${string::get-length(unused-dblogs)==0}">
-                <echo message="${string::pad-right('No unused dblogs found in '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
-                <echo message="No unused dblogs found in ${repo}" level="Warning"/>
+                <log-echo message="${string::pad-right('No unused dblogs found in '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}"/>
             </if>
         </if>
         <delete file="${svnadmin-file}" if="${file::exists(svnadmin-file)}"/>

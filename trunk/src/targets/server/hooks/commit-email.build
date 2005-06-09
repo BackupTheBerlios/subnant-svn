@@ -126,8 +126,7 @@ $Id$
             </foreach>
         </if>
         <if test="${string::get-length(prop-list)==0}">
-            <echo message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)" file="${subnant-output}" append="true"/>
-            <echo message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)" level="Warning"/>
+            <log-echo message="Commit-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)" file="${subnant-output}"/>
         </if>
     </target>
 
@@ -159,8 +158,7 @@ $Id$
             <arg value="--no-diff-delete" if="${subcommand=='diff' and property::exists('no-diff-delete') and string::trim(string::to-lower(no-diff-delete))=='true'}"/>
         </exec>
         <if test="${svnlook-result!='0' and failonerror!='false'}">
-            <echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}" append="true"/>
-            <echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" level="Warning"/>
+            <log-echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}"/>
         </if>
         <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***"/>
     </target>

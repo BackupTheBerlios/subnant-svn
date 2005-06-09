@@ -10,7 +10,7 @@ $Id$
 <project name="subnant-functions" default="default" basedir=".">
 
     <target name="default">
-        <echo message="Loaded subnant custom functions"/>
+        <echo message="Loaded subnant custom functions" level="Info"/>
     </target>
 
     <!-- Custom functions -->

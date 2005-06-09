@@ -36,8 +36,7 @@ $Id$
             <property name="propval"  value="${bugtraq-logregex}"/>
             <!-- dont set logregex if nothing entered -->
             <call target="propset" if="${string::get-length(bugtraq-logregex)!=0}"/>
-            <echo message="Set bugtraq properties in ${path}" file="${subnant-output}" append="true"/>
-            <echo message="Set bugtraq properties in ${path::get-file-name(path)}" level="Warning"/>
+            <log-echo message="Set bugtraq properties in ${path}" file="${subnant-output}"/>
         </foreach>
     </target>
    
@@ -69,8 +68,7 @@ $Id$
             <arg value="${path}"/>
         </exec>
         <if test="${exec-result!='0'}">
-            <echo message="*** ERROR setting bugtraq property ${propname} to ${propval}" file="${subnant-output}" append="true"/>
-            <echo message="*** ERROR setting bugtraq property ${propname} to ${propval}" level="Warning"/>
+            <log-echo message="*** ERROR setting bugtraq property ${propname} to ${propval}" file="${subnant-output}"/>
         </if>
     </target>
 

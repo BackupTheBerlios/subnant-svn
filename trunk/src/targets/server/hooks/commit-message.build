@@ -17,8 +17,7 @@ $Id$
             <arg value="${txn}"/>
         </exec>
         <if test="${svnlook-result!='0' and failonerror!='false'}">
-            <echo message="*** ERROR executing svnlook log on repository ${repos} ***" file="${subnant-output}" append="true"/>
-            <echo message="*** ERROR executing svnlook log on repository ${repos} ***" level="Warning"/>
+            <log-echo message="*** ERROR executing svnlook log on repository ${repos} ***" file="${subnant-output}"/>
         </if>
         <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook log output file not found: ${exec-output} ***"/>
         <loadfile file="${exec-output}" property="log-message"/>
