@@ -17,7 +17,7 @@ $Id$
 
     <!-- Global properties -->
     <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
-    <!-- Use timestamp to greatly reduce risk of simultaneous calls using same log|result|output files -->
+    <!-- Use timestamp to reduce risk of concurrent scripts using same log|result|output files -->
     <tstamp property="subnant-tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
     <property name="nant.onsuccess"  value="on-success"/>
     <property name="nant.onfailure"  value="on-failure"/>
@@ -93,12 +93,12 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <!-- Repository hooks targets -->
-    <target name="commit-access" description="Control access to repository using pre-commit hook"
+    <target name="commit-access" description="::TODO:: Control access to repository using pre-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/commit-access.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="commit-allower" description="Control access to repository using start-commit hook"
+    <target name="commit-allower" description="::TODO:: Control access to repository using start-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/commit-allower.build" target="${subnant::get-target()}"/>
     </target>
@@ -113,12 +113,12 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/server/hooks/commit-message.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="propchange-access" description="Control revision property access using pre-revprop hook"
+    <target name="propchange-access" description="::TODO:: Control revision property access using pre-revprop hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/propchange-access.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="propchange-email" description="Email revision property changes using post-revprop hook"
+    <target name="propchange-email" description="::TODO:: Email revision property changes using post-revprop hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/propchange-email.build" target="${subnant::get-target()}"/>
     </target>

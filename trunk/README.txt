@@ -28,7 +28,7 @@ Goals:
 
 Prerequisites:
 
-  * .NET runtime >= 1.1 or Mono runtime >= 1.1.6
+  * .NET runtime >= 1.1 or Mono runtime >= 1.1.8
 
   * NAnt and NAntContrib >= 0.85rc4
 

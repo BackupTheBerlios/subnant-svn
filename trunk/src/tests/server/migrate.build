@@ -9,9 +9,29 @@ $Id$
 -->
 <project name="test-migrate" default="test-migrate">
 
-    <target name="test-migrate">
-        <echo message="::TODO::" level="Warning"/>   
-        <!--<nant buildfile="../../targets/server/migrate.build" target="migrate"/>-->
+    <target name="test-migrate" depends="init">
+        <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create">
+            <properties>
+                <property name="no-hooks"    value="true"/>
+                <property name="no-svnserve" value="true"/>
+            </properties>
+        </nant>
+        <nant buildfile="${subnant-root}/src/targets/server/migrate.build" target="migrate">
+            <properties>
+                <property name="to-svn-root" value="${to-test-root}"/>
+                <property name="no-hooks"    value="true"/>
+                <property name="no-svnserve" value="true"/>
+            </properties>
+        </nant>
     </target>
 
+    <target name="init">
+        <property name="to-test-root" value="${path::combine(test-root,'repos-migrated')}"/>
+        <mkdir dir="${to-test-root}" unless="${directory::exists(to-test-root)}"/>   
+        <if test="${directory::exists(path::combine(to-test-root,repos))}">
+            <echo message="Deleting ${repos} (to-svn-root)" level="Warning"/>
+            <delete dir="${path::combine(to-test-root,repos)}"/>
+        </if>
+    </target>
+   
 </project>

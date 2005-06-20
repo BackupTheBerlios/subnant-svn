@@ -60,7 +60,6 @@ $Id$
         <log-echo message="[Testing ${test-fs} repository]" file="${subnant-output}"/>
         <property name="repos"      value="${'test-repo-'+test-fs}"/>
         <property name="fs-type"    value="${test-fs}"/>
-        <property name="test-repos" value="${path::combine(svn-root,repos)}"/>
         <property name="wc"         value="${path::combine(test-root,'wc-'+test-fs)}"/>
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
@@ -122,12 +121,19 @@ $Id$
             <property name="build-path" value="../tests/server/hooks"/>
         </if>
         <fail if="${build-path==''}" message="Unknown test target: ${test-target}"/>
-        <delete dir="${path::combine(svn-root,repos)}" if="${directory::exists(path::combine(svn-root,repos))}"/>
+        <if test="${directory::exists(path::combine(svn-root,repos))}">
+            <echo message="Deleting ${repos}" level="Warning"/>
+            <delete dir="${path::combine(svn-root,repos)}"/>
+        </if>
         <nant buildfile="${build-path}/${test-target}.build" target="test-${test-target}"/>
     </target>
 
     <target name="create-workingcopy">
-        <if test="${directory::exists(test-root) and directory::exists(path::combine(test-root,wc))==false}">
+        <if test="${directory::exists(test-root)}">
+            <if test="${directory::exists(path::combine(test-root,wc))}">
+                <echo message="Deleting ${wc}" level="Warning"/>
+                <delete dir="${path::combine(test-root,wc)}"/>
+            </if>
             <mkdir dir="${wc}"/>
             <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
                 <arg value="checkout"/>
@@ -158,46 +164,8 @@ $Id$
         </if>
     </target>
 
-    <target name="propset">
-        <exec program="${svn}" failonerror="${failonerror}" resultproperty="exec-result">
-            <arg value="propset"/>
-            <arg value="${propname}"/>
-            <arg value="${propval}"/>
-            <arg value="${wc}"/>
-        </exec>
-        <if test="${exec-result=='0'}">
-            <log-echo message="Set ${propname} property to ${propval}" file="${subnant-output}"/>
-        </if>
-        <if test="${exec-result!='0'}">
-            <log-echo message="*** ERROR setting property ${propname} to ${propval} in ${wc} ***" file="${subnant-output}"/>
-        </if>
-    </target>
-
-    <target name="proplist">
-        <property name="svnlook-file" value="${exec-output}-svnlook-result"/>
-        <exec program="${svnlook}" failonerror="${failonerror}" output="${svnlook-file}" resultproperty="exec-result">
-            <arg value="proplist"/>
-            <arg value="${path::combine(svn-root,repos)}"/>
-            <arg value="/"/>
-        </exec>
-        <if test="${exec-result=='0'}">
-            <loadfile file="${svnlook-file}" property="proplist"/>
-            <property name="proplist" value="${string::trim-end(proplist)}"/>
-            <if test="${string::contains(proplist,propfind)}">
-                <log-echo message="Found ${propfind} in property list" file="${subnant-output}"/>
-            </if>
-            <if test="${not string::contains(proplist,propfind)}">
-                <fail message="*** ERROR ${propfind} not found in property list ***"/>
-            </if>
-        </if>
-        <delete file="${svnlook-file}" if="${file::exists(svnlook-file)}"/>
-        <if test="${exec-result!='0'}">
-            <fail message="*** ERROR getting property list ***"/>
-        </if>
-    </target>
-
     <target name="commit-workingcopy">
-        <echo message='Committing with log "${test-message}"' level="Warning"/>
+        <log-echo message='Committing with log "${test-message}"' file="${subnant-output}"/>
         <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
             <arg line='commit --message "${test-message}"'/>
         </exec>
@@ -215,17 +183,58 @@ $Id$
         </if>
     </target>
 
+    <target name="propset">
+        <exec program="${svn}" failonerror="${failonerror}" resultproperty="exec-result">
+            <arg value="propset"/>
+            <arg value="${propname}"/>
+            <arg value="${propval}"/>
+            <arg value="${wc}"/>
+        </exec>
+        <if test="${exec-result=='0'}">
+            <log-echo message="Set ${propname} property to ${propval}" file="${subnant-output}"/>
+        </if>
+        <if test="${exec-result!='0'}">
+            <log-echo message="*** ERROR setting property ${propname} to ${propval} in ${wc} ***" file="${subnant-output}"/>
+        </if>
+    </target>
+
+    <target name="proplist">
+        <exec program="${svnlook}" output="${exec-output}" failonerror="true" resultproperty="svnlook-result">
+            <arg value="proplist"/>
+            <arg value="${path::combine(svn-root,repos)}"/>
+            <arg value="/"/>
+        </exec>
+        <if test="${svnlook-result=='0' and file::exists(exec-output)}">
+            <loadfile file="${exec-output}" property="proplist"/>
+            <property name="proplist" value="${string::trim-end(proplist)}"/>
+            <if test="${string::contains(proplist,propfind)}">
+                <log-echo message="Found ${propfind} in property list" file="${subnant-output}"/>
+            </if>
+            <if test="${not string::contains(proplist,propfind)}">
+                <fail message="*** ERROR ${propfind} not found in property list ***"/>
+            </if>
+        </if>
+        <if test="${svnlook-result!='0' or file::exists(exec-output)==false}">
+            <fail message="*** ERROR getting property list from ${path::combine(svn-root,repos)} ***"/>
+        </if>
+    </target>
+
     <target name="search-log">
-        <exec program="${svnlook}" output="${exec-output}" append="false" failonerror="${failonerror}" resultproperty="svnlook-result">
+        <exec program="${svnlook}" output="${exec-output}" failonerror="true" resultproperty="svnlook-result">
             <arg value="log"/>
             <arg value="${path::combine(svn-root,repos)}"/>
         </exec>
-        <loadfile file="${exec-output}" property="test-output"/>
-        <if test="${string::contains(test-output,test-message)}">
-            <log-echo message='Found log "${test-message}" in repository' file="${subnant-output}"/>
+        <if test="${svnlook-result=='0' and file::exists(exec-output)}">
+            <loadfile file="${exec-output}" property="test-output"/>
+            <if test="${string::contains(test-output,test-message)}">
+                <log-echo message='Found log "${test-message}" in repository' file="${subnant-output}"/>
+            </if>
+            <if test="${not string::contains(test-output,test-message)}">
+                <fail message='Did not find log "${test-message}" in repository'/>
+            </if>
         </if>
-        <if test="${not string::contains(test-output,test-message)}">
-            <fail message='Did not find log "${test-message}" in repository'/>
+        <if test="${svnlook-result!='0' or file::exists(exec-output)==false}">
+            <fail message="*** ERROR searching log from ${path::combine(svn-root,repos)} ***"/>
         </if>
     </target>
 
@@ -242,6 +251,7 @@ propchange-access, propchange-email
 
 Options:
 target          comma separated list of test targets *
+test-root       override default temporary test root directory
 keep-test       set true to keep data created by test
 skip-bdb        set true to not test bdb style repository
 skip-fsfs       set true to not test fsfs style repository
@@ -250,8 +260,8 @@ skip-fsfs       set true to not test fsfs style repository
 
 Examples:
 subnant test
-subnant test -D:target=create,verify,dump
-subnant test -D:keep-test=true -D:skip-bdb=true
+subnant test -D:target=create,verify,dump -D:skip-bdb=true
+subnant test -D:keep-test=true -D:test-root=C:\test-root -D:sendmail=true
 ]]>
         </echo>
     </target>

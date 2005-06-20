@@ -10,7 +10,7 @@ $Id$
 <project name="create" default="create">
 
     <target name="create" depends="init">
-        <foreach item="String" delim="," in="${repos}" property="repo">
+        <foreach item="String" delim="," in="${create-repos}" property="repo">
             <call target="svnadmin-create"/>
         </foreach>
         <if test="${create-ok!='true'}">
@@ -21,6 +21,7 @@ $Id$
     <target name="init">
         <property name="create-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="create-ok"      value="true"/>
+        <property name="create-repos"   value="${repos}" unless="${property::exists('create-repos')}"/>
         <!-- Assign config values to properties so long as they haven't been passed as a command-line parameter -->
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/fs-type"    property="fs-type"    unless="${property::exists('fs-type')}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/config-dir" property="config-dir" unless="${property::exists('config-dir')}"/>

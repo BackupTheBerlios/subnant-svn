@@ -10,9 +10,18 @@ $Id$
 <project name="migrate" default="migrate">
 
     <target name="migrate" depends="init">
-        <foreach item="String" delim="," in="${migrate-repos}" property="repos">
-            <nant buildfile="verify.build" target="verify"/>
-            <nant buildfile="dump.build"   target="dump"/>
+        <foreach item="String" delim="," in="${migrate-repos}" property="repo">
+            <nant buildfile="verify.build" target="verify">
+                <properties>
+                    <property name="verify-repos" value="${repo}"/>
+                </properties>
+            </nant>
+            <nant buildfile="dump.build" target="dump">
+                <properties>
+                    <property name="dump-repos" value="${repo}"/>   
+                    <property name="compress"   value="false"/>   
+                </properties>
+            </nant>
             <nant buildfile="create.build" target="create">
                 <properties>
                     <property name="svn-root"   value="${to-svn-root}"/>
@@ -28,32 +37,32 @@ $Id$
             </nant>
             <nant buildfile="verify.build" target="verify">
                 <properties>
-                    <property name="svn-root"   value="${to-svn-root}"/>
-                    <property name="svn-bindir" value="${to-svn-bindir}"/>
+                    <property name="verify-repos" value="${repo}"/>
+                    <property name="svn-root"     value="${to-svn-root}"/>
+                    <property name="svn-bindir"   value="${to-svn-bindir}"/>
                 </properties>
             </nant>
             <echo message="::TODO:: Copy existing hooks from old repos into new repos (overwrite default hooks)" level="Warning"/>
         </foreach>
-        <echo message="${string::pad-right('Migration complete',60,' ')}(${subnant::format-elapsed-time(migration-started, true)})" file="${subnant-output}" append="true"/>
+        <log-echo message="${string::pad-right('Migration complete',60,' ')}(${subnant::format-elapsed-time(migrate-started, true)})" file="${subnant-output}"/>
      </target>
 
     <target name="init">
-        <property name="migration-started" value="${datetime::get-ticks(datetime(now())}"/>
+        <property name="migrate-started" value="${datetime::get-ticks(datetime::now())}"/>
         <fail message="to-svn-root not set" unless="${property::exists('to-svn-root')}"/>
         <fail message="to-svn-root doesn't exist: ${to-svn-root}" unless="${directory::exists(to-svn-root)}"/>
-        <!-- Use default svn-bindir unless specifed, then verify it exists -->
         <property name="to-svn-bindir" value="${svn-bindir}" unless="${property::exists('to-svn-bindir')}"/>
         <fail message="to-svn-bindir doesn't exist: ${to-svn-bindir}" unless="${directory::exists(to-svn-bindir)}"/>
-        <!-- Take a copy of repos as repos is used down the chain (create,load,verify) -->
-        <property name="migrate-repos" value="${repos}"/>
+        <property name="migrate-repos" value="${repos}" unless="${property::exists('migrate-repos')}"/>
+        <property name="no-total" value="true"/>
     </target>
 
     <target name="help">
         <echo level="Warning">
             <![CDATA[migrate: usage: subnant migrate -D:to-svn-root=</path/to-svn-root> [-D:<option>=<value>]
 
-Migrate repositories from one location to another using
-Subnant targets: backup (hotcopy,dump,verify), create, load and verify
+Migrate some or all repositories by chaining Subnant targets:
+verify -> dump -> create -> load -> verify
 
 Source repositories are not removed unless delete-source is set true
 

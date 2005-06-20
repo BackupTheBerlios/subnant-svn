@@ -27,6 +27,7 @@ $Id$
         <property name="load-ok"    value="true"/>
         <property name="load-dumps" value="${dumps}" unless="${property::exists('load-dumps')}"/>   
         <property name="rev"        value="false"    unless="${property::exists('rev')}"/>
+        <property name="no-total"   value="false"    unless="${property::exists('no-total')}"/>
         <if test="${rev=='false'}">
             <property name="arg-revoption" value=""/>
             <property name="arg-revision"  value=""/>
@@ -76,11 +77,12 @@ $Id$
         <if test="${compressed and directory::exists(temp-dir)}">
             <delete dir="${temp-dir}"/>
         </if>
-        <if test="${exec-result=='0'}">
+        <if test="${load-result=='0'}">
             <echo message="${string::pad-right('Loaded '+repo,60,' ')}(${subnant::format-elapsed-time(started, true)})" file="${subnant-output}" append="true"/>
         </if>
-        <if test="${exec-result!='0'}">
+        <if test="${load-result!='0'}">
             <echo message="${'*** ERROR loading '+repo+' ***'}" file="${subnant-output}" append="true"/>
+            <property name="load-ok" value="false"/>
         </if>
     </target>
 
