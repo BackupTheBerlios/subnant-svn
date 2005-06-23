@@ -54,6 +54,10 @@ $Id$
         <if test="${string::contains(dump-file,'.')}">
             <property name="repo" value="${string::substring(dump-file,0,string::index-of(dump-file,'.'))}"/>
         </if>
+        <!-- ::TODO:: Create fileset to cater for wildcards for r* dumps -->
+        <if test="${string::contains(dump-file,'.r*.')}">
+            <fail message="::TODO:: Revision wildcards not yet implemented"/>
+        </if>
         <property name="dump-file"  value="${path::combine(path::combine(dump-root,repo),dump-file)}"/>
         <property name="dump-file"  value="${dump-file+'.dump'}"     if="${file::exists(dump-file+'.dump')}"     unless="${file::exists(dump-file)}"/>
         <property name="dump-file"  value="${dump-file+'.dump.zip'}" if="${file::exists(dump-file+'.dump.zip')}" unless="${file::exists(dump-file)}"/>
@@ -114,8 +118,8 @@ directory (and then removing afterwards) if dump has .zip extension
 Dump filename format is assumed to match: <repos>.[rX[-Y]].dump[.zip]
 
 Where X is the oldest and Y is the youngest revision, or when X is
-wildcarded using * and Y is not passed, all available dumps for the
-repository are loaded in ascending order
+wildcarded using * and Y is not passed, all dumps found for the
+repository are loaded in ascending revision order
 
 Required:
 dumps           comma separated list of dumps under dump-root to load from *
@@ -134,5 +138,5 @@ subnant load -D:dumps=repo1.dump -D:dump-root=/svnroot/dumps
 ]]>
         </echo>
     </target>
-   
+
 </project>
