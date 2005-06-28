@@ -7,10 +7,10 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="subnant-functions" default="default" basedir=".">
+<project name="custom-functions" default="default" basedir=".">
 
     <target name="default">
-        <echo message="Loaded subnant custom functions" level="Info"/>
+        <echo message="Loaded custom functions" level="Info"/>
     </target>
 
     <!-- Custom functions -->
