@@ -45,12 +45,10 @@ $Id$
         <property name="dump-deltas"      value="${string::to-lower(string::trim(dump-deltas))}"/>
         <!-- Assign switches -->
         <if test="${rev=='false'}">
-            <property name="arg-revoption" value=""/>
             <property name="arg-revision"  value=""/>
         </if>
         <if test="${rev!='false'}">
-            <property name="arg-revoption" value="--revision"/>
-            <property name="arg-revision"  value="${rev}"/>
+            <property name="arg-revision"  value="--revision ${rev}"/>
         </if>
         <property name="arg-incremental"  value="--incremental" if="${dump-incremental=='true'}"/>
         <property name="arg-deltas"       value="--deltas"      if="${dump-deltas=='true'}"/>
@@ -62,11 +60,15 @@ $Id$
     </target>
 
     <target name="init-windows" if="${platform::is-win32()}">
-        <property name="dump" value="${path::combine(subnant-root,'src\include\dump.bat')}"/>
+        <property name="shell"      value="CMD"/>
+        <property name="line-start" value='/S /C " '/>
+        <property name="line-end"   value=' "'/>
     </target>
 
     <target name="init-linux" if="${platform::is-unix()}">
-        <property name="dump" value="${path::combine(subnant-root,'src/include/dump.sh')}"/>
+        <property name="shell"      value="sh"/>
+        <property name="line-start" value=""/>
+        <property name="line-end"   value=""/>
     </target>
 
     <target name="init-dump">
@@ -74,22 +76,16 @@ $Id$
         <property name="repo"      value="${subnant::return-directory-name(repo)}"/>
         <property name="dump-dir"  value="${dump-root+'/'+repo}"/>
         <property name="dump-file" value="${path::combine(dump-dir,repo)}"/>
-        <property name="dump-file" if="${rev!='false'}" value="${dump-file+'.r'+string::replace(arg-revision,':','-')}"/>
+        <property name="dump-file" if="${rev!='false'}" value="${dump-file+'.r'+string::replace(rev,':','-')}"/>
         <property name="dump-file" value="${dump-file+'.dump'}"/>
         <mkdir dir="${dump-dir}" unless="${directory::exists(dump-dir)}"/>
     </target>
 
     <target name="svnadmin-dump">
         <call target="init-dump"/>
-        <echo level="Warning" message="Dumping ${repo} ${string::trim(arg-revoption+' '+arg-revision+' '+arg-incremental+' '+arg-deltas)}"/>
-        <exec program="${dump}" failonerror="${failonerror}" resultproperty="dump-result">
-            <arg value="${svnadmin}"/>
-            <arg value="${path::combine(svn-root,repo)}"/>
-            <arg value="${dump-file}"/>
-            <arg value="${arg-revoption}"/>
-            <arg value="${arg-revision}"/>
-            <arg value="${arg-incremental}"/>
-            <arg value="${arg-deltas}"/>
+        <echo level="Warning" message="Dumping ${repo} ${string::trim(arg-revision+' '+arg-incremental+' '+arg-deltas)}"/>
+        <exec program="${shell}" failonerror="${failonerror}" resultproperty="dump-result">
+            <arg line='${line-start}"${svnadmin}" dump "${path::combine(svn-root,repo)}" &gt; "${dump-file}" ${arg-revision} ${arg-incremental} ${arg-deltas}${line-end}'/>
         </exec>
         <echo file="${exec-result}" message="${dump-result}" append="false"/>
         <if test="${dump-result=='0' and file::exists(dump-file)}">

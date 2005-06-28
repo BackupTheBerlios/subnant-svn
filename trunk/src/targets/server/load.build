@@ -28,23 +28,25 @@ $Id$
         <property name="load-dumps" value="${dumps}" unless="${property::exists('load-dumps')}"/>   
         <property name="rev"        value="false"    unless="${property::exists('rev')}"/>
         <property name="no-total"   value="false"    unless="${property::exists('no-total')}"/>
+        <property name="temp-dir"   value=""/>
         <if test="${rev=='false'}">
-            <property name="arg-revoption" value=""/>
-            <property name="arg-revision"  value=""/>
+            <property name="arg-revision" value=""/>
         </if>
         <if test="${rev!='false'}">
-            <property name="arg-revoption" value="--revision"/>
-            <property name="arg-revision"  value="${rev}"/>
+            <property name="arg-revision" value="--revision ${rev}"/>
         </if>
-        <property name="temp-dir" value=""/>
     </target>
 
     <target name="init-windows" if="${platform::is-win32()}">
-        <property name="load" value="${path::combine(subnant-root,'src\include\load.bat')}"/>
+        <property name="shell"      value="CMD"/>
+        <property name="line-start" value='/S /C " '/>
+        <property name="line-end"   value=' "'/>
     </target>
 
     <target name="init-linux" if="${platform::is-unix()}">
-        <property name="load" value="${path::combine(subnant-root,'src/include/load.sh')}"/>
+        <property name="shell"      value="sh"/>
+        <property name="line-start" value=""/>
+        <property name="line-end"   value=""/>
     </target>
 
     <target name="init-load">
@@ -70,13 +72,9 @@ $Id$
 
     <target name="svnadmin-load">
         <call target="init-load"/>
-        <echo message="Loading ${path::get-file-name(dump-file)}" level="Warning"/>
-        <exec program="${load}" failonerror="${failonerror}" resultproperty="load-result">
-            <arg value="${svnadmin}"/>
-            <arg value="${path::combine(svn-root,repo)}"/>
-            <arg value="${dump-file}"/>
-            <arg value="${arg-revoption}"/>
-            <arg value="${arg-revision}"/>
+        <echo message="Loading ${path::get-file-name(dump-file)} ${string::trim(arg-revision)}" level="Warning"/>
+        <exec program="${shell}" failonerror="${failonerror}" resultproperty="load-result">
+            <arg line='${line-start}"${svnadmin}" load "${path::combine(svn-root,repo)}" &lt; "${dump-file}" ${arg-revision}${line-end}'/>
         </exec>
         <if test="${compressed and directory::exists(temp-dir)}">
             <delete dir="${temp-dir}"/>
