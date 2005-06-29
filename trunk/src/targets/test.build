@@ -10,11 +10,11 @@ $Id$
 <project name="test" default="test">
 
     <target name="test" depends="init">
-        <if test="${skip-fsfs!='true'}">
+        <if test="${string::to-lower(skip-fsfs)!='true'}">
             <property name="test-fs" value="fsfs"/>
             <call target="test-repo"/>
         </if>
-        <if test="${skip-bdb!='true'}">
+        <if test="${string::to-lower(skip-bdb)!='true'}">
             <property name="test-fs" value="bdb"/>
             <call target="test-repo"/>
         </if>
@@ -64,7 +64,7 @@ $Id$
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
                 <property name="test-target" value="${string::to-lower(string::trim(test-target))}"/>
-                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|propchange-(access|email)|upgrade-bdb|verify))" input="${test-target}"/>
+                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|revprop-(access|email)|upgrade-bdb|verify))" input="${test-target}"/>
                 <call target="run-test"/>
             </foreach>
         </if>
@@ -96,9 +96,9 @@ $Id$
             <call target="run-test"/>
             <property name="test-target" value="commit-message"/>
             <call target="run-test"/>
-            <property name="test-target" value="propchange-access"/>
+            <property name="test-target" value="revprop-access"/>
             <call target="run-test"/>
-            <property name="test-target" value="propchange-email"/>
+            <property name="test-target" value="revprop-email"/>
             <call target="run-test"/>
         </if>
         <log-echo message="" file="${subnant-output}"/>
@@ -110,15 +110,15 @@ $Id$
         <property name="build-path" value=""/>
         <!-- Client targets: bugtraq -->
         <if test="${test-target=='bugtraq'}">
-            <property name="build-path" value="../tests/client"/>
+            <property name="build-path" value="${subnant-root}/src/tests/client"/>
         </if>
         <!-- Server targets: create,dump,hotcopy,load,migrate,upgrade-bdb,verify -->
         <if test="${test-target=='create' or test-target=='dump' or test-target=='hotcopy' or test-target=='load' or test-target=='migrate' or test-target=='upgrade-bdb' or test-target=='verify'}">
-            <property name="build-path" value="../tests/server"/>
+            <property name="build-path" value="${subnant-root}/src/tests/server"/>
         </if>
-        <!-- Hook targets: commit-access,commit-allower,commit-email,commit-message,propchange-access,propchange-email -->
-        <if test="${test-target=='commit-access' or test-target=='commit-allower' or test-target=='commit-email' or test-target=='commit-message' or test-target=='propchange-access' or test-target=='propchange-email'}">
-            <property name="build-path" value="../tests/server/hooks"/>
+        <!-- Hook targets: commit-access,commit-allower,commit-email,commit-message,revprop-access,revprop-email -->
+        <if test="${test-target=='commit-access' or test-target=='commit-allower' or test-target=='commit-email' or test-target=='commit-message' or test-target=='revprop-access' or test-target=='revprop-email'}">
+            <property name="build-path" value="${subnant-root}/src/tests/server/hooks"/>
         </if>
         <fail if="${build-path==''}" message="Unknown test target: ${test-target}"/>
         <if test="${directory::exists(path::combine(svn-root,repos))}">
@@ -126,6 +126,24 @@ $Id$
             <delete dir="${path::combine(svn-root,repos)}"/>
         </if>
         <nant buildfile="${build-path}/${test-target}.build" target="test-${test-target}"/>
+    </target>
+
+    <target name="create-test-environment">
+        <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create">
+            <properties>
+                <property name="no-hooks"    value="true"/>
+                <property name="no-svnserve" value="true"/>
+            </properties>
+        </nant>
+        <call target="create-workingcopy"/>
+        <property name="commit-should-pass" value="true"/>
+        <echo message="Subnant test file - first edit" file="${path::combine(wc,'test.txt')}"/>
+        <exec program="${svn}" commandline="add test.txt" workingdir="${wc}" failonerror="true"/>
+        <property name="test-message" value="added test file to working copy"/>
+        <call target="commit-workingcopy"/>
+        <echo message="Subnant test file - second edit" file="${path::combine(wc,'test.txt')}"/>
+        <property name="test-message" value="modified test file in working copy"/>
+        <call target="commit-workingcopy"/>
     </target>
 
     <target name="create-workingcopy">
@@ -247,7 +265,7 @@ pass rudimentary testing.  Accepted test targets are:
 
 bugtraq, create, dump, hotcopy, load, migrate, verify,
 commit-access, commit-allower, commit-email, commit-message,
-propchange-access, propchange-email
+revprop-access, revprop-email
 
 Options:
 target          comma separated list of test targets *

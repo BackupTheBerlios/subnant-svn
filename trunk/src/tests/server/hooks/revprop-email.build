@@ -7,9 +7,9 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="test-propchange-email" default="test-propchange-email">
+<project name="test-revprop-email" default="test-revprop-email">
 
-    <target name="test-propchange-email">
+    <target name="test-revprop-email">
         <echo message="::TODO::" level="Warning"/>   
     </target>
 

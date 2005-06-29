@@ -7,10 +7,10 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="propchange-access" default="propchange-access">
+<project name="revprop-access" default="revprop-access">
 
-    <target name="propchange-access" depends="init">
-        <echo file="${subnant-output}" append="true" message="::TODO:: Propchange access"/>
+    <target name="revprop-access" depends="init">
+        <echo file="${subnant-output}" append="true" message="::TODO:: revprop access"/>
     </target>
    
     <target name="init">
@@ -18,7 +18,7 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[propchange-access: usage: subnant propchange-access [-D:<option>=<value>]
+            <![CDATA[revprop-access: usage: subnant revprop-access [-D:<option>=<value>]
 
 Control access to revision property changes using pre-revprop-change hook 
 

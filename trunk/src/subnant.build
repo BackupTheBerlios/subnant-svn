@@ -113,14 +113,14 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/server/hooks/commit-message.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="propchange-access" description="::TODO:: Control revision property access using pre-revprop hook"
+    <target name="revprop-access" description="::TODO:: Control revision property access using pre-revprop-change hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/server/hooks/propchange-access.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/revprop-access.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="propchange-email" description="::TODO:: Email revision property changes using post-revprop hook"
+    <target name="revprop-email" description="::TODO:: Email revision property changes using post-revprop-change hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/server/hooks/propchange-email.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/revprop-email.build" target="${subnant::get-target()}"/>
     </target>
 
     <!-- Working copy (client) targets -->
