@@ -41,4 +41,4 @@
 #
 # Visit http://subnant.berlios.de for details on command below
 
-subnant propchange-access -D:repos="$1" -D:rev="$2" -D:user="$3" -D:propname="$4"
+subnant revprop-access -D:repos="$1" -D:rev="$2" -D:user="$3" -D:propname="$4"
