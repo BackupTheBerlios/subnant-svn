@@ -24,13 +24,14 @@ $Id$
             </nant>
             <nant buildfile="create.build" target="create">
                 <properties>
-                    <property name="svn-root"   value="${to-svn-root}"/>
-                    <property name="svn-bindir" value="${to-svn-bindir}"/>
+                    <property name="create-repos" value="${repo}"/>   
+                    <property name="svn-root"     value="${to-svn-root}"/>
+                    <property name="svn-bindir"   value="${to-svn-bindir}"/>
                 </properties>
             </nant>
             <nant buildfile="load.build" target="load">
                 <properties>
-                    <property name="dumps"      value="${repos}.dump"/>
+                    <property name="load-dumps" value="${repo}.dump"/>
                     <property name="svn-root"   value="${to-svn-root}"/>
                     <property name="svn-bindir" value="${to-svn-bindir}"/>
                 </properties>
@@ -43,18 +44,19 @@ $Id$
                 </properties>
             </nant>
             <echo message="::TODO:: Copy existing hooks from old repos into new repos (overwrite default hooks)" level="Warning"/>
+            <echo message="::TODO:: Delete source repository if requested" level="Warning"/>
         </foreach>
         <log-echo message="${string::pad-right('Migration complete',60,' ')}(${subnant::format-elapsed-time(migrate-started, true)})" file="${subnant-output}"/>
      </target>
 
     <target name="init">
         <property name="migrate-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <fail message="to-svn-root not set" unless="${property::exists('to-svn-root')}"/>
-        <fail message="to-svn-root doesn't exist: ${to-svn-root}" unless="${directory::exists(to-svn-root)}"/>
-        <property name="to-svn-bindir" value="${svn-bindir}" unless="${property::exists('to-svn-bindir')}"/>
+        <property name="to-svn-bindir"   value="${svn-bindir}" unless="${property::exists('to-svn-bindir')}"/>
+        <property name="migrate-repos"   value="${repos}"      unless="${property::exists('migrate-repos')}"/>
+        <property name="no-total"        value="true"/>
+        <fail message="to-svn-root not set"                           unless="${property::exists('to-svn-root')}"/>
+        <fail message="to-svn-root doesn't exist: ${to-svn-root}"     unless="${directory::exists(to-svn-root)}"/>
         <fail message="to-svn-bindir doesn't exist: ${to-svn-bindir}" unless="${directory::exists(to-svn-bindir)}"/>
-        <property name="migrate-repos" value="${repos}" unless="${property::exists('migrate-repos')}"/>
-        <property name="no-total" value="true"/>
     </target>
 
     <target name="help">
@@ -66,8 +68,10 @@ verify -> dump -> create -> load -> verify
 
 Source repositories are not removed unless delete-source is set true
 
-All options that apply to Subnant targets called by migrate can also
-be passed through, see help in relevant target for more details
+Nearly all options that apply to Subnant targets called by migrate can
+also be passed through, see help in relevant target for more details,
+the exceptions are the compress option for the dump target, and the
+dumps option for the load target, which are hard-coded in migrate
 
 Required:   
 to-svn-root     destination repository root directory

@@ -23,18 +23,16 @@ $Id$
 
     <target name="init" depends="init-windows,init-linux">
         <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <fail unless="${property::exists('dumps')}" message="Dumps property not defined"/>
-        <property name="load-ok"    value="true"/>
-        <property name="load-dumps" value="${dumps}" unless="${property::exists('load-dumps')}"/>   
-        <property name="rev"        value="false"    unless="${property::exists('rev')}"/>
-        <property name="no-total"   value="false"    unless="${property::exists('no-total')}"/>
-        <property name="temp-dir"   value=""/>
-        <if test="${rev=='false'}">
-            <property name="arg-revision" value=""/>
-        </if>
-        <if test="${rev!='false'}">
-            <property name="arg-revision" value="--revision ${rev}"/>
-        </if>
+        <property name="load-ok"      value="true"/>
+        <property name="temp-dir"     value=""/>
+        <property name="arg-revision" value=""/>
+        <property name="load-dumps"   value="${dumps}" unless="${property::exists('load-dumps')}"/>   
+        <property name="rev"          value="false"    unless="${property::exists('rev')}"/>
+        <property name="no-total"     value="false"    unless="${property::exists('no-total')}"/>
+        <property name="arg-revision" value="--revision ${rev}" if="${rev!='false'}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}"/>
+        <fail unless="${property::exists('load-dumps')}" message="Dumps property not defined"/>
+        <fail unless="${directory::exists(dump-root)}"   message="dump-root is invalid or does not exist in filesystem: ${dump-root}"/>
     </target>
 
     <target name="init-windows" if="${platform::is-win32()}">
@@ -64,8 +62,6 @@ $Id$
         <property name="dump-file"  value="${dump-file+'.dump'}"     if="${file::exists(dump-file+'.dump')}"     unless="${file::exists(dump-file)}"/>
         <property name="dump-file"  value="${dump-file+'.dump.zip'}" if="${file::exists(dump-file+'.dump.zip')}" unless="${file::exists(dump-file)}"/>
         <property name="compressed" value="false"/>
-<echo message="repo: ${path::combine(svn-root,repo)}" level="Warning"/>
-<echo message="dump: ${dump-file}" level="Warning"/>
         <call target="uncompress-dump-file" if="${string::to-lower(path::get-extension(dump-file))=='.zip'}"/>
         <fail unless="${file::exists(dump-file)}" message="Dumpfile not found ${dump-file}"/>
     </target>

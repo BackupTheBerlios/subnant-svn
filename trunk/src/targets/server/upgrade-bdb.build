@@ -32,6 +32,9 @@ $Id$
                 <call target="svnadmin-list-unused-dblogs"/>
                 <call target="delete-files"/>
             </if>
+            <if test="${fs-type!='bdb'}">
+                <log-echo message="Repository ${repo} (${fs-type}) not of type bdb so not upgraded" file="${subnant-output}"/>
+            </if>
         </foreach>
         <property name="failonerror" value="${orig-failonerror}"/>
         <echo message="${string::pad-right('Upgrade complete',60,' ')}(${subnant::format-elapsed-time(upgrade-started, true)})" file="${subnant-output}" append="true"/>

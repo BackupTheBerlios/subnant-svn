@@ -27,6 +27,7 @@ $Id$
         <property name="dump-incremental" value="false"/>
         <property name="dump-deltas"      value="false"/>
         <property name="dump-ok"          value="true"/>
+        <property name="arg-revision"     value=""/>
         <property name="arg-incremental"  value=""/>
         <property name="arg-deltas"       value=""/>
         <!-- Read in defaults -->
@@ -44,14 +45,9 @@ $Id$
         <property name="dump-incremental" value="${string::to-lower(string::trim(dump-incremental))}"/>
         <property name="dump-deltas"      value="${string::to-lower(string::trim(dump-deltas))}"/>
         <!-- Assign switches -->
-        <if test="${rev=='false'}">
-            <property name="arg-revision"  value=""/>
-        </if>
-        <if test="${rev!='false'}">
-            <property name="arg-revision"  value="--revision ${rev}"/>
-        </if>
-        <property name="arg-incremental"  value="--incremental" if="${dump-incremental=='true'}"/>
-        <property name="arg-deltas"       value="--deltas"      if="${dump-deltas=='true'}"/>
+        <property name="arg-revision"     value="--revision ${rev}" if="${rev!='false'}"/>
+        <property name="arg-incremental"  value="--incremental"     if="${dump-incremental=='true'}"/>
+        <property name="arg-deltas"       value="--deltas"          if="${dump-deltas=='true'}"/>
         <!-- Verify properties -->
         <fail unless="${directory::exists(dump-root)}" message="dump-root is invalid or does not exist in filesystem: ${dump-root}"/>
         <fail if="${dump-incremental!='false' and dump-incremental!='true'}" message="incremental must be set true or false"/>
