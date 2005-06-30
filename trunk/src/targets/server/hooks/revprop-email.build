@@ -11,13 +11,19 @@ $Id$
 
     <!-- Main (default) Target -->
     <target name="revprop-email" depends="init,get-hook-emails">
-       <call target="build-revision-info" if="${prop-list!=''}"/>
+        <if test="${prop-list!=''}">
+            <call target="build-changes"/>
+            <call target="mail-changes"/>
+        </if>
     </target>
 
     <!-- Sub targets -->
     <target name="init">
-        <fail unless="${property::exists('repos')}" message="repos not set"/>
-        <fail unless="${property::exists('rev')}"   message="rev not set"/>
+        <fail unless="${property::exists('repos')}"    message="repos not set"/>
+        <fail unless="${property::exists('rev')}"      message="rev not set"/>
+        <fail unless="${property::exists('user')}"     message="user not set"/>
+        <fail unless="${property::exists('propname')}" message="propname not set"/>
+        <property name="action"       value=""                   unless="${property::exists('action')}"/>
         <property name="hook-prop"    value="hook:revprop-email" unless="${property::exists('hook-prop')}"/>
         <property name="svnlook-file" value="${exec-output}-svnlook-result"/>
         <property name="dir-file"     value="${exec-output}-revprop-email"/>
@@ -48,9 +54,9 @@ $Id$
         <foreach item="Line" in="${dir-file}" property="dir-check">
             <property name="subcommand" value="propget"/>
             <call target="exec-svnlook"/>
-            <!-- If hook:revprop-email found, add each address and optional subcommand -->
+            <!-- If hook:revprop-email found, add each address -->
             <if test="${svnlook-result=='0'}">
-                <!-- Email addresses and subcommands may be line delimited -->
+                <!-- Email addresses may be line delimited -->
                 <foreach item="Line" in="${exec-output}" property="address-line">
                     <!-- Only add address if it and subcommand don't already exist in list -->
                     <property name="prop-list" value="${prop-list};${address-line}"
@@ -62,75 +68,38 @@ $Id$
         <property name="prop-list" value="${string::substring(prop-list,1,string::get-length(prop-list)-1)}"
             if="${string::starts-with(prop-list,';')}"/>
         <property name="failonerror" value="${orig-failonerror}"/>
+        <property name="mail-tolist" value="${prop-list}"/>
     </target>
 
-    <target name="build-revision-info">
-        <!-- Now we've filtered list of addresses, search for svnlook subcommands -->
-        <property name="found-subcommand" value="${string::contains(prop-list,'=')}"/>
-        <if test="${not found-subcommand}">
-            <property name="mail-tolist" value="${prop-list}"/>
-            <property name="subcommand"  value="diff"/>
-            <call target="exec-svnlook"/>
-            <copy file="${exec-output}" tofile="${svnlook-file}"/>
-            <call target="mail-revision-info"/>
+    <target name="build-changes">
+        <echo message="Author:   ${user}"     file="${svnlook-file}" append="false"/>
+        <echo message="Revision: ${rev}"      file="${svnlook-file}" append="true"/>
+        <echo message="Property: ${propname}" file="${svnlook-file}" append="true"/>
+        <if test="${action!=''}">
+            <property name="action-text" if="${action=='A'}" value="Added"/>
+            <property name="action-text" if="${action=='M'}" value="Modified"/>
+            <property name="action-text" if="${action=='D'}" value="Deleted"/>
+            <echo message="Action:   ${action-text}" file="${svnlook-file}" append="true"/>
         </if>
-        <!-- ::TODO:: This needs refactoring to group addresses by matching subcommands, I doubt there
-             is an easy way in NAnt, so a custom script will need to be created to build the list e.g.
-             autobot1@example.com   (no subcommand - use diff)
-             autobot2@example.com;autobot3@example.com=author,log
-             autobot4@example.com;autobot5@example.com;autobot6@example.com=author,log,date,diff
-             (No changes to code below required since mail-tolist should consume multiple addresses)
-        -->
-        <if test="${found-subcommand}">
-            <foreach item="String" in="${prop-list}" delim=";" property="prop-line">
-                <property name="prop-line" value="${string::trim(prop-line)}"/>
-                <!-- Check again...just in case some of the addresses have no subcommands -->
-                <property name="has-subcommands" value="${string::contains(prop-line,'=')}"/>
-                <if test="${not has-subcommands}">
-                    <property name="mail-tolist" value="${prop-line}"/>
-                    <property name="subcommand"  value="diff"/>
-                    <call target="exec-svnlook"/>
-                    <copy file="${exec-output}" tofile="${svnlook-file}"/>
-                    <call target="mail-revision-info"/>
-                </if>
-                <if test="${has-subcommands}">
-                    <property name="mail-tolist" value="${string::substring(prop-line,0,string::index-of(prop-line,'='))}"/>
-                    <property name="subcommands" value="${string::replace(prop-line,mail-tolist+'=','')}"/>
-                    <!-- Execute svnlook for each subcommand found building list -->
-                    <foreach item="String" in="${subcommands}" delim="," property="subcommand">
-                        <property name="valid" value="false"/>
-                        <property name="subcommand" value="${string::trim(string::to-lower(subcommand))}"/>
-                        <regex pattern="(?'valid'.*(author|changed|date|diff|dirs-changed|history|info|log|tree))" input="${subcommand}" failonerror="false"/>
-                        <if test="${valid==subcommand}" >
-                            <property name="prefix" value=""/>
-                            <!-- Add capitalised prefix if appropriate -->
-                            <property name="prefix" value="${string::to-upper(string::substring(subcommand,0,1))+string::substring(subcommand,1,string::get-length(subcommand)-1)+': '}"
-                                if="${subcommand=='author' or subcommand=='changed' or subcommand=='date' or subcommand=='log'}"/>
-                            <call target="exec-svnlook"/>
-                            <loadfile file="${exec-output}" property="temp-prop"/>
-                            <if test="${subcommand=='author' or subcommand=='date'}">
-                                <echo message="${prefix}${temp-prop}" file="${svnlook-file}" append="true"/>
-                            </if>
-                            <if test="${subcommand!='author' and subcommand!='date'}">
-                                <echo message="${prefix}"    file="${svnlook-file}" append="true"/>
-                                <echo message="${temp-prop}" file="${svnlook-file}" append="true"/>
-                            </if>
-                        </if>
-                        <!-- Don't fail on invalid subcommand, instead send email detailing error -->   
-                        <if test="${valid!=subcommand}">
-                            <echo message="Warning: ${hook-prop} property has invalid svnlook subcommand '${subcommand}'" file="${svnlook-file}" append="true"/>
-                        </if>
-                    </foreach>
-                    <call target="mail-revision-info"/>
-                </if>
-            </foreach>
-        </if>
-        <if test="${string::get-length(prop-list)==0}">
-            <log-echo message="revprop-email not sent for repository ${repo} on revision ${rev} (${hook-prop} not found)" file="${subnant-output}"/>
+        <if test="${action!='D'}">
+            <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
+                <arg value="propget"/>
+                <arg value="--revprop"/>
+                <arg value="--revision"/>
+                <arg value="${rev}"/>
+                <arg value="${repos}"/>
+                <arg value="${propname}"/>
+            </exec>
+            <if test="${svnlook-result!='0' and failonerror!='false'}">
+                <log-echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}"/>
+            </if>
+            <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***"/>
+            <loadfile file="${exec-output}" property="temp-prop"/>
+            <echo message="Value:    ${temp-prop}" file="${svnlook-file}" append="true"/>
         </if>
     </target>
 
-    <target name="mail-revision-info">
+    <target name="mail-changes">
         <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from" property="mail-from"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host" property="mail-host"/>
         <echo message="Sending revprop-email for repository ${repo} on revision ${rev} to ${mail-tolist}" level="Warning"/>
@@ -171,24 +140,23 @@ Searches for email addresses using Subversion hook:revprop-email property
 on directory or parent directories of affected file(s).  Multiple email
 addresses can be stored in the property as line delimited values
 
-Output generated in email defaults to svnlook diff for revision, but may
-be defined in hook:revprop-email for each address using address=subcommand
-syntax, e.g. subnant@example.com=info,diff  
+Output generated in email shows the author, revision, revision property,
+and new value of the modified revision property
 
-Accepted svnlook subcommands are:
-author, changed, date, diff, dirs-changed, history, info, log, tree
+Target should only be used in conjunction with the post-revprop-change hook
 
-Normally used with post-revprop-change hook, but may be called independently
-            
 Required:
 repos            full path to repository
 rev              revision number (must exist in repository)
+user             name of author who modified revision property
+propname         name of revision property modified
 
 Options:
 hook-prop        search for another property (i.e. not hook:revprop-email)
+action           property is being 'A'dded, 'M'odified, or 'D'eleted
 
 Examples:
-subnant revprop-email -D:repos=/path/to/repo -D:rev=1
+subnant revprop-email -D:repos=/path/to/repo -D:rev=1 -D:user=foo -D:propname=svn:log -D:action=M
 ]]>
         </echo>
     </target>

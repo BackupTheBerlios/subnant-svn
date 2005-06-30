@@ -1,0 +1,71 @@
+<!DOCTYPE html 
+    PUBLIC "-//W3C//DTD XHTML 1.1//EN" 
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+
+    <title>Using Subversion properties to email revision property change details</title>
+
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+    <meta name="Keywords" content="Subversion,email,post-revprop-change,revision,property" />
+    <meta name="Description" content="Specification for using Subversion properties in conjunction with post-revprop-change hook for emailing revision property change details" />
+
+    <style type="text/css">
+        dt { font-weight: bold; }
+        .term { border-bottom: 1px dotted black; }
+        .margin { margin-left: 1cm; }
+    </style>
+
+</head>
+
+<body>
+
+    <h3>Using Subversion properties to email revision property change details</h3>
+
+    <p>Using <a href="http://svnbook.red-bean.com/en/1.1/ch07s02.html">properties</a>
+    in partnership with the
+    <a href="http://svnbook.red-bean.com/en/1.1/ch05s02.html#svn-ch-5-sect-2.1">post-revprop-change hook</a>
+    and <a href="http://svnbook.red-bean.com/en/1.1/ch05s03.html#svn-ch-5-sect-3.1.1">svnlook</a>,
+    we can provide a flexible, granular, visible and version controlled mechanism for emailing
+    revision property change details.</p>
+
+    <dl>
+        <dt><dfn>property: </dfn><span class="term">hook:revprop-email</span></dt>
+        <dd>
+            <p>This property contains a line delimited list of email addresses.  It is used by the
+                <em>post-revprop-change</em> hook to determine to whom email should be sent.</p>
+
+            <p><em>hook:revprop-email</em> can exist on the directory or parent directories
+                of files or directories you wish to monitor.</p>
+
+            <p>e.g. To send an email displaying the author, revision, revision property and new
+                property value to <var>watchers@example.com</var>, the <em>hook:revprop-email</em>
+                property is set to the following value on the repository root:</p>
+
+            <p class="margin"><samp>watchers@example.com</samp></p>
+        </dd>
+
+        <dt><dfn>hook: </dfn><span class="term">post-revprop-change</span></dt>
+        <dd>
+            <p>This hook script should call a program which searches the HEAD revision for
+                <em>hook:revprop-email</em> properties on or above the directories changed.
+                The <code>svnlook dirs-changed</code> command can be used in conjunction
+                with the revision number passed to post-commit to retrieve list of modified
+                directories.</p>
+
+            <p>If matching properties are found, the hook script will:</p>
+
+            <ol>
+                <li>Get property values, parsing each email address</li>
+                <li>Collate email addresses, removing  duplicates</li>
+                <li>Send email(s) containing author, revision, revision property modified,
+                    and the new property value</li>
+            </ol>
+        </dd>
+    </dl>
+
+</body>
+
+</html>

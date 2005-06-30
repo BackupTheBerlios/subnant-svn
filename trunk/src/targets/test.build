@@ -136,7 +136,7 @@ $Id$
             </properties>
         </nant>
         <call target="create-workingcopy"/>
-        <property name="commit-should-pass" value="true"/>
+        <property name="should-pass" value="true"/>
         <echo message="Subnant test file - first edit" file="${path::combine(wc,'test.txt')}"/>
         <exec program="${svn}" commandline="add test.txt" workingdir="${wc}" failonerror="true"/>
         <property name="test-message" value="added test file to working copy"/>
@@ -184,35 +184,58 @@ $Id$
 
     <target name="commit-workingcopy">
         <log-echo message='Committing with log "${test-message}"' file="${subnant-output}"/>
-        <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
+        <exec program="${svn}" workingdir="${wc}" failonerror="false" resultproperty="svn-result">
             <arg line='commit --message "${test-message}"'/>
         </exec>
-        <if test="${svn-result=='0' and commit-should-pass=='true'}">
+        <if test="${svn-result=='0' and should-pass=='true'}">
             <log-echo message="Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)}" file="${subnant-output}"/>
         </if>
-        <if test="${svn-result!='0' and commit-should-pass=='false'}">
+        <if test="${svn-result!='0' and should-pass=='false'}">
             <log-echo message="Commit failed as expected" file="${subnant-output}"/>
         </if>
-        <if test="${svn-result=='0' and commit-should-pass=='false'}">
+        <if test="${svn-result=='0' and should-pass=='false'}">
             <fail message="*** ERROR Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} when it should have failed ***"/>
         </if>
-        <if test="${svn-result!='0' and commit-should-pass=='true'}">
+        <if test="${svn-result!='0' and should-pass=='true'}">
             <fail message="*** ERROR committing ${path::get-file-name(wc)} to ${path::get-file-name(repos)} ***"/>
         </if>
     </target>
 
     <target name="propset">
-        <exec program="${svn}" failonerror="${failonerror}" resultproperty="exec-result">
+        <exec program="${svn}" failonerror="${failonerror}" resultproperty="svn-result">
             <arg value="propset"/>
             <arg value="${propname}"/>
             <arg value="${propval}"/>
             <arg value="${wc}"/>
         </exec>
-        <if test="${exec-result=='0'}">
-            <log-echo message="Set ${propname} property to ${propval}" file="${subnant-output}"/>
+        <if test="${svn-result=='0'}">
+            <log-echo message="Set property ${propname} to ${propval}" file="${subnant-output}"/>
         </if>
-        <if test="${exec-result!='0'}">
+        <if test="${svn-result!='0'}">
             <log-echo message="*** ERROR setting property ${propname} to ${propval} in ${wc} ***" file="${subnant-output}"/>
+        </if>
+    </target>
+
+    <target name="revpropset">
+        <exec program="${svn}" workingdir="${wc}" failonerror="false" resultproperty="svn-result">
+            <arg value="propset"/>
+            <arg value="--revprop"/>
+            <arg value="-r"/>
+            <arg value="${rev}"/>
+            <arg value="${propname}"/>
+            <arg value="${propval}"/>
+        </exec>
+        <if test="${svn-result=='0' and should-pass=='true'}">
+            <log-echo message="Set revision property ${propname} to ${propval} on revision ${rev}" file="${subnant-output}"/>
+        </if>
+        <if test="${svn-result!='0' and should-pass=='false'}">
+            <log-echo message="Setting of revision property failed as expected" file="${subnant-output}"/>
+        </if>
+        <if test="${svn-result=='0' and should-pass=='false'}">
+            <fail message="*** ERROR setting revision property ${propname} to ${propval} on revision ${rev} passed when it should have failed ***"/>
+        </if>
+        <if test="${svn-result!='0' and should-pass=='true'}">
+            <fail message="*** ERROR setting revision property ${propname} to ${propval} on revision ${rev} in ${wc} ***"/>
         </if>
     </target>
 
