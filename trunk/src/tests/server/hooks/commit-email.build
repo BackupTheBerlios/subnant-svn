@@ -32,8 +32,8 @@ $Id$
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
-                <property name="test-message"       value="message for hook:commit-email test on svnlook diff"/>
-                <property name="commit-should-pass" value="true"/>
+                <property name="test-message" value="message for hook:commit-email test on svnlook diff"/>
+                <property name="should-pass"  value="true"/>
             </properties>
         </nant>
         <!-- hook:commit-email with all acceptable values and a bogus value -->
@@ -45,8 +45,8 @@ $Id$
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
-                <property name="test-message"       value="message for hook:commit-email test on all svnlook accepted values and a bogus value"/>
-                <property name="commit-should-pass" value="true"/>
+                <property name="test-message" value="message for hook:commit-email test on all svnlook accepted values and a bogus value"/>
+                <property name="should-pass"  value="true"/>
             </properties>
         </nant>
     </target>

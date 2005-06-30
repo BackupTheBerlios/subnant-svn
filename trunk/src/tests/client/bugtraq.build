@@ -15,7 +15,7 @@ $Id$
         <nant buildfile="${subnant-root}/src/targets/client/bugtraq.build" target="bugtraq"/>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
-                <property name="commit-should-pass" value="true"/>
+                <property name="should-pass" value="true"/>
             </properties>
         </nant>        
         <nant buildfile="${subnant-root}/src/targets/test.build" target="proplist">

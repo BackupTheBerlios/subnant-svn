@@ -11,7 +11,7 @@ $Id$
 
     <!-- Main (default) Target -->
     <target name="commit-email" depends="init,get-hook-emails">
-       <call target="build-revision-info" if="${prop-list!=''}"/>
+       <call target="build-info" if="${prop-list!=''}"/>
     </target>
 
     <!-- Sub targets -->
@@ -64,7 +64,7 @@ $Id$
         <property name="failonerror" value="${orig-failonerror}"/>
     </target>
 
-    <target name="build-revision-info">
+    <target name="build-info">
         <!-- Now we've filtered list of addresses, search for svnlook subcommands -->
         <property name="found-subcommand" value="${string::contains(prop-list,'=')}"/>
         <if test="${not found-subcommand}">
@@ -121,7 +121,7 @@ $Id$
                             <echo message="Warning: ${hook-prop} property has invalid svnlook subcommand '${subcommand}'" file="${svnlook-file}" append="true"/>
                         </if>
                     </foreach>
-                    <call target="mail-revision-info"/>
+                    <call target="mail-info"/>
                 </if>
             </foreach>
         </if>
@@ -130,7 +130,7 @@ $Id$
         </if>
     </target>
 
-    <target name="mail-revision-info">
+    <target name="mail-info">
         <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from" property="mail-from"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host" property="mail-host"/>
         <echo message="Sending commit-email for repository ${repo} on revision ${rev} to ${mail-tolist}" level="Warning"/>
