@@ -72,15 +72,18 @@ $Id$
     </target>
 
     <target name="build-changes">
-        <echo message="Author:   ${user}"     file="${svnlook-file}" append="false"/>
-        <echo message="Revision: ${rev}"      file="${svnlook-file}" append="true"/>
-        <echo message="Property: ${propname}" file="${svnlook-file}" append="true"/>
+        <echo message="Author: ${user}"  file="${svnlook-file}" append="false"/>
+        <echo message="" file="${svnlook-file}" append="true"/>
+        <echo message="Revision: ${rev}" file="${svnlook-file}" append="true"/>
         <if test="${action!=''}">
             <property name="action-text" if="${action=='A'}" value="Added"/>
             <property name="action-text" if="${action=='M'}" value="Modified"/>
             <property name="action-text" if="${action=='D'}" value="Deleted"/>
-            <echo message="Action:   ${action-text}" file="${svnlook-file}" append="true"/>
+            <echo message="" file="${svnlook-file}" append="true"/>
+            <echo message="Action: ${action-text}" file="${svnlook-file}" append="true"/>
         </if>
+        <echo message="" file="${svnlook-file}" append="true"/>
+        <echo message="Property name: ${propname}" file="${svnlook-file}" append="true"/>
         <if test="${action!='D'}">
             <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
                 <arg value="propget"/>
@@ -94,8 +97,11 @@ $Id$
                 <log-echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}"/>
             </if>
             <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***"/>
-            <loadfile file="${exec-output}" property="temp-prop"/>
-            <echo message="Value:    ${temp-prop}" file="${svnlook-file}" append="true"/>
+            <echo message="" file="${svnlook-file}" append="true"/>
+            <loadfile file="${exec-output}" property="propval"/>
+            <property name="prepend" if="${action=='A'}" value="Property value"/>   
+            <property name="prepend" if="${action!='A'}" value="New property value"/>   
+            <echo message="${prepend}: ${propval}" file="${svnlook-file}" append="true"/>
         </if>
     </target>
 
@@ -140,10 +146,10 @@ Searches for email addresses using Subversion hook:revprop-email property
 on directory or parent directories of affected file(s).  Multiple email
 addresses can be stored in the property as line delimited values
 
-Output generated in email shows the author, revision, revision property,
-and new value of the modified revision property
+Output generated in email shows the author, revision, action, revision
+property name, and if added or modified, the revision property value
 
-Target should only be used in conjunction with the post-revprop-change hook
+Should only be used in conjunction with the post-revprop-change hook
 
 Required:
 repos            full path to repository

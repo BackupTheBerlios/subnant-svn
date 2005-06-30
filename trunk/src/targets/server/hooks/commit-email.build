@@ -72,7 +72,7 @@ $Id$
             <property name="subcommand"  value="diff"/>
             <call target="exec-svnlook"/>
             <copy file="${exec-output}" tofile="${svnlook-file}"/>
-            <call target="mail-revision-info"/>
+            <call target="mail-info"/>
         </if>
         <!-- ::TODO:: This needs refactoring to group addresses by matching subcommands, I doubt there
              is an easy way in NAnt, so a custom script will need to be created to build the list e.g.
@@ -91,7 +91,7 @@ $Id$
                     <property name="subcommand"  value="diff"/>
                     <call target="exec-svnlook"/>
                     <copy file="${exec-output}" tofile="${svnlook-file}"/>
-                    <call target="mail-revision-info"/>
+                    <call target="mail-info"/>
                 </if>
                 <if test="${has-subcommands}">
                     <property name="mail-tolist" value="${string::substring(prop-line,0,string::index-of(prop-line,'='))}"/>
