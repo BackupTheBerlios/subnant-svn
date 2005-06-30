@@ -1,35 +1,6 @@
 @echo off
-REM
-REM START-COMMIT HOOK
-REM
-REM The start-commit hook is invoked before a Subversion txn is created
-REM in the process of doing a commit.  Subversion runs this hook
-REM by invoking a program (script, executable, binary, etc.) named
-REM 'start-commit' (for which this file is a template)
-REM with the following ordered arguments:
-REM
-REM   [1] REPOS-PATH   (the path to this repository)
-REM   [2] USER         (the authenticated user attempting to commit)
-REM
-REM The default working directory for the invocation is undefined, so
-REM the program should set one explicitly if it cares.
-REM
-REM If the hook program exits with success, the commit continues; but
-REM if it exits with failure (non-zero), the commit is stopped before
-REM a Subversion txn is created, and STDERR is returned to the client.
-REM
-REM On a Unix system, the normal procedure is to have 'start-commit'
-REM invoke other programs to do the real work, though it may do the
-REM work itself too.
-REM
-REM Note that 'start-commit' must be executable by the user(s) who will
-REM invoke it (typically the user httpd runs as), and that user must
-REM have filesystem-level permission to access the repository.
-REM
-REM On a Windows system, you should name the hook program
-REM 'start-commit.bat' or 'start-commit.exe',
-REM but the basic idea is the same.
-REM 
+
+REM START-COMMIT HOOK - Details in repos/hooks/start-commit.tmpl
 REM
 REM Visit http://subnant.berlios.de for details on command below
 

@@ -1,36 +1,7 @@
 @echo off
-REM
-REM POST-REVPROP-CHANGE HOOK
-REM
-REM The post-revprop-change hook is invoked after a revision property
-REM has been changed. Subversion runs this hook by invoking a program
-REM (script, executable, binary, etc.) named 'post-revprop-change'
-REM (for which this file is a template), with the following ordered
-REM arguments:
-REM
-REM   [1] REPOS-PATH   (the path to this repository)
-REM   [2] REV          (the revision that was tweaked)
-REM   [3] USER         (the username of the person tweaking the property)
-REM   [4] PROPNAME     (the property that was changed)
-REM
-REM Because the propchange has already completed and cannot be undone,
-REM the exit code of the hook program is ignored.  The hook program
-REM can use the 'svnlook' utility to help it examine the
-REM new property value.
-REM
-REM On a Unix system, the normal procedure is to have 'post-revprop-change'
-REM invoke other programs to do the real work, though it may do the
-REM work itself too.
-REM
-REM Note that 'post-revprop-change' must be executable by the user(s) who will
-REM invoke it (typically the user httpd runs as), and that user must
-REM have filesystem-level permission to access the repository.
-REM
-REM On a Windows system, you should name the hook program
-REM 'post-revprop-change.bat' or 'post-revprop-change.exe',
-REM but the basic idea is the same.
-REM 
+
+REM POST-REVPROP-CHANGE HOOK - Details in repos/hooks/post-revprop-change.tmpl
 REM
 REM Visit http://subnant.berlios.de for details on command below
 
-start /b subnant revprop-email -D:repos=%1 -D:rev=%2 -D:user=%3 -D:propname=%4
+start /b subnant revprop-email -D:repos=%1 -D:rev=%2 -D:user=%3 -D:propname=%4 -D:action=%5
