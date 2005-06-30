@@ -12,8 +12,8 @@ $Id$
     <description>Subversion administration using NAnt</description>
 
     <!-- Load custom functions and tasks -->
-    <nant buildfile="include/functions.build"/>
-    <nant buildfile="include/tasks.build"/>
+    <nant buildfile="include/custom-functions.build"/>
+    <nant buildfile="include/custom-tasks.build"/>
 
     <!-- Global properties -->
     <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
@@ -118,7 +118,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/server/hooks/revprop-access.build" target="${subnant::get-target()}"/>
     </target>
 
-    <target name="revprop-email" description="::TODO:: Email revision property changes using post-revprop-change hook"
+    <target name="revprop-email" description="Email revision property changes using post-revprop-change hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/revprop-email.build" target="${subnant::get-target()}"/>
     </target>
