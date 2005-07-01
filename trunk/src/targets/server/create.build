@@ -43,7 +43,7 @@ $Id$
         </if>
         <!-- Define file extension based upon operating sytem -->
         <property name="file-ext" value=".bat" if="${platform::is-win32()}"/>
-        <property name="file-ext" value=".sh"  if="${platform::is-unix()}"/>
+        <property name="file-ext" value=""     if="${platform::is-unix()}"/>
         <fail unless="${property::exists('file-ext')}" message="Unknown operating sytem (only Linux and Windows supported)"/>
     </target>
 

@@ -51,7 +51,7 @@ $Id$
             <property name="hook-param" value="%"/>
         </if>
         <if test="${platform::is-unix()}">
-            <property name="hook-ext"   value=".sh"/>
+            <property name="hook-ext"   value=""/>
             <property name="hook-param" value="$"/>
         </if>
     </target>
@@ -64,7 +64,7 @@ $Id$
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
                 <property name="test-target" value="${string::to-lower(string::trim(test-target))}"/>
-                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|revprop-(access|email)|upgrade-bdb|verify))" input="${test-target}"/>
+                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|revprop-(access|email)|upgrade-bdb|verify))" input="${test-target}" failonerror="false"/>
                 <call target="run-test"/>
             </foreach>
         </if>

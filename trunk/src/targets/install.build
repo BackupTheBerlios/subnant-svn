@@ -56,7 +56,7 @@ install-prefix   directory in which Subnant directory is created *
 subnant-root     override location of subnant root directory
 
 * If install-prefix not set, default installation directory for 
-  relavent operating system is used.  Typically "C:\Program Files"
+  relevant operating system is used.  Typically "C:\Program Files"
   for Windows and /usr/local for Linux
 
 Examples:

@@ -16,6 +16,14 @@ $Id$
                 <property name="no-svnserve" value="true"/>
             </properties>
         </nant>
+        <echo message="Deleting ${repos}" level="Warning"/>
+        <delete dir="${path::combine(svn-root,repos)}"/>
+        <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create">
+            <properties>
+                <property name="no-hooks"    value="false"/>
+                <property name="no-svnserve" value="false"/>
+            </properties>
+        </nant>
     </target>
 
 </project>

@@ -204,14 +204,15 @@ Other targets:
 
 Using hook targets:
 
-    // Create hook script by cloning example
+    // Create hook scripts by cloning example
     cd subnant/hooks
+    copy pre-commit.bat.example pre-commit.bat
     copy post-commit.bat.example post-commit.bat
     [edit if necessary to suit your setup]
 
     // Run test to check hooks are working and email is being sent
-    subnant test -D:target=commit-email
+    subnant test -D:target=commit-email,commit-message
 
-    // Create new repository (or copy hook script into repos/conf)
+    // Create new repository (or copy hook scripts into repos/conf)
     // any hook scripts in subnant/conf are copied into repository
     subnant create -D:repos=hooktest
