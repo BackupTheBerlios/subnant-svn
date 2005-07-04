@@ -21,9 +21,18 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[commit-access: usage: subnant commit-access [-D:<option>=<value>]
+            <![CDATA[commit-access: usage: subnant commit-access -D:repos=<repo> -D:txn=<txn> [-D:<option>=<value>]
 
-Control access to repository using pre-commit hook 
+Control access to repository using pre-commit hook
+
+Searches for changes on the following Subversion properties:
+
+admin:commit-access             users allowed to administer commit access
+admin:revprop-change-access     users allowed to administer revprop-change access
+hook:commit-access              users allowed to commit
+hook:revprop-change-access      users allowed to change revision properties
+
+Then verifies user permission if changes found
 
 Required:
 repos           full path to repository

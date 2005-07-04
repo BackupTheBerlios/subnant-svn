@@ -64,7 +64,7 @@ $Id$
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
                 <property name="test-target" value="${string::to-lower(string::trim(test-target))}"/>
-                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|revprop-(access|email)|upgrade-bdb|verify))" input="${test-target}" failonerror="false"/>
+                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|revprop-change-(access|email)|upgrade-bdb|verify))" input="${test-target}" failonerror="false"/>
                 <call target="run-test"/>
             </foreach>
         </if>
@@ -96,9 +96,9 @@ $Id$
             <call target="run-test"/>
             <property name="test-target" value="commit-message"/>
             <call target="run-test"/>
-            <property name="test-target" value="revprop-access"/>
+            <property name="test-target" value="revprop-change-access"/>
             <call target="run-test"/>
-            <property name="test-target" value="revprop-email"/>
+            <property name="test-target" value="revprop-change-email"/>
             <call target="run-test"/>
         </if>
         <log-echo message="" file="${subnant-output}"/>
@@ -116,8 +116,8 @@ $Id$
         <if test="${test-target=='create' or test-target=='dump' or test-target=='hotcopy' or test-target=='load' or test-target=='migrate' or test-target=='upgrade-bdb' or test-target=='verify'}">
             <property name="build-path" value="${subnant-root}/src/tests/server"/>
         </if>
-        <!-- Hook targets: commit-access,commit-allower,commit-email,commit-message,revprop-access,revprop-email -->
-        <if test="${test-target=='commit-access' or test-target=='commit-allower' or test-target=='commit-email' or test-target=='commit-message' or test-target=='revprop-access' or test-target=='revprop-email'}">
+        <!-- Hook targets: commit-access,commit-allower,commit-email,commit-message,revprop-change-access,revprop-change-email -->
+        <if test="${test-target=='commit-access' or test-target=='commit-allower' or test-target=='commit-email' or test-target=='commit-message' or test-target=='revprop-change-access' or test-target=='revprop-change-email'}">
             <property name="build-path" value="${subnant-root}/src/tests/server/hooks"/>
         </if>
         <fail if="${build-path==''}" message="Unknown test target: ${test-target}"/>
@@ -288,7 +288,7 @@ pass rudimentary testing.  Accepted test targets are:
 
 bugtraq, create, dump, hotcopy, load, migrate, verify,
 commit-access, commit-allower, commit-email, commit-message,
-revprop-access, revprop-email
+revprop-change-access, revprop-change-email
 
 Options:
 target          comma separated list of test targets *

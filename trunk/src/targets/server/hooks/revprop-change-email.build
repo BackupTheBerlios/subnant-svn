@@ -7,10 +7,10 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="revprop-email" default="revprop-email">
+<project name="revprop-change-email" default="revprop-change-email">
 
     <!-- Main (default) Target -->
-    <target name="revprop-email" depends="init,get-hook-emails">
+    <target name="revprop-change-email" depends="init,get-hook-emails">
         <if test="${prop-list!=''}">
             <call target="build-changes"/>
             <call target="mail-changes"/>
@@ -23,10 +23,10 @@ $Id$
         <fail unless="${property::exists('rev')}"      message="rev not set"/>
         <fail unless="${property::exists('user')}"     message="user not set"/>
         <fail unless="${property::exists('propname')}" message="propname not set"/>
-        <property name="action"       value=""                   unless="${property::exists('action')}"/>
-        <property name="hook-prop"    value="hook:revprop-email" unless="${property::exists('hook-prop')}"/>
+        <property name="action"       value="" unless="${property::exists('action')}"/>
+        <property name="hook-prop"    value="hook:revprop-change-email" unless="${property::exists('hook-prop')}"/>
         <property name="svnlook-file" value="${exec-output}-svnlook-result"/>
-        <property name="dir-file"     value="${exec-output}-revprop-email"/>
+        <property name="dir-file"     value="${exec-output}-revprop-change-email"/>
         <property name="repo"         value="${path::get-file-name(repos)}"/>
         <property name="mail-tolist"  value=""/>
         <property name="prop-list"    value=""/>
@@ -47,14 +47,14 @@ $Id$
     </target>
 
     <target name="find-hook-prop">
-        <!-- Don't fail svnlook if hook:revprop-email property not found -->
+        <!-- Don't fail svnlook if hook:revprop-change-email property not found -->
         <property name="orig-failonerror" value="${failonerror}"/>
         <property name="failonerror" value="false"/>
-        <!-- Search for hook:revprop-email property in each directory -->
+        <!-- Search for hook:revprop-change-email property in each directory -->
         <foreach item="Line" in="${dir-file}" property="dir-check">
             <property name="subcommand" value="propget"/>
             <call target="exec-svnlook"/>
-            <!-- If hook:revprop-email found, add each address -->
+            <!-- If hook:revprop-change-email found, add each address -->
             <if test="${svnlook-result=='0'}">
                 <!-- Email addresses may be line delimited -->
                 <foreach item="Line" in="${exec-output}" property="address-line">
@@ -108,14 +108,14 @@ $Id$
     <target name="mail-changes">
         <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from" property="mail-from"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host" property="mail-host"/>
-        <echo message="Sending revprop-email for repository ${repo} on revision ${rev} to ${mail-tolist}" level="Warning"/>
+        <echo message="Sending revprop-change-email for repository ${repo} on revision ${rev} to ${mail-tolist}" level="Warning"/>
         <mail mailhost="${mail-host}" from="${mail-from}" tolist="${mail-tolist}"
           subject="[${repo} revprop-change] rev ${rev}">
             <files>
                 <include name="${svnlook-file}"/>
             </files>
         </mail>
-        <echo message="Sent revprop-email for repository ${repo} on revision ${rev} to ${mail-tolist}" file="${subnant-output}" append="true"/>
+        <echo message="Sent revprop-change-email for repository ${repo} on revision ${rev} to ${mail-tolist}" file="${subnant-output}" append="true"/>
         <delete file="${svnlook-file}" if="${file::exists(svnlook-file)}"/>
     </target>
 
@@ -138,18 +138,19 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[revprop-email: usage: subnant revprop-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
+            <![CDATA[revprop-change-email: usage: subnant revprop-change-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
 
 Sends email about revision property changes in a committed revision.
 
-Searches for email addresses using Subversion hook:revprop-email property
-on directory or parent directories of affected file(s).  Multiple email
-addresses can be stored in the property as line delimited values
+Searches for email addresses using Subversion hook:revprop-change-email
+property on directory or parent directories of affected file(s)
+
+Multiple email addresses can be stored as line delimited values
 
 Output generated in email shows the author, revision, action, revision
 property name, and if added or modified, the revision property value
 
-Should only be used in conjunction with the post-revprop-change hook
+Should be used in conjunction with the post-revprop-change hook
 
 Required:
 repos            full path to repository
@@ -158,11 +159,11 @@ user             name of author who modified revision property
 propname         name of revision property modified
 
 Options:
-hook-prop        search for another property (i.e. not hook:revprop-email)
+hook-prop        search for another property (i.e. not hook:revprop-change-email)
 action           property is being 'A'dded, 'M'odified, or 'D'eleted
 
 Examples:
-subnant revprop-email -D:repos=/path/to/repo -D:rev=1 -D:user=foo -D:propname=svn:log -D:action=M
+subnant revprop-change-email -D:repos=/path/to/repo -D:rev=1 -D:user=foo -D:propname=svn:log -D:action=M
 ]]>
         </echo>
     </target>

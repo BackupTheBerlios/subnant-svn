@@ -32,16 +32,16 @@
     revision property change details.</p>
 
     <dl>
-        <dt><dfn>property: </dfn><span class="term">hook:revprop-email</span></dt>
+        <dt><dfn>property: </dfn><span class="term">hook:revprop-change-email</span></dt>
         <dd>
             <p>This property contains a line delimited list of email addresses.  It is used by the
                 <em>post-revprop-change</em> hook to determine to whom email should be sent.</p>
 
-            <p><em>hook:revprop-email</em> can exist on the directory or parent directories
+            <p><em>hook:revprop-change-email</em> can exist on the directory or parent directories
                 of files or directories you wish to monitor.</p>
 
             <p>e.g. To send an email displaying the author, revision, revision property and new
-                property value to <var>watchers@example.com</var>, the <em>hook:revprop-email</em>
+                property value to <var>watchers@example.com</var>, the <em>hook:revprop-change-email</em>
                 property is set to the following value on the repository root:</p>
 
             <p class="margin"><samp>watchers@example.com</samp></p>
@@ -50,7 +50,7 @@
         <dt><dfn>hook: </dfn><span class="term">post-revprop-change</span></dt>
         <dd>
             <p>This hook script should call a program which searches the HEAD revision for
-                <em>hook:revprop-email</em> properties on or above the directories changed.
+                <em>hook:revprop-change-email</em> properties on or above the directories changed.
                 The <code>svnlook dirs-changed</code> command can be used in conjunction
                 with the revision number passed to post-commit to retrieve list of modified
                 directories.</p>

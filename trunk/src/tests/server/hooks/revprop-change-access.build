@@ -7,9 +7,9 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="test-revprop-access" default="test-revprop-access">
+<project name="test-revprop-change-access" default="test-revprop-change-access">
 
-    <target name="test-revprop-access">
+    <target name="test-revprop-change-access">
         <echo message="::TODO::" level="Warning"/>   
     </target>
 

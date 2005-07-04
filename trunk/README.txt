@@ -134,7 +134,7 @@ Repository hook targets:
     conjunction with Subversion properties
 
     For more information:
-    http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/access-control.html
+    http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/commit-access.html
 
 
   * commit-allower
@@ -158,21 +158,24 @@ Repository hook targets:
     Ensures log message is entered by using pre-commit hook
 
 
-  * revprop-access
+  * revprop-change-access
 
     Provides granular access control to revision property changes using
     pre-revprop-change hook in conjunction with Subversion properties
 
     For more information:
-    http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/access-control.html  
+    http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/revprop-change-access.html  
 
 
-  * revprop-email
+  * revprop-change-email
 
     Sends email on post-revprop-change hook using Subversion property
-    hook:revprop-email on parent directory(s) of committed files
+    hook:revprop-change-email on parent directory(s) of committed files
 
-    Can show who, why, what, when and where revision property changes were made
+    Can show who, why, what and when revision property changes were made
+
+    For more information:
+    http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/revprop-change-email.html  
 
 
 Working copy targets:

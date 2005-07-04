@@ -7,9 +7,9 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="test-revprop-email" default="test-revprop-email">
+<project name="test-revprop-change-email" default="test-revprop-change-email">
 
-    <target name="test-revprop-email" depends="init">
+    <target name="test-revprop-change-email" depends="init">
         <!-- Create repository, checkout working copy and commit 2 revisions -->
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="revpropset">
@@ -32,26 +32,26 @@ $Id$
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-hook">
             <properties>
                 <property name="hook"      value="post-revprop-change"/>
-                <property name="hook-exec" value="subnant revprop-email -D:repos=${hook-param}1 -D:rev=${hook-param}2 -D:user=${hook-param}3 -D:propname=${hook-param}4 -D:action=${hook-param}5"/>
+                <property name="hook-exec" value="subnant revprop-change-email -D:repos=${hook-param}1 -D:rev=${hook-param}2 -D:user=${hook-param}3 -D:propname=${hook-param}4 -D:action=${hook-param}5"/>
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy"/>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="propset">
             <properties>
-                <property name="propname" value="hook:revprop-email"/>
+                <property name="propname" value="hook:revprop-change-email"/>
                 <property name="propval"  value="${mail-tolist}"/>
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
-                <property name="test-message" value="set hook:revprop-email property"/>
+                <property name="test-message" value="set hook:revprop-change-email property"/>
                 <property name="should-pass"  value="true"/>
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="revpropset">
             <properties>
                 <property name="propname"    value="svn:log"/>
-                <property name="propval"     value="modified svn:log for revprop-email test on revision 1"/>
+                <property name="propval"     value="modified svn:log for revprop-change-email test"/>
                 <property name="rev"         value="1"/>
                 <property name="should-pass" value="true"/>
             </properties>
