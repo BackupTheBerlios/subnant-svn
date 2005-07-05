@@ -230,6 +230,15 @@ $Id$
             }
             return true;
         }
+
+        /// <summary>
+        /// Return STDIN as string
+        /// </summary>
+        [Function("get-stdin")]   
+        public string getStdin()
+        {
+            return Console.In.ReadLine();
+        }
         ]]>
         </code>
     </script>

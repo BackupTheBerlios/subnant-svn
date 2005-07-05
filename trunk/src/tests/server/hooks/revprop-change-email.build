@@ -50,8 +50,23 @@ $Id$
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="revpropset">
             <properties>
+                <property name="propname"    value="svn:mime-type"/>
+                <property name="propval"     value="text/plain"/>
+                <property name="rev"         value="1"/>
+                <property name="should-pass" value="true"/>
+            </properties>
+        </nant>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="revpropset">
+            <properties>
                 <property name="propname"    value="svn:log"/>
                 <property name="propval"     value="modified svn:log for revprop-change-email test"/>
+                <property name="rev"         value="1"/>
+                <property name="should-pass" value="true"/>
+            </properties>
+        </nant>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="revpropdel">
+            <properties>
+                <property name="propname"    value="svn:mime-type"/>
                 <property name="rev"         value="1"/>
                 <property name="should-pass" value="true"/>
             </properties>

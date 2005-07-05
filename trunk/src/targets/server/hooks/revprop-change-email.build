@@ -83,7 +83,11 @@ $Id$
             <echo message="Action: ${action-text}" file="${svnlook-file}" append="true"/>
         </if>
         <echo message="" file="${svnlook-file}" append="true"/>
-        <echo message="Property name: ${propname}" file="${svnlook-file}" append="true"/>
+        <echo message="Property: ${propname}" file="${svnlook-file}" append="true"/>
+        <if test="${action!='A'}">
+            <echo message="" file="${svnlook-file}" append="true"/>
+            <echo message="Old value: ${subnant::get-stdin()}" file="${svnlook-file}" append="true"/>
+        </if>   
         <if test="${action!='D'}">
             <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
                 <arg value="propget"/>
@@ -99,8 +103,8 @@ $Id$
             <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***"/>
             <echo message="" file="${svnlook-file}" append="true"/>
             <loadfile file="${exec-output}" property="propval"/>
-            <property name="prepend" if="${action=='A'}" value="Property value"/>   
-            <property name="prepend" if="${action!='A'}" value="New property value"/>   
+            <property name="prepend" if="${action=='A'}" value="Value"/>   
+            <property name="prepend" if="${action!='A'}" value="New value"/>   
             <echo message="${prepend}: ${propval}" file="${svnlook-file}" append="true"/>
         </if>
     </target>
@@ -148,7 +152,8 @@ property on directory or parent directories of affected file(s)
 Multiple email addresses can be stored as line delimited values
 
 Output generated in email shows the author, revision, action, revision
-property name, and if added or modified, the revision property value
+property name, if revision property is modified or deleted, the previous
+property value, and if added or modified, the new property value
 
 Should be used in conjunction with the post-revprop-change hook
 

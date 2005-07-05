@@ -147,7 +147,7 @@ Repository hook targets:
     Sends email using post-commit hook by reading Subversion hook:commit-email
     property on parent directory(s) of committed files  
     
-    Can show who, why, what, when and where revision changes were made
+    Can show who, why, what, when and where changes were committed
 
     For more information:
     http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/commit-email.html
@@ -172,7 +172,7 @@ Repository hook targets:
     Sends email on post-revprop-change hook using Subversion property
     hook:revprop-change-email on parent directory(s) of committed files
 
-    Can show who, why, what and when revision property changes were made
+    Shows author, revision, action, property name, new and old property values
 
     For more information:
     http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/revprop-change-email.html  

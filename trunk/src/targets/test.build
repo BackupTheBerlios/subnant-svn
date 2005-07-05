@@ -232,13 +232,35 @@ $Id$
             <log-echo message="Setting of revision property failed as expected" file="${subnant-output}"/>
         </if>
         <if test="${svn-result=='0' and should-pass=='false'}">
-            <fail message="*** ERROR setting revision property ${propname} to ${propval} on revision ${rev} passed when it should have failed ***"/>
+            <fail message="*** ERROR setting revision property ${propname} to ${propval} on revision ${rev} in ${wc} passed when it should have failed ***"/>
         </if>
         <if test="${svn-result!='0' and should-pass=='true'}">
             <fail message="*** ERROR setting revision property ${propname} to ${propval} on revision ${rev} in ${wc} ***"/>
         </if>
     </target>
 
+    <target name="revpropdel">
+        <exec program="${svn}" workingdir="${wc}" failonerror="false" resultproperty="svn-result">
+            <arg value="propdel"/>
+            <arg value="${propname}"/>
+            <arg value="--revprop"/>
+            <arg value="-r"/>
+            <arg value="${rev}"/>
+        </exec>
+        <if test="${svn-result=='0' and should-pass=='true'}">
+            <log-echo message="Deleted revision property ${propname} in revision ${rev}" file="${subnant-output}"/>
+        </if>
+        <if test="${svn-result!='0' and should-pass=='false'}">
+            <log-echo message="Deleting of revision property failed as expected" file="${subnant-output}"/>
+        </if>
+        <if test="${svn-result=='0' and should-pass=='false'}">
+            <fail message="*** ERROR deleting revision property ${propname} for revision ${rev} in ${wc} passed when it should have failed ***"/>
+        </if>
+        <if test="${svn-result!='0' and should-pass=='true'}">
+            <fail message="*** ERROR deleting revision property ${propname} for revision ${rev} in ${wc} ***"/>
+        </if>
+    </target>
+   
     <target name="proplist">
         <exec program="${svnlook}" output="${exec-output}" failonerror="true" resultproperty="svnlook-result">
             <arg value="proplist"/>
