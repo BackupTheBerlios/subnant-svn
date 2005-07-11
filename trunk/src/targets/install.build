@@ -50,16 +50,16 @@ Usage: nant install [-D:<option>=<value>]
 
 Purpose: Create subnant wrapper script
 
-Installation involves creating a shortcut to run Subnant under NAnt, it does
-not copy or move existing files
+Installation creates a shortcut to run Subnant under NAnt, it does not copy
+or move existing files
 
 Options:
 install-prefix   directory in which Subnant directory is created *
 subnant-root     override location of subnant root directory
 
-* If install-prefix not set, default installation directory for 
-  relevant operating system is used.  Typically "C:\Program Files"
-  for Windows and /usr/local for Linux
+* If install-prefix not set, default installation directory for relevant
+  operating system is used, typically "C:\Program Files" for Windows and
+  /usr/local for Linux
 
 Examples:
 nant install

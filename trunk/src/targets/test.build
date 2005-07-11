@@ -307,8 +307,7 @@ $Id$
 
 Usage: subnant test [-D:<option>=<value>]
 
-Purpose: Execute Subnant targets in a test environment to ensure they pass
-rudimentary testing
+Purpose: Execute Subnant targets in a test environment
 
 Tests targets:
 bugtraq, create, dump, hotcopy, load, migrate, upgrade-bdb, verify,
