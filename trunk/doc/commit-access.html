@@ -9,8 +9,8 @@
     <title>Using Subversion properties for commit access control</title>
 
     <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
-    <meta name="Keywords" content="Subversion,access-control,pre-commit,start-commit,property" />
-    <meta name="Description" content="Specification for using Subversion properties in conjunction with pre-commit or start-commit hooks for commit acesss control" />
+    <meta name="Keywords" content="Subversion,file-level,access-control,pre-commit,property,admin:commit-access,hook:commit-access" />
+    <meta name="Description" content="Specification for using Subversion properties in conjunction with pre-commit hook for file-level commit access control" />
 
     <style type="text/css">
         dt { font-weight: bold; }
@@ -25,8 +25,8 @@
     <h3>Using Subversion properties for commit access control</h3>
 
     <p>Using <a href="http://svnbook.red-bean.com/en/1.1/ch07s02.html">properties</a>
-        in partnership with 
-        <a href="http://svnbook.red-bean.com/en/1.1/ch05s02.html#svn-ch-5-sect-2.1">hooks</a>
+        in partnership with the
+        <a href="http://svnbook.red-bean.com/en/1.1/ch05s02.html#svn-ch-5-sect-2.1">pre-commit hook</a>
         and <a href="http://svnbook.red-bean.com/en/1.1/ch05s03.html#svn-ch-5-sect-3.1.1">svnlook</a>,
         we can provide a flexible, granular, visible and version controlled mechanism for commit
         access control independent of the repository access method.</p>
@@ -34,8 +34,13 @@
     <p>Two properties are used. One to administer commit rights and one to control who can commit.
         These properties can exist on individual files or directories, or on the parent directories
         of files or directories governed by access control. They do not have to co-exist at the same
-        level, however both should exist in the repository at the top level of the path you wish to
-        control.</p>
+        level in the repository path, however both properties must exist at the top level of the
+        repository path you wish to control.</p>
+
+    <p>Note: This approach provides file and directory level access control. If you only need to
+        provide basic user-level access control, you might like to use this
+        <a href="commit-allower.html">commit-allower</a> implementation, which is based on a
+        similar concept.</p>
 
     <p>Caveat: This approach does not provide user authentication. The repository access method will
         still need to provide authentication to the server.</p>
@@ -51,8 +56,8 @@
 
             <p>This property can also explicitly deny administration of commit access if any user is
                 prefixed with an exclamation mark !.  This can be useful when a user has been granted
-                access rights higher up the repository path and you wish to deny at a lower level
-                down the path.</p>
+                commit administration rights higher up the repository path, and you wish to deny at
+                a lower level down the repository path.</p>
 
             <p>e.g. To give users <var>admin1</var> and <var>user1</var> rights to control who is
                 allowed to commit to any part of the repository, the <em>admin:commit-access</em>
@@ -61,9 +66,9 @@
             <p class="margin"><samp>admin1<br />user1</samp></p>
 
             <p>If you wanted to prevent <var>user1</var> from administering commit rights to a
-                particular path in the repository, e.g. in the <samp>/admin-only</samp> directory,
+                particular path in the repository, e.g. in the <samp>/admin</samp> directory,
                 then <var>admin1</var> would set the following value to the
-                <em>hook:propchange-access</em> property on the <var>/admin-only</var> directory:</p>
+                <em>admin:commit-access</em> property on the <var>/admin</var> directory:</p>
 
             <p class="margin"><samp>!user1</samp></p>
         </dd>
@@ -76,7 +81,9 @@
                 sub-directories.</p>
 
             <p>This property can also explicitly deny commit access if any user is prefixed with
-                an exclamation mark !.</p>
+                an exclamation mark !.  This can be useful when a user has been granted commit
+                rights higher up the repository path, and you wish to deny at a lower level down
+                the repository path.</p>
 
             <p>e.g. To grant user <var>admin1</var> and <var>user1</var> commit rights to any part
                 of the repository, <em>hook:commit-access</em> is set to the following values on
@@ -85,44 +92,56 @@
             <p class="margin"><samp>admin1<br />
                 user1</samp></p>
 
-            <p>If you wanted to prevent <var>user1</var> from committing in
-                <samp>/admin-only</samp>, then <var>admin1</var> would set the following
-                value to the <em>hook:commit-access</em> property on the
-                <samp>/admin-only</samp> directory:</p>
+            <p>If you wanted to prevent <var>user1</var> from committing in <samp>/admin</samp>,
+                then <var>admin1</var> would set the following value to the
+                <em>hook:commit-access</em> property on the <samp>/admin</samp> directory:</p>
 
             <p class="margin"><samp>!user1</samp></p>
+
+		    <p>Note: A user defined in the <em>admin:commit-access</em> property must also exist
+		        in at least one <em>hook:commit-access</em> property, so when first defining commit
+		        access, which should be done at the top level you wish to control, it is necessary
+		        to set both of these properties in a single commit.</p>
         </dd>
 
         <dt><dfn>hook: </dfn><span class="term">pre-commit</span></dt>
         <dd>
-            <p>This hook ensures that for files and directories changed in the transaction, the user
-               performing the commit has the appropriate rights for each file, property or directory
-               associated with them.</p>
+            <p>This hook validates user has commit access permission for each file, directory and
+                property changed.</p>
+
+			<p>The following steps are required:</p>
 
             <ol>
-                <li>Build list of properties changed using <code>svnlook proplist</code></li>
-                <li>Build list of files and directories changed using
-                   <code>svnlook changed</code></li>
-                <li>For each file and directory modified, the HEAD revision is searched using
-                   <code>svnlook propget</code> for the <em>hook:commit-access</em> property,
-                   and if found, validated against the user performing the commit. If it is a
-                   property being modified (as determined by step 1.), and that property is
-                   either the <em>admin:commit-access</em> or <em>hook:commit-access</em>
-                   property, then a validation is made against the <em>hook:commit-access</em>
-                   property</li>
-                <li>Search is halted as soon as permission denied property is found</li>
-                <li>Search is complete once all modified files and directories, and their parent
-                   directory paths have been validated</li>
+                <li>Build list of changes using <code>svnlook changed</code></li>
+                <li>Build list of property changes using <code>svnlook proplist</code></li>
+                <li>For each file and directory modified, search HEAD revision using
+                    <code>svnlook propget</code>, then run the following tests against the
+                    user performing the commit:
+                    <ul>
+                   	    <li>User exists, and is not prefixed with ! in
+                   	        <em>admin:commit-access</em> if either the
+                   	        <em>admin:commit-access</em> or <em>hook:commit-access</em>
+                   	        properties have been changed</li>
+                   	    <li>User exists, and is not prefixed with ! in
+                   	        <em>hook:commit-access</em> property</li>
+                   	</ul>
+                </li>
+                <li>If no rejection has been found, build consolidated list of directories paths
+                    working backward to the root repository, remove any duplicates</li>
+                <li>Repeat step 3., reversing up the directory path back to root, i.e. test the
+                    lowest directories first and highest directories last</li>
             </ol>
 
-            <p>All steps must be successfully executed before commit access is granted.</p>
-        </dd>
+			<p>The following conditions apply:</p>
 
-        <dt><dfn>hook: </dfn><span class="term">start-commit</span></dt>
-        <dd>
-            <p>This hook script searches HEAD revision for the <em>hook:commit-access</em>
-                property on the repository root, and if found, verifies user is permitted
-                to commit.  This enables basic commit access control for each user.</p>
+            <ul>
+                <li>Validation is halted and pre-commit rejected as soon as permission is
+                    denied</li>
+                <li>Validation is complete and per-commit passed once all modified files
+                    and directories, and their higher directory paths have been tested</li>
+            </ul>
+
+            <br />
         </dd>
     </dl>
 

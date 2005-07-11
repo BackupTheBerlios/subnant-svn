@@ -165,17 +165,19 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[commit-email: usage: subnant commit-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
+            <![CDATA[commit-email:
 
-Sends email about a committed revision
+Usage: subnant commit-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
 
-Searches for email addresses using Subversion hook:commit-email property
-on directory or parent directories of affected file(s).  Multiple email
-addresses can be stored in the property as line delimited values
+Purpose: Sends email about a committed revision
 
-Output generated in email defaults to svnlook diff for revision, but may
-be defined in hook:commit-email for each address using address=subcommand
-syntax, e.g. subnant@example.com=info,diff  
+Searches for email addresses using Subversion hook:commit-email property on
+directory or parent directories of affected file(s).  Multiple email addresses
+can be stored in properties as line delimited values
+
+Output generated in email defaults to svnlook diff for revision, but may be
+defined in hook:commit-email for each address using address=subcommand syntax,
+e.g. subnant@example.com=info,diff  
 
 Accepted svnlook subcommands are:
 author, changed, date, diff, dirs-changed, history, info, log, tree
@@ -191,7 +193,7 @@ no-diff-deleted  set true to not print differences for deleted files
 hook-prop        search for another property (i.e. not hook:commit-email)
 
 Examples:
-subnant commit-email -D:repos=/path/to/repo -D:rev=1 -D:no-diff-deleted=true
+subnant commit-email -D:repos=/path/to/repos -D:rev=1 -D:no-diff-deleted=true
 ]]>
         </echo>
     </target>

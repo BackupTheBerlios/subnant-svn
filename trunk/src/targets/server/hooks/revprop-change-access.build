@@ -18,10 +18,12 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[revprop-change-access: usage: subnant revprop-change-access [-D:<option>=<value>]
+            <![CDATA[revprop-change-access:
 
-Control access to revision property changes using pre-revprop-change hook
-in conjunction with Subversion property: hook:revprop-change-access
+Usage: subnant revprop-change-access [-D:<option>=<value>]
+
+Purpose: Control access to revision property changes using pre-revprop-change
+and pre-commit hooks in conjunction with Subversion properties.
 
 Examples:
 ]]>

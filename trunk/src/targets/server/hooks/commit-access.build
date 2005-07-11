@@ -21,16 +21,19 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[commit-access: usage: subnant commit-access -D:repos=<repo> -D:txn=<txn> [-D:<option>=<value>]
+            <![CDATA[commit-access:
 
-Control access to repository using pre-commit hook
+Usage: subnant commit-access -D:repos=<repos> -D:txn=<txn> [-D:<option>=<value>]
+
+Purpose: Control commit access to repository using pre-commit hook in
+conjunction with Subversion properties.   
 
 Searches for changes on the following Subversion properties:
 
-admin:commit-access             users allowed to administer commit access
-admin:revprop-change-access     users allowed to administer revprop-change access
-hook:commit-access              users allowed to commit
-hook:revprop-change-access      users allowed to change revision properties
+admin:commit-access          users allowed to administer commit access
+admin:revprop-change-access  users allowed to administer revprop-change access
+hook:commit-access           users allowed to commit
+hook:revprop-change-access   users allowed to change revision properties
 
 Then verifies user permission if changes found
 
@@ -39,7 +42,7 @@ repos           full path to repository
 txn             Subversion transaction number
 
 Examples:
-subnant commit-access -D:repos=/path/to/repo -D:txn=1-1
+subnant commit-access -D:repos=/path/to/repos -D:txn=1-1
 ]]>
         </echo>
     </target>

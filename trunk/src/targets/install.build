@@ -44,12 +44,14 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[install: usage: nant install [-D:<option>=<value>]
+            <![CDATA[install:
 
-Create subnant wrapper script
+Usage: nant install [-D:<option>=<value>]
 
-Installation involves creating a shortcut to run Subnant
-under NAnt, it does not copy or move existing files
+Purpose: Create subnant wrapper script
+
+Installation involves creating a shortcut to run Subnant under NAnt, it does
+not copy or move existing files
 
 Options:
 install-prefix   directory in which Subnant directory is created *

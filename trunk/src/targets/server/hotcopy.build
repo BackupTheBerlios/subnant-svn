@@ -65,14 +65,14 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[hotcopy: usage: subnant hotcopy [-D:<option>=<value>]
+            <![CDATA[hotcopy:
 
-Hotcopy repositories under svn-root into hotcopy-root
+Usage: subnant hotcopy [-D:<option>=<value>]
 
-A hotcopy is a verbatim copy of a repository, 
-including configuration files and hook scripts
+Purpose: Hotcopy repositories under svn-root into hotcopy-root
 
-It can be performed against a live repository
+A hotcopy is a verbatim copy of a repository, including configuration files
+and hook scripts.  Safe to perform against live repository
 
 Options:
 repos           comma separated list of repositories *

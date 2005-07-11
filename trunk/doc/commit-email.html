@@ -50,14 +50,14 @@
             <p><code class="margin">author, changed, date, diff, dirs-changed, history,
                 info, log, tree</code></p>
 
-            <p>e.g. To send an email to <var>patches@example.com</var> displaying the differences between
+            <p>e.g. To send an email to <var>commit@example.com</var> displaying the differences between
                 the current and previous revision (what has changed), and to email 
-                <var>details@example.com</var> displaying who, when and why something was changed in any
+                <var>commit-details@example.com</var> displaying who, when and why something was changed in any
                 part of the repository, the <em>hook:commit-email</em> property is set to the following
                 values on the repository root:</p>
 
-            <p class="margin"><samp>patches@example.com<br />
-                details@example.com=author,date,log,changed</samp></p>
+            <p class="margin"><samp>commit@example.com<br />
+                commit-details@example.com=author,date,log,changed</samp></p>
         </dd>
 
         <dt><dfn>hook: </dfn><span class="term">post-commit</span></dt>

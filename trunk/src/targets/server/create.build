@@ -94,11 +94,13 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[create: usage: subnant create -D:repos=<repos> [-D:<option>=<value>]
+            <![CDATA[create:
 
-Create repositories in svn-root, copying configuration files
-and hooks appropriate for current operating system, defined
-in subnant/conf and subnant/hooks
+Usage: subnant create -D:repos=<repos> [-D:<option>=<value>]
+
+Purpose: Create repositories in svn-root, copying configuration files and
+hooks appropriate for current operating system, defined in subnant/conf
+and subnant/hooks
 
 Required:   
 repos           comma separated list of repositories to create

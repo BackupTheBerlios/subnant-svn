@@ -47,9 +47,11 @@ $Id$
     </target>
     <target name="help">
         <echo level="Warning">
-            <![CDATA[verify: usage: subnant verify [-D:<option>=<value>]
+            <![CDATA[verify:
 
-Verify repositories using svnadmin
+Usage: subnant verify [-D:<option>=<value>]
+
+Purpose: Verify repositories using svnadmin
 
 Options:
 repos           comma separated list of repositories *

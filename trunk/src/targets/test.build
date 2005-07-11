@@ -303,12 +303,15 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[test: usage: subnant test [-D:<option>=<value>]
+            <![CDATA[test:
 
-Call Subnant targets in a test environment to ensure they
-pass rudimentary testing.  Accepted test targets are:
+Usage: subnant test [-D:<option>=<value>]
 
-bugtraq, create, dump, hotcopy, load, migrate, verify,
+Purpose: Execute Subnant targets in a test environment to ensure they pass
+rudimentary testing
+
+Tests targets:
+bugtraq, create, dump, hotcopy, load, migrate, upgrade-bdb, verify,
 commit-access, commit-allower, commit-email, commit-message,
 revprop-change-access, revprop-change-email
 

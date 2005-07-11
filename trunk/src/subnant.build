@@ -37,8 +37,7 @@ $Id$
 Copyright (C) 2005 Simon McKenna
 http://subnant.berlios.de
 
-Usage: 
-subnant <target> [<target>] [-D:<option>=<value>]
+Usage: subnant <target> [<target>] [-D:<option>=<value>]
 
 Global options:
 sendmail        email result of <target> if property is set true

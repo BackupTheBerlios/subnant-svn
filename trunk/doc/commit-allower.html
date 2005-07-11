@@ -1,0 +1,113 @@
+<!DOCTYPE html 
+    PUBLIC "-//W3C//DTD XHTML 1.1//EN" 
+    "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+
+    <title>Using Subversion properties for user-level commit access control</title>
+
+    <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=ISO-8859-1" />
+    <meta name="Keywords" content="Subversion,user,level,access,control,pre-commit,start-commit,property,admin:commit-allower,hook:commit-allower" />
+    <meta name="Description" content="Specification for using Subversion properties in conjunction with start-commit and pre-commit hooks to allow user-level commit access control" />
+
+    <style type="text/css">
+        dt { font-weight: bold; }
+        .term { border-bottom: 1px dotted black; }
+        .margin { margin-left: 1cm; }
+    </style>
+
+</head>
+
+<body>
+
+    <h3>Using Subversion properties for user-level commit access control</h3>
+
+    <p>Using <a href="http://svnbook.red-bean.com/en/1.1/ch07s02.html">properties</a>
+        in partnership with 
+        <a href="http://svnbook.red-bean.com/en/1.1/ch05s02.html#svn-ch-5-sect-2.1">hooks</a>
+        and <a href="http://svnbook.red-bean.com/en/1.1/ch05s03.html#svn-ch-5-sect-3.1.1">svnlook</a>,
+        we can provide a flexible, visible and version controlled mechanism for user-level
+        commit access control independent of the repository access method.</p>
+
+    <p>Two properties are used. One to administer commit rights and one to control who can commit.
+        Both these properties must exist at the root of the repository path.</p>
+
+    <p>Note: This approach only provides basic user-level commit access control. That is, a user
+        will either be able to commit to any part of the repository, or not at all. If you require
+        a more granular file or directory level of access control, you might like to use this
+        <a href="commit-access.html">commit-access</a> implementation, which is based on a
+        similar concept.</p>
+
+    <p>Caveat: This approach does not provide user authentication. The repository access method will
+        still need to provide authentication to the server.</p>
+
+    <dl>
+        <dt><dfn>property: </dfn><span class="term">admin:commit-allower</span></dt>
+        <dd>
+            <p>This property controls who can administer commit access. It must exist on the 
+                repository root and contains a line delimited list of users permitted to modify
+                both the <em>admin:commit-allower</em> and <em>hook:commit-allower</em> properties,
+                which are also on the repository root.</p>
+
+            <p>e.g. To give users <var>admin1</var> and <var>user1</var> rights to control who is
+                allowed to commit to the repository, the <em>admin:commit-allower</em> property is
+                set to the following values on the repository root:</p>
+
+            <p class="margin"><samp>admin1<br />user1</samp></p>
+        </dd>
+
+        <dt><dfn>property: </dfn><span class="term">hook:commit-allower</span></dt>
+        <dd>
+            <p>This property controls who has commit access.  It must exist on the repository root
+                path and contains a line delimited list of users who are permitted commit access.</p>
+
+            <p>e.g. To grant user <var>admin1</var>, <var>user1</var> and <var>user2</var> commit
+                access to any part of the repository, <em>hook:commit-allower</em> is set to the
+                following values on the repository root:</p>
+
+            <p class="margin"><samp>admin1<br />user1<br />user2</samp></p>
+
+		    <p>Note: A user defined in the <em>admin:commit-allower</em> property must also exist
+		        in the <em>hook:commit-allower</em> property, so when first defining commit access,
+		        it is necessary to set both of these properties in a single commit.</p>
+        </dd>
+
+        <dt><dfn>hook: </dfn><span class="term">pre-commit</span></dt>
+        <dd>
+            <p>This hook validates user has commit access permission to modify any changes
+                to <em>admin:commit-allower</em> and <em>hook:commit-allower</em> properties.</p>
+
+			<p>The following steps are required:</p>
+
+            <ol>
+                <li>Check if the repository root is changing using <code>svnlook dirs-changed</code></li>
+                <li>If the repository root is changing, build list of property changes
+                    using <code>svnlook proplist</code>.  If the repository root is not changing,
+                    pre-commit passes and exits</li>
+                <li>If the <em>admin:commit-allower</em> or <em>hook:commit-allower</em> properties
+                    have changed, use <code>svnlook propget</code> on the HEAD revision at the
+                    repository root to get the <em>admin:commit-allower</em> property value.  If 
+                    both properties have not changed, pre-commit passes and exits</li>
+                <li>If the <em>admin:commit-allower</em> property does not exist, or the committing
+                    user is not in the property value, pre-commit fails.</li>
+            </ol>
+
+            <br />
+        </dd>
+
+        <dt><dfn>hook: </dfn><span class="term">start-commit</span></dt>
+        <dd>
+            <p>This hook script searches HEAD revision for the <em>hook:commit-allower</em>
+                property on the repository root, then validates user has commit access.</p>
+
+            <p>If the <em>hook:commit-allower</em> property is not found, or if the property is
+                found, but the committing user is not in the property value, start-commit
+                fails.</p>
+        </dd>
+    </dl>
+
+</body>
+
+</html>

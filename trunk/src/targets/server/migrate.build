@@ -61,17 +61,19 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[migrate: usage: subnant migrate -D:to-svn-root=</path/to-svn-root> [-D:<option>=<value>]
+            <![CDATA[migrate:
 
-Migrate some or all repositories by chaining Subnant targets:
+Usage: subnant migrate -D:to-svn-root=</path/to-svn-root> [-D:<option>=<value>]
+
+Purpose: Migrate some or all repositories by chaining Subnant targets:
 verify -> dump -> create -> load -> verify
 
 Source repositories are not removed unless delete-source is set true
 
-Nearly all options that apply to Subnant targets called by migrate can
-also be passed through, see help in relevant target for more details,
-the exceptions are the compress option for the dump target, and the
-dumps option for the load target, which are hard-coded in migrate
+Nearly all options that apply to Subnant targets called by migrate can also be
+passed through, see help in relevant target for more details, the exceptions
+are the compress option for the dump target, and the dumps option for the load
+target, which are hard-coded in migrate
 
 Required:   
 to-svn-root     destination repository root directory

@@ -14,14 +14,37 @@ $Id$
     </target>
    
     <target name="init">
+        <!-- Establish if this is called by start-commit (user) or pre-commit (txn) hook -->
     </target>
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[commit-allower: usage: subnant commit-allower [-D:<option>=<value>]
+            <![CDATA[commit-allower:
 
-Control access to repository using start-commit hook 
+Usage: subnant commit-allower -D:repos=<repos> [-D:<option>=<value>]
 
+Purpose: user-level commit access control to repository using start-commit and
+pre-commit hooks in conjunction with Subversion properties on repository root
+
+Subversion properties used on repository root:
+
+admin:commit-allower         users allowed to administer commit access
+hook:commit-allower          users allowed to commit
+
+Pre-commit hook ensures changes to admin:commit-allower or hook:commit-allower
+properties are only permitted by users in admin:commit-allower
+
+Start-commit hook ensures commits to repository are only permitted by users in
+hook:commit-allower property
+
+Required:
+repos           full path to repository
+user            author attempting commit       [required in start-commit]
+txn             Subversion transaction number  [required in pre-commit]
+   
+Examples:
+subnant commit-allower -D:repos=/path/to/repos -D:user=user1    [start-commit]
+subnant commit-allower -D:repos=/path/to/repos -D:txn=1-1       [pre-commit]
 ]]>
         </echo>
     </target>

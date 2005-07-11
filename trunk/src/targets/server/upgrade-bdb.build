@@ -122,20 +122,22 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[upgrade-bdb: usage: subnant upgrade-bdb [-D:<option>=<value>]
+            <![CDATA[upgrade-bdb:
 
-Upgrade bdb repositories by:
+Usage: subnant upgrade-bdb [-D:<option>=<value>]
+
+Purpose: Upgrade bdb repositories by:
 -- running "svnadmin recover"
 -- performing a hotcopy and then verifying the hotcopy
 -- running "svnadmin list-unused-dblogs" and deleting resulting files
 -- deleting all "repos/db/__db.00?" files
 
-e.g. Subversion 1.2.0 upgraded BerkeleyDB from version 4.2.52 to 4.3.27,
-for bdb repositories running on Windows with Subversion 1.1.4 or earlier,
-upgrade actions are required, and this target automates the process.
+e.g. Subversion 1.2.0 upgraded BerkeleyDB from version 4.2.52 to 4.3.27, for
+bdb repositories running on Windows with Subversion 1.1.4 or earlier, upgrade
+actions are required. This target automates the process.
 
-NOTE: Make sure nobody is using the repository (stop Apache/svnserve,
-      restrict access via file:// when running this target
+NOTE: Ensure nobody is using the repository when running this target
+      (stop Apache and/or svnserve, restrict access via file://) 
 
 Options:
 repos           comma separated list of repositories *

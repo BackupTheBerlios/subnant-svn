@@ -117,12 +117,14 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[dump: usage: subnant dump [-D:<option>=<value>]
+            <![CDATA[dump:
 
-Dump and optionally compress repositories from svn-root to dump-root
+Usage: subnant dump [-D:<option>=<value>]
 
-Dump filename is based upon the name of the repository, the revision
-or revision range being dumped and whether it is compressed
+Purpose: Dump and optionally compress repositories from svn-root to dump-root
+
+Dump filename is based upon the name of the repository, the revision or
+revision range being dumped and whether it is compressed
 
 Dump filename format: <repos>.[rX[-Y]].dump[.zip]
 
@@ -144,7 +146,7 @@ svn-root        repository root directory ***
 svn-bindir      subversion binary directory ***
 compress        set compression level 1 (lowest) to 9 (highest)
 incremental     set true for svnadmin --incremental switch
-deltas          set true for svnamdin --deltas switch
+deltas          set true for svnadmin --deltas switch
 
 *   If repos not set, all repositories under svn-root are dumped
 **  If rev not set, all revisions are dumped

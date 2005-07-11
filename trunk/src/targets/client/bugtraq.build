@@ -74,9 +74,13 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[bugtraq: usage: subnant bugtraq [-D:wc=/path/to/wc]
+            <![CDATA[bugtraq:
 
-Set bugtraq properties in a working copy
+Usage: subnant bugtraq [-D:wc=/path/to/wc]
+
+Purpose: Set bugtraq properties in a working copy
+         
+Properties are defined in subnant/conf/subnant.config   
 
 Options:
 wc              comma separated list of working copies to set *

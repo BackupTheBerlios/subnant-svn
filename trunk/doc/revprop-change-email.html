@@ -49,19 +49,26 @@
 
         <dt><dfn>hook: </dfn><span class="term">post-revprop-change</span></dt>
         <dd>
-            <p>This hook script should call a program which searches the HEAD revision for
+            <p>This hook generates email(s) on revision property changes.</p>
+
+			<p>The following steps are required:</p>
+
+            <ol>
+                <li>Build list of directories changed using <code>svnlook dirs-changed</code></li>
+                <li>For each directory, then each parent directory, Search HEAD revision </li>
+            
+            script should call a program which searches the HEAD revision for
                 <em>hook:revprop-change-email</em> properties on or above the directories changed.
-                The <code>svnlook dirs-changed</code> command can be used in conjunction
-                with the revision number passed to post-commit to retrieve list of modified
-                directories.</p>
+
 
             <p>If matching properties are found, the hook script will:</p>
 
             <ol>
-                <li>Get property values, parsing each email address</li>
-                <li>Collate email addresses, removing  duplicates</li>
-                <li>Send email(s) containing author, revision, revision property modified,
-                    and the new property value</li>
+                <li>Get values of <em>hook:revprop-change-email</em> property using
+                    <code>svnlook propget</code>
+                <li>Build list of email address, removing duplicates</li>
+                <li>Send email(s) containing author, revision, action, revision property modified,
+                    and (if appropriate) the old and new property values</li>
             </ol>
         </dd>
     </dl>

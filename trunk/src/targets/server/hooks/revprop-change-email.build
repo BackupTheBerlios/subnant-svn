@@ -142,9 +142,10 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[revprop-change-email: usage: subnant revprop-change-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
+            <![CDATA[revprop-change-email:
+Usage: subnant revprop-change-email -D:repos=<repos> -D:rev=<rev> [-D:<option>=<value>]
 
-Sends email about revision property changes in a committed revision.
+Purpose: Sends email about revision property changes in a committed revision
 
 Searches for email addresses using Subversion hook:revprop-change-email
 property on directory or parent directories of affected file(s)
@@ -168,7 +169,7 @@ hook-prop        search for another property (i.e. not hook:revprop-change-email
 action           property is being 'A'dded, 'M'odified, or 'D'eleted
 
 Examples:
-subnant revprop-change-email -D:repos=/path/to/repo -D:rev=1 -D:user=foo -D:propname=svn:log -D:action=M
+subnant revprop-change-email -D:repos=/path/to/repos -D:rev=1 -D:user=foo -D:propname=svn:log -D:action=M
 ]]>
         </echo>
     </target>

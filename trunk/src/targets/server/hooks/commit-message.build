@@ -36,9 +36,11 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[commit-message: usage: subnant commit-message [-D:<option>=<value>]
+            <![CDATA[commit-message:
+   
+Usage: subnant commit-message -D:repos=<repos> -D:txn=<txn> [-D:<option>=<value>]
 
-Ensures log message is entered by using pre-commit hook
+Purpose: Used in pre-commit hook to ensure log message has been entered
 
 Required:
 repos           full path to repository
@@ -48,7 +50,7 @@ Options:
 no-log-msg      override default message when no log entered
 
 Examples:
-subnant commit-message -D:repos=/path/to/repo -D:txn=1-1
+subnant commit-message -D:repos=/path/to/repos -D:txn=1-1
 ]]>
         </echo>
     </target>
