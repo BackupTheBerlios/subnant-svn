@@ -23,7 +23,7 @@ Goals:
 
   * Define standard repository configuration (conf,hooks), then make it easy
     to create repositories to standard, automatically included in backups and
-    migrations as they are created under a standard svn-root directory
+    migrations as they are created under a common svn-root directory
 
 
 Prerequisites:
