@@ -7,11 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="custom-functions" default="default" basedir=".">
-
-    <target name="default">
-        <echo message="Loaded custom functions" level="Info"/>
-    </target>
+<project name="custom-functions">
 
     <!-- Custom functions -->
     <script language="C#" prefix="subnant">
