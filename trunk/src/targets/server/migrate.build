@@ -45,15 +45,16 @@ $Id$
             </nant>
             <echo message="::TODO:: Copy existing hooks from old repos into new repos (overwrite default hooks)" level="Warning"/>
             <echo message="::TODO:: Delete source repository if requested" level="Warning"/>
+            <property name="migrate-count" value="${int::parse(migrate-count)+1}"/>   
         </foreach>
-        <log-echo message="${string::pad-right('Migration complete',60,' ')}(${subnant::format-elapsed-time(migrate-started, true)})" file="${subnant-output}"/>
+        <log-echo message="${string::pad-right('Migrated '+migrate-count+' repositories',60,' ')}(${subnant::format-elapsed-time(migrate-started, true)})" file="${subnant-output}"/>
      </target>
 
     <target name="init">
         <property name="migrate-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="to-svn-bindir"   value="${svn-bindir}" unless="${property::exists('to-svn-bindir')}"/>
         <property name="migrate-repos"   value="${repos}"      unless="${property::exists('migrate-repos')}"/>
-        <property name="no-total"        value="true"/>
+        <property name="migrate-count"   value="0"/>
         <fail message="to-svn-root not set"                           unless="${property::exists('to-svn-root')}"/>
         <fail message="to-svn-root doesn't exist: ${to-svn-root}"     unless="${directory::exists(to-svn-root)}"/>
         <fail message="to-svn-bindir doesn't exist: ${to-svn-bindir}" unless="${directory::exists(to-svn-bindir)}"/>

@@ -16,7 +16,7 @@ $Id$
                 <loadfile file="${fs-type-file}" property="fs-type" failonerror="true"/>
                 <property name="fs-type" value="${string::trim(string::to-lower(fs-type))}"/>
             </if>
-            <!-- svn pre 1.1 had no repos/db/fs-type file (or choice!), so assume bdb if repos/format exists -->   
+            <!-- svn pre 1.1 had no repos/db/fs-type file (or choice!), so assume bdb if missing -->   
             <if test="${not file::exists(fs-type-file)}">
                 <property name="fs-type" value="bdb" if="${file::exists(path::combine(upgrade-svn-root,repo+'/format'))}"/>
             </if>
@@ -26,18 +26,18 @@ $Id$
                     <properties>
                         <property name="hotcopy-repos" value="${repo}"/>   
                         <property name="verify"        value="true"/>   
-                        <property name="no-total"      value="true"/>   
                     </properties>
                 </nant>
                 <call target="svnadmin-list-unused-dblogs"/>
                 <call target="delete-files"/>
+                <property name="upgrade-count" value="${int::parse(upgrade-count)+1}"/>   
             </if>
             <if test="${fs-type!='bdb'}">
                 <log-echo message="Repository ${repo} (${fs-type}) not of type bdb so not upgraded" file="${subnant-output}"/>
             </if>
         </foreach>
         <property name="failonerror" value="${orig-failonerror}"/>
-        <echo message="${string::pad-right('Upgrade complete',60,' ')}(${subnant::format-elapsed-time(upgrade-started, true)})" file="${subnant-output}" append="true"/>
+        <echo message="${string::pad-right('Upgraded '+upgrade-count+' repositories',60,' ')}(${subnant::format-elapsed-time(upgrade-started, true)})" file="${subnant-output}" append="true"/>
     </target>
 
     <target name="init">
@@ -45,6 +45,7 @@ $Id$
         <property name="upgrade-repos"    value="${repos}"    unless="${property::exists('upgrade-repos')}"/>
         <property name="upgrade-svn-root" value="${svn-root}" unless="${property::exists('upgrade-svn-root')}"/>
         <property name="upgrade-ok"       value="true"/>
+        <property name="upgrade-count"    value="0"/>
         <property name="orig-failonerror" value="${failonerror}"/>
         <property name="failonerror"      value="true"/>
         <property name="svnadmin-file"    value="${exec-output}-svnadmin-result"/>

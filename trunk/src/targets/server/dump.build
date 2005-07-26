@@ -13,8 +13,11 @@ $Id$
         <foreach item="String" delim="," in="${dump-repos}" property="repo">
             <call target="svnadmin-dump"/>
         </foreach>
-        <if test="${dump-ok=='true' and no-total!='true'}">
-            <echo message="${string::pad-right('Dump complete',60,' ')}(${subnant::format-elapsed-time(dump-started, true)})" file="${subnant-output}" append="true"/>
+        <if test="${dump-ok=='true' and int::parse(dump-count)&gt;1}">
+            <property name="summary" value="${subnant::format-length(total-dump-size,false)}"/>
+            <property name="summary" if="${ziplevel!='false'}" value="${summary+' to '+subnant::format-length(total-zip-size,false)}"/>
+            <property name="summary" value="${summary+' in '+subnant::format-elapsed-time(dump-started,true)}"/>
+            <echo message="${string::pad-right('Dumped '+dump-count+' repositories',60,' ')}(${summary})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${dump-ok!='true'}">
             <fail message="${string::pad-right('Dump completed with errors!',60,' ')}(${subnant::format-elapsed-time(dump-started, true)})"/>
@@ -27,12 +30,15 @@ $Id$
         <property name="dump-incremental" value="false"/>
         <property name="dump-deltas"      value="false"/>
         <property name="dump-ok"          value="true"/>
+        <property name="dump-count"       value="0"/>
+        <property name="file-size"        value="0"/>
+        <property name="total-dump-size"  value="0"/>
+        <property name="total-zip-size"   value="0"/>
         <property name="arg-revision"     value=""/>
         <property name="arg-incremental"  value=""/>
         <property name="arg-deltas"       value=""/>
         <!-- Read in defaults -->
         <property name="dump-repos"       value="${repos}" unless="${property::exists('dump-repos')}"/>
-        <property name="no-total"         value="false"    unless="${property::exists('no-total')}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root"     property="dump-root" unless="${property::exists('dump-root')}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/compress-dump" property="ziplevel"  unless="${property::exists('compress')}"/>
         <!-- Assign from parameters -->
@@ -85,8 +91,11 @@ $Id$
         </exec>
         <echo file="${exec-result}" message="${dump-result}" append="false"/>
         <if test="${dump-result=='0' and file::exists(dump-file)}">
-           <echo message="${string::pad-right('Dumped '+repo,60,' ')}(${subnant::format-length(file::get-length(dump-file),false)+' - '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
+            <property name="file-size"       value="${file::get-length(dump-file)}"/>   
+            <property name="total-dump-size" value="${long::parse(total-dump-size)+long::parse(file-size)}"/>   
+            <echo message="${string::pad-right('Dumped '+repo,60,' ')}(${subnant::format-length(file-size,false)+' in '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
             <call target="compress-dump-file" if="${ziplevel!='false'}"/>
+            <property name="dump-count" value="${int::parse(dump-count)+1}"/>   
         </if>
         <if test="${dump-result!='0'}">
             <echo message="${'*** ERROR dumping '+repo+' ***'}" file="${subnant-output}" append="true"/>
@@ -107,7 +116,9 @@ $Id$
         </zip>
         <if test="${file::exists(zip-file)}">
             <delete file="${dump-file}" if="${file::exists(zip-file)}"/>
-            <echo message="${string::pad-right('Compressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-length(file::get-length(zip-file),false)+' - '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
+            <property name="file-size"      value="${file::get-length(zip-file)}"/>   
+            <property name="total-zip-size" value="${long::parse(total-zip-size)+long::parse(file-size)}"/>   
+            <echo message="${string::pad-right('Compressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-length(file-size,false)+' in '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${not file::exists(zip-file)}">
             <echo message="${'*** ERROR compressing '+repo+' (zip not created) ***'}" file="${subnant-output}" append="true"/>

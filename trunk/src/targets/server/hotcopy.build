@@ -13,8 +13,8 @@ $Id$
         <foreach item="String" delim="," in="${hotcopy-repos}" property="repo">
             <call target="svnadmin-hotcopy"/>
         </foreach>
-        <if test="${hotcopy-ok=='true' and no-total!='true'}">
-            <echo message="${string::pad-right('Hotcopy complete',60,' ')}(${subnant::format-elapsed-time(hotcopy-started, true)})" file="${subnant-output}" append="true"/>
+        <if test="${hotcopy-ok=='true' and int::parse(hotcopy-count)&gt;1}">
+            <echo message="${string::pad-right('Hotcopied '+hotcopy-count+' repositories',60,' ')}(${subnant::format-elapsed-time(hotcopy-started, true)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${hotcopy-ok!='true'}">
             <fail message="${string::pad-right('Hotcopy completed with errors!',60,' ')}(${subnant::format-elapsed-time(hotcopy-started, true)})"/>
@@ -24,8 +24,8 @@ $Id$
     <target name="init">
         <property name="hotcopy-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="hotcopy-ok"      value="true"/>
+        <property name="hotcopy-count"   value="0"/>
         <property name="hotcopy-repos"   value="${repos}" unless="${property::exists('hotcopy-repos')}"/>
-        <property name="no-total"        value="false"    unless="${property::exists('no-total')}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/hotcopy-root"   property="hotcopy-root"         unless="${property::exists('hotcopy-root')}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/verify-hotcopy" property="verify-after-hotcopy" unless="${property::exists('verify')}"/>
         <property name="verify-after-hotcopy" value="${verify}" if="${property::exists('verify')}"/>
@@ -56,6 +56,7 @@ $Id$
                 <loadfile file="${exec-result}" property="verify-result"/>
                 <property name="hotcopy-ok" value="false" if="${string::trim(verify-result)!='0'}"/>
             </if>
+            <property name="hotcopy-count" value="${int::parse(hotcopy-count)+1}"/>   
         </if>
         <if test="${hotcopy-result!='0'}">
             <echo message="${string::pad-right('*** ERROR hotcopying '+repo+' ***',60,' ')}" file="${subnant-output}" append="true"/>

@@ -144,19 +144,19 @@ $Id$
             // Unable to use switch as demoninator is not constant
             if (length < denominator)
             {
-                return String.Format("{0:F0} bytes", length);
+                return String.Format("{0:F0}B", length);
             }
             else if (length < (denominator*denominator))
             {
-                return String.Format("{0:F2} K{1}B", (length/denominator), kibi);
+                return String.Format("{0:F2}K{1}B", (length/denominator), kibi);
             }
             else if (length < (denominator*denominator*denominator))
             {
-                return String.Format("{0:F2} M{1}B", ((length/denominator)/denominator), kibi);
+                return String.Format("{0:F2}M{1}B", ((length/denominator)/denominator), kibi);
             }
             else
             {
-                return String.Format("{0:F2} G{1}B", (((length/denominator)/denominator)/denominator), kibi);
+                return String.Format("{0:F2}G{1}B", (((length/denominator)/denominator)/denominator), kibi);
             }
         }
 

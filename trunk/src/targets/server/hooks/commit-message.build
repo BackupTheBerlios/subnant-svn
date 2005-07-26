@@ -22,7 +22,7 @@ $Id$
         <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook log output file not found: ${exec-output} ***"/>
         <loadfile file="${exec-output}" property="log-message"/>
         <if test="${string::get-length(string::trim(log-message))==0}">
-            <echo message="Commit denied - no log message entered for repository ${repos} on transaction ${txn}" file="${subnant-output}" append="true"/>
+            <log-echo message="Commit denied - no log message entered for repository ${repos} on transaction ${txn}" file="${subnant-output}"/>
             <stderr message="${no-log-msg}"/>
             <fail message="${no-log-msg}"/>
         </if>

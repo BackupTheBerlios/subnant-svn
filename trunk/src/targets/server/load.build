@@ -13,8 +13,8 @@ $Id$
         <foreach item="String" delim="," in="${load-dumps}" property="dump-file">
             <call target="svnadmin-load"/>
         </foreach>
-        <if test="${load-ok=='true' and no-total!='true'}">
-            <echo message="${string::pad-right('Load complete',60,' ')}(${subnant::format-elapsed-time(load-started, true)})" file="${subnant-output}" append="true"/>
+        <if test="${load-ok=='true' and int::parse(load-count)&gt;1}">
+            <echo message="${string::pad-right('Loaded '+load-count+' repositories',60,' ')}(${subnant::format-elapsed-time(load-started, true)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${load-ok!='true'}">
             <fail message="${string::pad-right('Load completed with errors!',60,' ')}(${subnant::format-elapsed-time(load-started, true)})"/>
@@ -24,14 +24,16 @@ $Id$
     <target name="init" depends="init-windows,init-linux">
         <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="load-ok"      value="true"/>
+        <property name="load-count"   value="0"/>
         <property name="temp-dir"     value=""/>
         <property name="arg-revision" value=""/>
-        <property name="load-dumps"   value="${dumps}" unless="${property::exists('load-dumps')}"/>   
-        <property name="rev"          value="false"    unless="${property::exists('rev')}"/>
-        <property name="no-total"     value="false"    unless="${property::exists('no-total')}"/>
+        <if test="${not property::exists('load-dumps')}">
+            <fail unless="${property::exists('dumps')}" message="Dumps property not defined"/>
+            <property name="load-dumps" value="${dumps}"/>
+        </if>   
+        <property name="rev" value="false" unless="${property::exists('rev')}"/>
         <property name="arg-revision" value="--revision ${rev}" if="${rev!='false'}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}"/>
-        <fail unless="${property::exists('load-dumps')}" message="Dumps property not defined"/>
         <fail unless="${directory::exists(dump-root)}"   message="dump-root is invalid or does not exist in filesystem: ${dump-root}"/>
     </target>
 
@@ -77,6 +79,7 @@ $Id$
         </if>
         <if test="${load-result=='0'}">
             <echo message="${string::pad-right('Loaded '+repo,60,' ')}(${subnant::format-elapsed-time(started, true)})" file="${subnant-output}" append="true"/>
+            <property name="load-count" value="${int::parse(load-count)+1}"/>   
         </if>
         <if test="${load-result!='0'}">
             <echo message="${'*** ERROR loading '+repo+' ***'}" file="${subnant-output}" append="true"/>

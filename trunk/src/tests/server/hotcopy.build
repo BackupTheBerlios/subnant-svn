@@ -14,7 +14,6 @@ $Id$
         <nant buildfile="${subnant-root}/src/targets/server/hotcopy.build" target="hotcopy">
             <properties>
                 <property name="verify"   value="true"/>   
-                <property name="no-total" value="true"/>   
             </properties>
         </nant>
     </target>

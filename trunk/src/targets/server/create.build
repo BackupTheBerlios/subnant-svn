@@ -13,6 +13,9 @@ $Id$
         <foreach item="String" delim="," in="${create-repos}" property="repo">
             <call target="svnadmin-create"/>
         </foreach>
+        <if test="${create-ok=='true' and int::parse(create-count)&gt;1}">
+            <echo message="${string::pad-right('Created '+create-count+' repositories',60,' ')}(${subnant::format-elapsed-time(create-started, true)})" file="${subnant-output}" append="true"/>
+        </if>
         <if test="${create-ok!='true'}">
             <fail message="${string::pad-right('Create completed with errors!',60,' ')}(${subnant::format-elapsed-time(create-started, false)})"/>
         </if>
@@ -21,6 +24,7 @@ $Id$
     <target name="init">
         <property name="create-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="create-ok"      value="true"/>
+        <property name="create-count"   value="0"/>
         <property name="create-repos"   value="${repos}" unless="${property::exists('create-repos')}"/>
         <!-- Assign config values to properties so long as they haven't been passed as a command-line parameter -->
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/fs-type"    property="fs-type"    unless="${property::exists('fs-type')}"/>
@@ -65,6 +69,7 @@ $Id$
             <echo message="${string::pad-right('Created '+repo+' ('+create-fs-type+') in '+svn-root,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
             <call target="copy-repos-conf"  unless="${property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true'}"/>
             <call target="copy-repos-hooks" unless="${property::exists('no-hooks') and string::to-lower(no-hooks)=='true'}"/>
+            <property name="create-count" value="${int::parse(create-count)+1}"/>   
         </if>
         <if test="${create-result!='0'}">
             <echo message="*** ERROR creating ${repo} (${create-fs-type}) in ${svn-root} ***" file="${subnant-output}" append="true"/>
