@@ -112,7 +112,7 @@ $Id$
                                 <echo message="${prefix}${temp-prop}" file="${svnlook-file}" append="true"/>
                             </if>
                             <if test="${subcommand!='author' and subcommand!='date'}">
-                                <echo message="${prefix}"    file="${svnlook-file}" append="true"/>
+                                <echo message="${prefix}"    file="${svnlook-file}" append="true" if="${prefix!=''}"/>
                                 <echo message="${temp-prop}" file="${svnlook-file}" append="true"/>
                             </if>
                         </if>
