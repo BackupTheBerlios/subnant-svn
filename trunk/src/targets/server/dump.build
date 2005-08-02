@@ -76,7 +76,7 @@ $Id$
     <target name="init-dump">
         <property name="started"   value="${datetime::get-ticks(datetime::now())}"/>
         <property name="repo"      value="${subnant::return-directory-name(repo)}"/>
-        <property name="dump-dir"  value="${dump-root+'/'+repo}"/>
+        <property name="dump-dir"  value="${path::combine(dump-root,repo)}"/>
         <property name="dump-file" value="${path::combine(dump-dir,repo)}"/>
         <property name="dump-file" if="${rev!='false'}" value="${dump-file+'.r'+string::replace(rev,':','-')}"/>
         <property name="dump-file" value="${dump-file+'.dump'}"/>
