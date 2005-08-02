@@ -10,7 +10,7 @@ $Id$
 <project name="load" default="load">
 
     <target name="load" depends="init">
-        <foreach item="String" delim="," in="${load-dumps}" property="dump-file">
+        <foreach item="String" delim="," in="${load-dump}" property="dump-file">
             <call target="svnadmin-load"/>
         </foreach>
         <if test="${load-ok=='true' and int::parse(load-count)&gt;1}">
@@ -26,13 +26,10 @@ $Id$
         <property name="load-ok"      value="true"/>
         <property name="load-count"   value="0"/>
         <property name="temp-dir"     value=""/>
-        <property name="arg-revision" value=""/>
-        <if test="${not property::exists('load-dumps')}">
-            <fail unless="${property::exists('dumps')}" message="Dumps property not defined"/>
-            <property name="load-dumps" value="${dumps}"/>
+        <if test="${not property::exists('load-dump')}">
+            <fail unless="${property::exists('dump')}" message="dump not defined"/>
+            <property name="load-dump" value="${dump}"/>
         </if>   
-        <property name="rev" value="false" unless="${property::exists('rev')}"/>
-        <property name="arg-revision" value="--revision ${rev}" if="${rev!='false'}"/>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}"/>
         <fail unless="${directory::exists(dump-root)}"   message="dump-root is invalid or does not exist in filesystem: ${dump-root}"/>
     </target>
@@ -56,7 +53,7 @@ $Id$
         <if test="${string::contains(dump-file,'.')}">
             <property name="repo" value="${string::substring(dump-file,0,string::index-of(dump-file,'.'))}"/>
         </if>
-        <!-- ::TODO:: Create fileset to cater for wildcards for r* dumps -->
+        <!-- ::TODO:: Create fileset to cater for wildcards for r*.dump -->
         <if test="${string::contains(dump-file,'.r*.')}">
             <fail message="::TODO:: Revision wildcards not yet implemented"/>
         </if>
@@ -70,9 +67,9 @@ $Id$
 
     <target name="svnadmin-load">
         <call target="init-load"/>
-        <echo message="Loading ${path::get-file-name(dump-file)} ${string::trim(arg-revision)}" level="Warning"/>
+        <echo message="Loading ${path::get-file-name(dump-file)}" level="Warning"/>
         <exec program="${shell}" failonerror="${failonerror}" resultproperty="load-result">
-            <arg line='${line-start}"${svnadmin}" load "${path::combine(svn-root,repo)}" &lt; "${dump-file}" ${arg-revision}${line-end}'/>
+            <arg line='${line-start}"${svnadmin}" load "${path::combine(svn-root,repo)}" &lt; "${dump-file}"${line-end}'/>
         </exec>
         <if test="${compressed and directory::exists(temp-dir)}">
             <delete dir="${temp-dir}"/>
@@ -97,10 +94,10 @@ $Id$
         <unzip zipfile="${zip-file}" todir="${temp-dir}" failonerror="${failonerror}"/>
         <property name="dump-file"  value="${path::combine(temp-dir,path::get-file-name-without-extension(dump-file))}"/>
         <if test="${file::exists(dump-file)}">
-            <echo message="${string::pad-right('Uncompressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-length(file::get-length(zip-file),false)+' - '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Uncompressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
         </if>
         <if test="${not file::exists(zip-file)}">
-            <echo message="${'*** ERROR compressing '+repo+' (zip not created) ***'}" file="${subnant-output}" append="true"/>
+            <echo message="${'*** ERROR uncompressing '+repo+' (zip not created) ***'}" file="${subnant-output}" append="true"/>
             <property name="dump-ok" value="false"/>
         </if>
     </target>
@@ -109,20 +106,20 @@ $Id$
         <echo level="Warning">
             <![CDATA[load:
 
-Usage: subnant load -D:dumps=<value> [-D:<option>=<value>]
+Usage: subnant load -D:dump=<value> [-D:<option>=<value>]
 
-Purpose: Load repositories from dumps, optionally uncompressing into temporary
-directory (and then removing afterwards) if dump has .zip extension
+Purpose: Load repository from dump, optionally uncompressing into temporary
+directory (and removing afterwards) if dump has .zip extension
 
 Dump filename format is assumed to match: <repos>.[rX[-Y]].dump[.zip]
 
 Where X is the oldest and Y is the youngest revision
 
-When X is wild carded using * and Y is not passed all dumps found for the
+When X is wild carded using * and Y is not passed, all dump found for the
 repository are loaded in ascending revision order
 
 Required:
-dumps           comma separated list of dumps under dump-root to load from *
+dump            comma separated list of dump files to load under dump-root *
 
 Options:
 dump-root       repository dump directory **
@@ -133,8 +130,8 @@ svn-bindir      Subversion binary directory **
 ** If option not set, default value in subnant.config is used
 
 Examples:
-subnant load -D:dumps=repo1,repo2.dump,repo3.dump.zip
-subnant load -D:dumps=repo1.dump -D:dump-root=/svnroot/dumps
+subnant load -D:dump=repo1,repo2.dump,repo3.dump.zip
+subnant load -D:dump=repo1.dump -D:dump-root=/svnroot/dumps
 ]]>
         </echo>
     </target>
