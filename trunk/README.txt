@@ -119,7 +119,7 @@ Repository targets:
   * mirror
 
     Mirror a remote repository by chaining Subnant targets: create -> load 
-    after downloading and optionally uncompressing dump file
+    after downloading and (if needed) uncompressing dump file
 
 
   * upgrade-bdb

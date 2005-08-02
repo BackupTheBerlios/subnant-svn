@@ -90,12 +90,12 @@ Gets repository dump from url (currently HTTP or UNC protocols supported),
 saves into dump-root/repos, uncompressing if necessary, then calls Subnant
 create and load targets
 
-Note that any existing repository (under svn-root/repos) will be deleted
+Note that any existing repository under svn-root/repos will be deleted
 
 A read-only mirror is assumed, as such the Subnant create target is called
 with no-svnserve and no-hooks options set true, however you can override these
-options and pass through your options for both Subnant create and load targets
-(refer to help in these targets for details on available options)   
+and pass through your options for both Subnant create and load, refer to help
+in relevant target for more details
 
 Required:   
 repos           name of repository to create under svn-root

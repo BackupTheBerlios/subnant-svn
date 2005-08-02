@@ -16,9 +16,10 @@ $Id$
                 <property name="compress" value="false"/>   
             </properties>
         </nant>
+        <copy file="${path::combine(dump-dir,repos+'.dump')}" todir="${mirror-dir}"/>
         <nant buildfile="${subnant-root}/src/targets/server/mirror.build" target="mirror">
             <properties>
-                <property name="url" value="${dump-url}"/>   
+                <property name="url" value="${mirror-url}"/>   
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/server/dump.build" target="dump">
@@ -26,16 +27,20 @@ $Id$
                 <property name="compress" value="9"/>   
             </properties>
         </nant>
+        <copy file="${path::combine(dump-dir,repos+'.dump.zip')}" todir="${mirror-dir}"/>
         <nant buildfile="${subnant-root}/src/targets/server/mirror.build" target="mirror">
             <properties>
-                <property name="url" value="${dump-url}.zip"/>   
+                <property name="url" value="${mirror-url}.zip"/>   
             </properties>
         </nant>
+        <delete if="${directory::exists(mirror-dir)}" dir="${mirror-dir}"/>
     </target>
 
     <target name="init">
-        <property name="dump-url" value="${path::combine(dump-root,repos)}"/>
-        <property name="dump-url" value="${subnant::to-uri(path::combine(dump-url,repos))}.dump"/>
+        <property name="dump-dir"   value="${path::combine(dump-root,repos)}"/>
+        <property name="mirror-dir" value="${path::combine(dump-dir,'mirror')}"/>
+        <property name="mirror-url" value="${subnant::to-uri(path::combine(mirror-dir,repos+'.dump'))}"/>
+        <mkdir dir="${mirror-dir}" unless="${directory::exists(mirror-dir)}"/>   
     </target>
    
 </project>
