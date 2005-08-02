@@ -105,7 +105,7 @@ $Id$
                             <property name="prefix" value=""/>
                             <!-- Add capitalised prefix if appropriate -->
                             <property name="prefix" value="${string::to-upper(string::substring(subcommand,0,1))+string::substring(subcommand,1,string::get-length(subcommand)-1)+': '}"
-                                if="${subcommand=='author' or subcommand=='changed' or subcommand=='date' or subcommand=='log'}"/>
+                                if="${subcommand=='author' or subcommand=='changed' or subcommand=='date' or subcommand=='dirs-changed' or subcommand=='log'}"/>
                             <call target="exec-svnlook"/>
                             <loadfile file="${exec-output}" property="temp-prop"/>
                             <if test="${subcommand=='author' or subcommand=='date'}">
