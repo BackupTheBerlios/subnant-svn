@@ -33,7 +33,6 @@ $Id$
                 <property name="url" value="${mirror-url}.zip"/>   
             </properties>
         </nant>
-        <delete if="${directory::exists(mirror-dir)}" dir="${mirror-dir}"/>
     </target>
 
     <target name="init">
