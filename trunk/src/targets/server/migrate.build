@@ -31,7 +31,7 @@ $Id$
             </nant>
             <nant buildfile="load.build" target="load">
                 <properties>
-                    <property name="load-dumps" value="${repo}.dump"/>
+                    <property name="load-dump"  value="${repo}.dump"/>
                     <property name="svn-root"   value="${to-svn-root}"/>
                     <property name="svn-bindir" value="${to-svn-bindir}"/>
                 </properties>
@@ -73,14 +73,14 @@ Source repositories are not removed unless delete-source is set true
 
 Nearly all options that apply to Subnant targets called by migrate can also be
 passed through, see help in relevant target for more details, the exceptions
-are the compress option for the dump target, and the dumps option for the load
+are the compress option for the dump target, and the dump option for the load
 target, which are hard-coded in migrate
 
 Required:   
 to-svn-root     destination repository root directory
 
 Options:
-repos           comma separated list of repositories to move *
+repos           comma separated list of repositories to migrate *
 svn-root        repository root directory used for verify,dump (source) **
 svn-bindir      subversion binary directory used for verify,dump (source) **
 to-svn-bindir   subversion binary directory used for create,load,verify (dest)

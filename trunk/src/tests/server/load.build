@@ -27,7 +27,7 @@ $Id$
         </nant>
         <nant buildfile="${subnant-root}/src/targets/server/load.build" target="load">
             <properties>
-                <property name="dumps" value="${repos}"/>   
+                <property name="dump" value="${repos}"/>   
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/server/verify.build" target="verify"/>
@@ -52,7 +52,7 @@ $Id$
         </nant>
         <nant buildfile="${subnant-root}/src/targets/server/load.build" target="load">
             <properties>
-                <property name="dumps" value="${repos}.dump.zip"/>   
+                <property name="dump" value="${repos}.dump.zip"/>   
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/server/verify.build" target="verify"/>
@@ -80,7 +80,7 @@ $Id$
         </nant>
         <nant buildfile="${subnant-root}/src/targets/server/load.build" target="load">
             <properties>
-                <property name="dumps" value="${repos}.r0-2.dump"/>   
+                <property name="dump" value="${repos}.r0-2.dump"/>   
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/server/verify.build" target="verify"/>
