@@ -64,7 +64,7 @@ $Id$
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
                 <property name="test-target" value="${string::to-lower(string::trim(test-target))}"/>
-                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|revprop-change-(access|email)|upgrade-bdb|verify))" input="${test-target}" failonerror="false"/>
+                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|mirror|revprop-change-(access|email)|upgrade-bdb|verify))" input="${test-target}" failonerror="false"/>
                 <call target="run-test"/>
             </foreach>
         </if>
@@ -82,6 +82,8 @@ $Id$
             <property name="test-target" value="load"/>
             <call target="run-test"/>
             <property name="test-target" value="migrate"/>
+            <call target="run-test"/>
+            <property name="test-target" value="mirror"/>
             <call target="run-test"/>
             <property name="test-target" value="upgrade-bdb"/>
             <call target="run-test"/>
@@ -112,8 +114,8 @@ $Id$
         <if test="${test-target=='bugtraq'}">
             <property name="build-path" value="${subnant-root}/src/tests/client"/>
         </if>
-        <!-- Server targets: create,dump,hotcopy,load,migrate,upgrade-bdb,verify -->
-        <if test="${test-target=='create' or test-target=='dump' or test-target=='hotcopy' or test-target=='load' or test-target=='migrate' or test-target=='upgrade-bdb' or test-target=='verify'}">
+        <!-- Server targets: create,dump,hotcopy,load,migrate,mirror,upgrade-bdb,verify -->
+        <if test="${test-target=='create' or test-target=='dump' or test-target=='hotcopy' or test-target=='load' or test-target=='migrate' or test-target=='mirror' or test-target=='upgrade-bdb' or test-target=='verify'}">
             <property name="build-path" value="${subnant-root}/src/tests/server"/>
         </if>
         <!-- Hook targets: commit-access,commit-allower,commit-email,commit-message,revprop-change-access,revprop-change-email -->

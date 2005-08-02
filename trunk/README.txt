@@ -116,6 +116,12 @@ Repository targets:
     repository targets (create, load and verify)
 
 
+  * mirror
+
+    Mirror a remote repository by chaining Subnant targets: create -> load 
+    after downloading and optionally uncompressing dump file
+
+
   * upgrade-bdb
 
     Upgrade bdb style repositories

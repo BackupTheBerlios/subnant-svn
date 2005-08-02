@@ -80,6 +80,11 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/server/migrate.build" target="${subnant::get-target()}"/>
     </target>
 
+    <target name="mirror" description="Mirror a remote repository"
+        depends="init,init-repos,init-svnadmin,build-repos-list">
+        <nant buildfile="targets/server/mirror.build" target="${subnant::get-target()}"/>
+    </target>
+   
     <target name="upgrade-bdb" description="Upgrade bdb repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
         <nant buildfile="targets/server/upgrade-bdb.build" target="${subnant::get-target()}"/>
@@ -216,7 +221,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
 
     <target name="verify-repos-exists" if="${subnant::get-target()!='help'}">
         <if test="${property::exists('repos')}">
-            <if test="${string::get-length(repos)==0}">
+            <if test="${string::get-length(string::trim(repos))==0}">
                 <fail message="repos was set but no value entered"/>
             </if>
             <foreach item="String" in="${repos}" delim="," property="repo">
