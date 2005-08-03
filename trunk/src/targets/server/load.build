@@ -42,8 +42,8 @@ $Id$
 
     <target name="init-linux" if="${platform::is-unix()}">
         <property name="shell"      value="sh"/>
-        <property name="line-start" value=""/>
-        <property name="line-end"   value=""/>
+        <property name="line-start" value=' -c "'/>
+        <property name="line-end"   value='"'/>
     </target>
 
     <target name="init-load">

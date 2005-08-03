@@ -178,7 +178,14 @@ $Id$
         </if>
         -->
         <if test="${not file::exists(hook-script)}">
-            <echo message="${hook-exec}" file="${hook-script}" append="false"/>
+            <if test="${platform::is-unix()}">
+                <echo message="#!/bin/sh"    file="${hook-script}" append="false"/>
+                <echo message="${hook-exec}" file="${hook-script}" append="true"/>
+                <exec program="chmod" commandline="a+x ${hook-script}" failonerror="true"/>
+            </if>
+            <if test="${platform::is-win32()}">
+                <echo message="${hook-exec}" file="${hook-script}" append="false"/>
+            </if>
             <fail unless="${file::exists(hook-script)}" message="*** ERROR creating hook ${hook} ***"/>
             <log-echo message="Created hook ${path::get-file-name(hook-script)}" file="${subnant-output}"/>
         </if>
