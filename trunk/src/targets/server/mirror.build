@@ -86,11 +86,11 @@ Usage: subnant mirror -D:repos=<repos> -D:url=<url> [-D:<option>=<value>]
 
 Purpose: Mirror repository from remote dump
 
-Gets repository dump from url (currently HTTP or UNC protocols supported),
-saves into dump-root/repos, uncompressing if necessary, then calls Subnant
+Get repository dump from url (currently HTTP or UNC protocols supported),
+save into dump-root/repos, uncompress if necessary, then call Subnant
 create and load targets
 
-Note that any existing repository under svn-root/repos will be deleted
+Note that existing repository under svn-root/repos will be deleted
 
 A read-only mirror is assumed, as such the Subnant create target is called
 with no-svnserve and no-hooks options set true, however you can override these

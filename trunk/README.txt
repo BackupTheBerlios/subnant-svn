@@ -118,8 +118,8 @@ Repository targets:
 
   * mirror
 
-    Mirror a remote repository by chaining Subnant targets: create -> load 
-    after downloading and (if needed) uncompressing dump file
+    Mirror a repository from a remote dump by chaining Subnant targets:
+    create -> load  (dump will be uncompressed if in .zip or .gz format)
 
 
   * upgrade-bdb
