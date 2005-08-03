@@ -16,10 +16,11 @@ $Id$
                 <property name="compress" value="false"/>   
             </properties>
         </nant>
+        <log-echo message="[Testing uncompressed dump]" file="${subnant-output}"/>
         <copy file="${path::combine(dump-dir,repos+'.dump')}" todir="${mirror-dir}"/>
         <nant buildfile="${subnant-root}/src/targets/server/mirror.build" target="mirror">
             <properties>
-                <property name="url" value="${mirror-url}"/>   
+                <property name="url" value="${mirror-url}"/>
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/server/dump.build" target="dump">
@@ -28,11 +29,20 @@ $Id$
             </properties>
         </nant>
         <copy file="${path::combine(dump-dir,repos+'.dump.zip')}" todir="${mirror-dir}"/>
+        <log-echo message="[Testing Zip dump]" file="${subnant-output}"/>
         <nant buildfile="${subnant-root}/src/targets/server/mirror.build" target="mirror">
             <properties>
                 <property name="url" value="${mirror-url}.zip"/>   
             </properties>
         </nant>
+        <log-echo message="[::TODO:: Test GZip dump]" file="${subnant-output}"/>
+        <!-- How to test .gz from local file without using <tar>? (as there is no <untar>)
+        <nant buildfile="${subnant-root}/src/targets/server/mirror.build" target="mirror">
+            <properties>
+                <property name="url" value="http://svn.berlios.de/svndumps/subnant-repos.gz"/>
+            </properties>
+        </nant>
+        -->
     </target>
 
     <target name="init">
