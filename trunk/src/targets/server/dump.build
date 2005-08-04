@@ -24,7 +24,7 @@ $Id$
         </if>
     </target>
 
-    <target name="init" depends="init-windows,init-linux">
+    <target name="init">
         <property name="dump-started"     value="${datetime::get-ticks(datetime::now())}"/>
         <property name="rev"              value="false" unless="${property::exists('rev')}"/>
         <property name="dump-incremental" value="false"/>
@@ -61,18 +61,6 @@ $Id$
         <fail if="${ziplevel!='false' and int::parse(ziplevel)&lt;1 and int::parse(ziplevel)&gt;9}" message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
     </target>
 
-    <target name="init-windows" if="${platform::is-win32()}">
-        <property name="shell"      value="CMD"/>
-        <property name="line-start" value='/S /C " '/>
-        <property name="line-end"   value=' "'/>
-    </target>
-
-    <target name="init-linux" if="${platform::is-unix()}">
-        <property name="shell"      value="sh"/>
-        <property name="line-start" value=' -c "'/>
-        <property name="line-end"   value='"'/>
-    </target>
-
     <target name="init-dump">
         <property name="started"   value="${datetime::get-ticks(datetime::now())}"/>
         <property name="repo"      value="${subnant::return-directory-name(repo)}"/>
@@ -87,7 +75,7 @@ $Id$
         <call target="init-dump"/>
         <echo level="Warning" message="Dumping ${repo} ${string::trim(arg-revision+' '+arg-incremental+' '+arg-deltas)}"/>
         <exec program="${shell}" failonerror="${failonerror}" resultproperty="dump-result">
-            <arg line='${line-start}"${svnadmin}" dump "${path::combine(svn-root,repo)}" &gt; "${dump-file}" ${arg-revision} ${arg-incremental} ${arg-deltas}${line-end}'/>
+            <arg line='${shell-switch}""${svnadmin}" dump "${path::combine(svn-root,repo)}" &gt; "${dump-file}" ${arg-revision} ${arg-incremental} ${arg-deltas}"'/>
         </exec>
         <echo file="${exec-result}" message="${dump-result}" append="false"/>
         <if test="${dump-result=='0' and file::exists(dump-file)}">

@@ -21,7 +21,7 @@ $Id$
         </if>
     </target>
 
-    <target name="init" depends="init-windows,init-linux">
+    <target name="init">
         <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
         <property name="load-ok"      value="true"/>
         <property name="load-count"   value="0"/>
@@ -32,18 +32,6 @@ $Id$
         </if>   
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}"/>
         <fail unless="${directory::exists(dump-root)}"   message="dump-root is invalid or does not exist in filesystem: ${dump-root}"/>
-    </target>
-
-    <target name="init-windows" if="${platform::is-win32()}">
-        <property name="shell"      value="CMD"/>
-        <property name="line-start" value='/S /C " '/>
-        <property name="line-end"   value=' "'/>
-    </target>
-
-    <target name="init-linux" if="${platform::is-unix()}">
-        <property name="shell"      value="sh"/>
-        <property name="line-start" value=' -c "'/>
-        <property name="line-end"   value='"'/>
     </target>
 
     <target name="init-load">
@@ -69,7 +57,7 @@ $Id$
         <call target="init-load"/>
         <echo message="Loading ${path::get-file-name(dump-file)}" level="Warning"/>
         <exec program="${shell}" failonerror="${failonerror}" resultproperty="load-result">
-            <arg line='${line-start}"${svnadmin}" load "${path::combine(svn-root,repo)}" &lt; "${dump-file}"${line-end}'/>
+            <arg line='${shell-switch}""${svnadmin}" load "${path::combine(svn-root,repo)}" &lt; "${dump-file}""'/>
         </exec>
         <if test="${compressed and directory::exists(temp-dir)}">
             <delete dir="${temp-dir}"/>

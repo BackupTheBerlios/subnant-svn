@@ -61,7 +61,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="dump" description="Dump repositories"
-        depends="init,init-repos,init-svnadmin,init-svnlook,verify-repos-exists,build-repos-list">
+        depends="init,init-repos,init-svnlook,init-svnadmin,init-shell,verify-repos-exists,build-repos-list">
         <nant buildfile="targets/server/dump.build" target="${subnant::get-target()}"/>
     </target>
 
@@ -71,7 +71,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="load" description="Load repositories"
-        depends="init,init-repos,init-svnadmin">
+        depends="init,init-repos,init-svnadmin,init-shell">
         <nant buildfile="targets/server/load.build" target="${subnant::get-target()}"/>
     </target>
 
@@ -144,7 +144,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="test" description="Test main targets"
-        depends="init,init-repos,init-wc,init-svn,init-svnadmin,init-svnlook">
+        depends="init,init-repos,init-wc,init-svn,init-svnadmin,init-svnlook,init-shell,init-svnlook">
         <nant buildfile="targets/test.build" target="${subnant::get-target()}"/>
     </target>
 
@@ -219,6 +219,17 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <property name="svnlook" value="${path::combine(svn-bindir,'svnlook')}"/>
     </target>
 
+    <target name="init-shell">
+        <if test="${platform::is-win32()}">
+            <property name="shell"        value="CMD"/>
+            <property name="shell-switch" value="/S /C "/>
+        </if>
+        <if test="${platform::is-unix()}">
+            <property name="shell"        value="sh"/>
+            <property name="shell-switch" value="-c "/>
+        </if>
+    </target>
+   
     <target name="verify-repos-exists" if="${subnant::get-target()!='help'}">
         <if test="${property::exists('repos')}">
             <if test="${string::get-length(string::trim(repos))==0}">
@@ -246,12 +257,12 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             <foreach item="Folder" in="${svn-root}" property="repo">
                 <do>
                     <loadfile file="${path::combine(repo,'format')}" property="fs-format" failonerror="false"/>
-                    <if test="${int::parse(fs-format)>0}">
+                    <if test="${int::parse(fs-format) &gt; 0}">
                         <property name="repos" value="${repos+subnant::return-directory-name(repo)+','}"/>
                     </if>
                 </do>
             </foreach>
-            <if test="${string::get-length(repos)>0}">
+            <if test="${string::get-length(repos) &gt; 0}">
                 <property name="repos" value="${string::substring(repos,0,string::get-length(repos)-1)}"/>
             </if>
             <if test="${string::get-length(repos)==0}">
