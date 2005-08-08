@@ -10,7 +10,7 @@ $Id$
 <project name="test-commit-email" default="test-commit-email">
 
     <target name="test-commit-email" depends="init">
-        <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="create">
             <properties>
                 <property name="no-hooks"    value="true"/>
                 <property name="no-svnserve" value="true"/>

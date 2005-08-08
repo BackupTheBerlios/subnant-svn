@@ -12,57 +12,57 @@ $Id$
     <target name="test-load">
         <log-echo message="[Test load from standard dump]" file="${subnant-output}"/>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
-        <nant buildfile="${subnant-root}/src/targets/server/dump.build" target="dump">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
                 <property name="compress" value="false"/>   
             </properties>
         </nant>
         <echo message="Deleting ${repos}" level="Warning"/>
         <delete dir="${path::combine(svn-root,repos)}"/>
-        <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="create">
             <properties>
                 <property name="no-hooks"    value="true"/>
                 <property name="no-svnserve" value="true"/>
             </properties>
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/server/load.build" target="load">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="load">
             <properties>
                 <property name="dump" value="${repos}"/>   
             </properties>
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/server/verify.build" target="verify"/>
+        <nant buildfile="${subnant-root}/src/subnant.build" target="verify"/>
 
         <log-echo message="[Test load from compressed dump]" file="${subnant-output}"/>
         <echo message="Deleting ${repos}" level="Warning"/>
         <delete dir="${path::combine(svn-root,repos)}"/>
         <delete dir="${path::combine(dump-root,repos)}"/>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
-        <nant buildfile="${subnant-root}/src/targets/server/dump.build" target="dump">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
                 <property name="compress" value="9"/>
             </properties> 
         </nant>
         <echo message="Deleting ${repos}" level="Warning"/>
         <delete dir="${path::combine(svn-root,repos)}"/>
-        <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="create">
             <properties>
                 <property name="no-hooks"    value="true"/>
                 <property name="no-svnserve" value="true"/>
             </properties>
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/server/load.build" target="load">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="load">
             <properties>
                 <property name="dump" value="${repos}.dump.zip"/>   
             </properties>
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/server/verify.build" target="verify"/>
+        <nant buildfile="${subnant-root}/src/subnant.build" target="verify"/>
 
         <log-echo message="[Test load from incremental dump]" file="${subnant-output}"/>
         <echo message="Deleting ${repos}" level="Warning"/>
         <delete dir="${path::combine(svn-root,repos)}"/>
         <delete dir="${path::combine(dump-root,repos)}"/>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
-        <nant buildfile="${subnant-root}/src/targets/server/dump.build" target="dump">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
                 <property name="compress"    value="false"/>   
                 <property name="incremental" value="true"/>   
@@ -72,18 +72,18 @@ $Id$
         </nant>
         <echo message="Deleting ${repos}" level="Warning"/>
         <delete dir="${path::combine(svn-root,repos)}"/>
-        <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="create">
             <properties>
                 <property name="no-hooks"    value="true"/>
                 <property name="no-svnserve" value="true"/>
             </properties>
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/server/load.build" target="load">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="load">
             <properties>
                 <property name="dump" value="${repos}.r0-2.dump"/>   
             </properties>
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/server/verify.build" target="verify"/>
+        <nant buildfile="${subnant-root}/src/subnant.build" target="verify"/>
     </target>
 
 </project>

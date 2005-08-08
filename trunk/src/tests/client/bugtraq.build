@@ -10,9 +10,9 @@ $Id$
 <project name="test-bugtraq" default="test-bugtraq">
 
     <target name="test-bugtraq">
-        <nant buildfile="${subnant-root}/src/targets/server/create.build" target="create"/>
+        <nant buildfile="${subnant-root}/src/subnant.build"      target="create"/>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy"/>
-        <nant buildfile="${subnant-root}/src/targets/client/bugtraq.build" target="bugtraq"/>
+        <nant buildfile="${subnant-root}/src/subnant.build"      target="bugtraq"/>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
                 <property name="should-pass" value="true"/>

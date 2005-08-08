@@ -11,7 +11,7 @@ $Id$
 
     <target name="test-verify">
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
-        <nant buildfile="${subnant-root}/src/targets/server/verify.build" target="verify"/>
+        <nant buildfile="${subnant-root}/src/subnant.build" target="verify"/>
     </target>
 
 </project>

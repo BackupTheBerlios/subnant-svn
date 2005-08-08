@@ -11,26 +11,26 @@ $Id$
 
     <target name="test-mirror" depends="init">
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
-        <nant buildfile="${subnant-root}/src/targets/server/dump.build" target="dump">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
                 <property name="compress" value="false"/>   
             </properties>
         </nant>
         <log-echo message="[Testing uncompressed dump]" file="${subnant-output}"/>
         <copy file="${path::combine(dump-dir,repos+'.dump')}" todir="${mirror-dir}"/>
-        <nant buildfile="${subnant-root}/src/targets/server/mirror.build" target="mirror">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="mirror">
             <properties>
                 <property name="url" value="${mirror-url}"/>
             </properties>
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/server/dump.build" target="dump">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
                 <property name="compress" value="9"/>   
             </properties>
         </nant>
         <copy file="${path::combine(dump-dir,repos+'.dump.zip')}" todir="${mirror-dir}"/>
         <log-echo message="[Testing Zip dump]" file="${subnant-output}"/>
-        <nant buildfile="${subnant-root}/src/targets/server/mirror.build" target="mirror">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="mirror">
             <properties>
                 <property name="url" value="${mirror-url}.zip"/>   
             </properties>

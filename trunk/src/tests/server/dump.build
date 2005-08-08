@@ -11,17 +11,17 @@ $Id$
 
     <target name="test-dump">
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
-        <nant buildfile="${subnant-root}/src/targets/server/dump.build" target="dump">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
                 <property name="compress" value="false"/>   
             </properties>
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/server/dump.build" target="dump">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
                 <property name="compress" value="9"/>   
             </properties> 
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/server/dump.build" target="dump">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
                 <property name="incremental" value="true"/>   
                 <property name="deltas"      value="true"/>   

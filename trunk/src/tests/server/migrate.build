@@ -11,7 +11,7 @@ $Id$
 
     <target name="test-migrate" depends="init">
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
-        <nant buildfile="${subnant-root}/src/targets/server/migrate.build" target="migrate">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="migrate">
             <properties>
                 <property name="to-svn-root" value="${to-test-root}"/>
                 <property name="no-hooks"    value="true"/>

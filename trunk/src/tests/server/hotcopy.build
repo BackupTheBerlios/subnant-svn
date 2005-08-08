@@ -11,7 +11,7 @@ $Id$
 
     <target name="test-hotcopy">
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
-        <nant buildfile="${subnant-root}/src/targets/server/hotcopy.build" target="hotcopy">
+        <nant buildfile="${subnant-root}/src/subnant.build" target="hotcopy">
             <properties>
                 <property name="verify"   value="true"/>   
             </properties>
