@@ -76,12 +76,12 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="migrate" description="Migrate repositories"
-        depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
+        depends="init,init-repos,init-svnadmin,init-shell,verify-repos-exists,build-repos-list">
         <nant buildfile="targets/server/migrate.build" target="${subnant::get-target()}"/>
     </target>
 
     <target name="mirror" description="Mirror a remote repository"
-        depends="init,init-repos,init-svnadmin,build-repos-list">
+        depends="init,init-repos,init-svnadmin,init-shell,build-repos-list">
         <nant buildfile="targets/server/mirror.build" target="${subnant::get-target()}"/>
     </target>
    
