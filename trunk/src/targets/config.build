@@ -11,10 +11,13 @@ $Id$
 
     <target name="config" depends="init">
         <echo level="Warning">
-            <![CDATA[Config file: ${path::get-file-name(subnant-config)}
-
+            <![CDATA[
+Operating system    ${operating-system::to-string(environment::get-operating-system())}
+NAnt version        ${assemblyname::get-version(assembly::get-name(nant::get-assembly()))}
+Subnant config      ${subnant-config}
+   
 Program locations:
-
+  
 nantcontrib-bindir  ${nantcontrib-dir}
 svn-bindir          ${svn-dir}
 
