@@ -179,7 +179,11 @@ $Id$
         -->
         <if test="${not file::exists(hook-script)}">
             <if test="${platform::is-unix()}">
-                <echo message="#!/bin/sh"    file="${hook-script}" append="false"/>
+                <!-- hook scripts have no environment variables, Subnant needs PKG_CONFIG_PATH -->
+                <exec program="printenv" commandline="PKG_CONFIG_PATH" output="${exec-output}"/>
+                <loadfile file="${exec-output}" property="pkg-config-path"/>
+                <echo message="#!/bin/sh" file="${hook-script}" append="false"/>
+                <echo message='export PKG_CONFIG_PATH="${string::trim(pkg-config-path)}"' file="${hook-script}" append="true"/>
                 <echo message="${hook-exec}" file="${hook-script}" append="true"/>
                 <exec program="chmod" commandline="a+x ${hook-script}" failonerror="true"/>
             </if>

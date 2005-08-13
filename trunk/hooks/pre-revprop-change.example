@@ -2,6 +2,11 @@
 
 # PRE-REVPROP-CHANGE HOOK - Details in repos/hooks/pre-revprop-change.tmpl
 #
+# Subversion has no environment variables set when hooks are executed,
+# Subnant requires PKG_CONFIG_PATH set, so modify export to suit
+
+export PKG_CONFIG_PATH="/usr/lib/pkgconfig"
+
 # Visit http://subnant.berlios.de for details on command below
 
 subnant revprop-access -D:repos="$1" -D:rev="$2" -D:user="$3" -D:propname="$4" -D:action="$5"
