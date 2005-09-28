@@ -10,7 +10,7 @@ $Id$
 <project name="test-commit-allower" default="test-commit-allower">
 
     <target name="test-commit-allower">
-        <echo message="::TODO::" level="Warning"/>   
+        <echo message="::TODO::" level="Warning" />   
     </target>
 
 </project>

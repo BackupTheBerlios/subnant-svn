@@ -10,77 +10,77 @@ $Id$
 <project name="mirror" default="mirror">
 
     <target name="mirror" depends="init">
-        <call target="get-dump"/>
-        <call target="uncompress-dump" if="${dump-ext=='.zip' or dump-ext=='.gz'}"/>
-        <call target="set-dump-file"/>
+        <call target="get-dump" />
+        <call target="uncompress-dump" if="${dump-ext=='.zip' or dump-ext=='.gz'}" />
+        <call target="set-dump-file" />
         <if test="${recreate-repos=='true' and directory::exists(path::combine(svn-root,mirror-repos))}">
-            <echo message="Deleting ${mirror-repos}" level="Warning"/>
-            <delete dir="${path::combine(svn-root,mirror-repos)}"/>
+            <echo message="Deleting ${mirror-repos}" level="Warning" />
+            <delete dir="${path::combine(svn-root,mirror-repos)}" />
         </if>   
         <if test="${not(directory::exists(path::combine(svn-root,mirror-repos)))}">
             <nant buildfile="create.build" target="create">
                 <properties>
-                    <property name="create-repos" value="${mirror-repos}"/>
-                    <property name="no-svnserve"  value="true" unless="${property::exists('no-svnserve')}"/>
-                    <property name="no-hooks"     value="true" unless="${property::exists('no-hooks')}"/>
+                    <property name="create-repos" value="${mirror-repos}" />
+                    <property name="no-svnserve"  value="true" unless="${property::exists('no-svnserve')}" />
+                    <property name="no-hooks"     value="true" unless="${property::exists('no-hooks')}" />
                 </properties>
             </nant>
         </if>   
         <nant buildfile="load.build" target="load">
             <properties>
-                <property name="load-dump" value="${dump-file}"/>
+                <property name="load-dump" value="${dump-file}" />
             </properties>
         </nant>
-        <log-echo message="${string::pad-right('Mirror of '+mirror-repos+' complete',60,' ')}(${subnant::format-elapsed-time(mirror-started, true)})" file="${subnant-output}"/>
+        <log-echo message="${string::pad-right('Mirror of '+mirror-repos+' complete',60,' ')}(${subnant::format-elapsed-time(mirror-started, true)})" file="${subnant-output}" />
      </target>
 
     <target name="init">
-        <property name="mirror-started"  value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="mirror-repos"    value="${repos}" unless="${property::exists('mirror-repos')}"/>
-        <property name="recreate-repos"  value="false"/>
-        <property name="recreate-repos"  value="true" if="${property::exists('replace-repos') and string::trim(string::to-lower(replace-repos))=='true'}"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}"/>
-        <fail if="${string::get-length(string::trim(url))==0}"          message="url is invalid"/>
-        <fail if="${string::get-length(string::trim(mirror-repos))==0}" message="repos is invalid"/>
-        <fail unless="${directory::exists(dump-root)}" message="dump-root is invalid or does not exist in filesystem: ${dump-root}"/>
-        <fail message="url property not set" unless="${property::exists('url')}"/>
-        <property name="dump-dir"  value="${path::combine(dump-root,mirror-repos)}"/>
-        <property name="dump-file" value="${path::combine(dump-dir,path::get-file-name(url))}"/>
-        <property name="dump-ext"  value="${string::to-lower(path::get-extension(dump-file))}"/>
-        <mkdir dir="${dump-dir}" unless="${directory::exists(dump-dir)}"/>
+        <property name="mirror-started"  value="${datetime::get-ticks(datetime::now())}" />
+        <property name="mirror-repos"    value="${repos}" unless="${property::exists('mirror-repos')}" />
+        <property name="recreate-repos"  value="false" />
+        <property name="recreate-repos"  value="true" if="${property::exists('replace-repos') and string::trim(string::to-lower(replace-repos))=='true'}" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}" />
+        <fail if="${string::get-length(string::trim(url))==0}"          message="url is invalid" />
+        <fail if="${string::get-length(string::trim(mirror-repos))==0}" message="repos is invalid" />
+        <fail unless="${directory::exists(dump-root)}" message="dump-root is invalid or does not exist in filesystem: ${dump-root}" />
+        <fail message="url property not set" unless="${property::exists('url')}" />
+        <property name="dump-dir"  value="${path::combine(dump-root,mirror-repos)}" />
+        <property name="dump-file" value="${path::combine(dump-dir,path::get-file-name(url))}" />
+        <property name="dump-ext"  value="${string::to-lower(path::get-extension(dump-file))}" />
+        <mkdir dir="${dump-dir}" unless="${directory::exists(dump-dir)}" />
     </target>
 
     <target name="get-dump">
-        <echo message="Getting ${url}" level="Warning"/>
-        <get src="${url}" dest="${dump-file}"/>
+        <echo message="Getting ${url}" level="Warning" />
+        <get src="${url}" dest="${dump-file}" />
     </target>
 
     <target name="uncompress-dump">
-        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
-        <echo message="Uncompressing ${path::get-file-name(url)}" level="Warning"/>
+        <property name="started" value="${datetime::get-ticks(datetime::now())}" />
+        <echo message="Uncompressing ${path::get-file-name(url)}" level="Warning" />
         <if test="${dump-ext=='.zip'}">
-            <unzip zipfile="${dump-file}" todir="${dump-dir}"/>
-            <property name="dump-file" value="${string::substring(dump-file,0,string::get-length(dump-file) - 4)}"/>
+            <unzip zipfile="${dump-file}" todir="${dump-dir}" />
+            <property name="dump-file" value="${string::substring(dump-file,0,string::get-length(dump-file) - 4)}" />
         </if>
         <if test="${dump-ext=='.gz'}">
-            <property name="gz-file" value="${string::substring(dump-file,0,string::get-length(dump-file) - 3)}"/>
-            <gunzip src="${dump-file}" dest="${gz-file}"/>
-            <property name="dump-file" value="${gz-file}"/>
+            <property name="gz-file" value="${string::substring(dump-file,0,string::get-length(dump-file) - 3)}" />
+            <gunzip src="${dump-file}" dest="${gz-file}" />
+            <property name="dump-file" value="${gz-file}" />
         </if>
-        <echo message="${string::pad-right('Uncompressed '+path::get-file-name(dump-file),60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
+        <echo message="${string::pad-right('Uncompressed '+path::get-file-name(dump-file),60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true" />
     </target>
 
     <target name="set-dump-file">
         <if test="${property::exists('dump')}">
-            <property name="dump-file" value="${dump}"/>
+            <property name="dump-file" value="${dump}" />
         </if>
         <if test="${not property::exists('dump')}">
-            <property name="url-file"  value="${dump-file}"/>
-            <property name="dump-file" value="${mirror-repos+'.dump'}"/>
-            <property name="dest-file" value="${path::combine(dump-dir,dump-file)}"/>
+            <property name="url-file"  value="${dump-file}" />
+            <property name="dump-file" value="${mirror-repos+'.dump'}" />
+            <property name="dest-file" value="${path::combine(dump-dir,dump-file)}" />
             <if test="${url-file!=dest-file}">
-                <delete if="${file::exists(dest-file)}" file="${dest-file}"/>
-                <move file="${url-file}" tofile="${dest-file}"/>
+                <delete if="${file::exists(dest-file)}" file="${dest-file}" />
+                <move file="${url-file}" tofile="${dest-file}" />
             </if>
         </if>
     </target>

@@ -11,22 +11,22 @@ $Id$
 
     <description>Subversion administration using NAnt</description>
 
-    <include buildfile="include/custom-functions.include"/>
-    <include buildfile="include/custom-tasks.include"/>
+    <include buildfile="include/custom-functions.include" />
+    <include buildfile="include/custom-tasks.include" />
 
     <!-- Global properties -->
-    <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}"/>
+    <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}" />
     <!-- Use timestamp to reduce risk of concurrent scripts using same log|result|output files -->
-    <tstamp property="subnant-tstamp" pattern="yyyyMMdd-HHmmss-ffff"/>
-    <property name="nant.onsuccess"  value="on-success"/>
-    <property name="nant.onfailure"  value="on-failure"/>
+    <tstamp property="subnant-tstamp" pattern="yyyyMMdd-HHmmss-ffff" />
+    <property name="nant.onsuccess"  value="on-success" />
+    <property name="nant.onfailure"  value="on-failure" />
     <!-- Subnant fails by default on <exec> errors, however some targets shouldn't fail on an svn error -->
-    <property name="failonerror"    value="true"/>
-    <property name="exec-output"    value="${path::combine(path::get-temp-path(),'exec-output-'+subnant-tstamp)}"/>
-    <property name="exec-result"    value="${path::combine(path::get-temp-path(),'exec-result-'+subnant-tstamp)}"/>
-    <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+subnant-tstamp)}"/>
-    <property name="subnant-root"   value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}"/>
-    <property name="subnant-config" value="${path::combine(path::combine(subnant-root,'conf'),'subnant.config')}"/>
+    <property name="failonerror"    value="true" />
+    <property name="exec-output"    value="${path::combine(path::get-temp-path(),'exec-output-'+subnant-tstamp)}" />
+    <property name="exec-result"    value="${path::combine(path::get-temp-path(),'exec-result-'+subnant-tstamp)}" />
+    <property name="subnant-output" value="${path::combine(path::get-temp-path(),'subnant-output-'+subnant-tstamp)}" />
+    <property name="subnant-root"   value="${directory::get-parent-directory(directory::get-parent-directory(project::get-buildfile-path()))}" />
+    <property name="subnant-config" value="${path::combine(path::combine(subnant-root,'conf'),'subnant.config')}" />
 
     <!-- Main targets (starts with default) -->
     <target name="help" description="Display help">
@@ -57,282 +57,282 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     <!-- Repository (server) targets -->
     <target name="create" description="Create repositories"
         depends="init,init-repos,init-svnadmin">
-        <nant buildfile="targets/server/create.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/create.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="dump" description="Dump repositories"
         depends="init,init-repos,init-svnlook,init-svnadmin,init-shell,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/server/dump.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/dump.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="hotcopy" description="Hotcopy repositories"
         depends="init,init-repos,init-svnadmin,init-svnlook,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/server/hotcopy.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hotcopy.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="load" description="Load repositories"
         depends="init,init-repos,init-svnadmin,init-shell">
-        <nant buildfile="targets/server/load.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/load.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="migrate" description="Migrate repositories"
         depends="init,init-repos,init-svnadmin,init-shell,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/server/migrate.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/migrate.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="mirror" description="Mirror a remote repository"
         depends="init,init-repos,init-svnadmin,init-shell,build-repos-list">
-        <nant buildfile="targets/server/mirror.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/mirror.build" target="${subnant::get-target()}" />
     </target>
    
     <target name="upgrade-bdb" description="Upgrade bdb repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/server/upgrade-bdb.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/upgrade-bdb.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="verify" description="Verify repositories"
         depends="init,init-repos,init-svnadmin,verify-repos-exists,build-repos-list">
-        <nant buildfile="targets/server/verify.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/verify.build" target="${subnant::get-target()}" />
     </target>
 
     <!-- Repository hooks targets -->
     <target name="commit-access" description="::TODO:: Control access to repository using pre-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/server/hooks/commit-access.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/commit-access.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="commit-allower" description="::TODO:: Control access to repository using start-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/server/hooks/commit-allower.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/commit-allower.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="commit-email" description="Generate email about commits using post-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/server/hooks/commit-email.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/commit-email.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="commit-message" description="Ensure log message entered using pre-commit hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/server/hooks/commit-message.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/commit-message.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="revprop-change-access" description="::TODO:: Control revision property access using pre-revprop-change hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/server/hooks/revprop-change-access.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/revprop-change-access.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="revprop-change-email" description="Email revision property changes using post-revprop-change hook"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/server/hooks/revprop-change-email.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/server/hooks/revprop-change-email.build" target="${subnant::get-target()}" />
     </target>
 
     <!-- Working copy (client) targets -->
     <target name="bugtraq" description="Set bugtraq props in working copy"
         depends="init,init-wc,init-svn,verify-wc-exists">
-        <nant buildfile="targets/client/bugtraq.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/client/bugtraq.build" target="${subnant::get-target()}" />
     </target>
 
     <!-- Other main targets -->
     <target name="config" description="Show subnant configuration"
         depends="init,init-repos">
-        <nant buildfile="targets/config.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/config.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="install" description="Create subnant wrapper script"
         depends="init">
-        <nant buildfile="targets/install.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/install.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="test" description="Test main targets"
         depends="init,init-repos,init-wc,init-svn,init-svnadmin,init-svnlook,init-shell,init-svnlook">
-        <nant buildfile="targets/test.build" target="${subnant::get-target()}"/>
+        <nant buildfile="targets/test.build" target="${subnant::get-target()}" />
     </target>
 
     <!-- Sub targets -->
     <target name="init">
-        <call target="init-subnant"/>
-        <call target="init-logs" unless="${subnant::get-target()=='help'}"/>
+        <call target="init-subnant" />
+        <call target="init-logs" unless="${subnant::get-target()=='help'}" />
     </target>
 
     <target name="init-subnant">
-        <fail unless="${file::exists(subnant-config)}" message="File not found: ${path::get-file-name(subnant-config)}"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir"/>
-        <property name="nantcontrib-bindir" value="${nant::get-base-directory()}" unless="${string::get-length(string::trim(nantcontrib-bindir))>0 and directory::exists(nantcontrib-bindir)}"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/logdir" property="logdir"/>
-        <property name="logdir" value="${path::combine(subnant-root,'logs')}" if="${string::get-length(string::trim(logdir))==0}"/>
-        <mkdir dir="${logdir}" unless="${directory::exists(logdir)}"/>
-        <property name="nant-output" value="${path::combine(logdir,'subnant-'+subnant-tstamp+'.log')}"/>
-        <loadtasks assembly="${path::combine(nantcontrib-bindir,'NAnt.Contrib.Tasks.dll')}"/>
+        <fail unless="${file::exists(subnant-config)}" message="File not found: ${path::get-file-name(subnant-config)}" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir" />
+        <property name="nantcontrib-bindir" value="${nant::get-base-directory()}" unless="${string::get-length(string::trim(nantcontrib-bindir))>0 and directory::exists(nantcontrib-bindir)}" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/logdir" property="logdir" />
+        <property name="logdir" value="${path::combine(subnant-root,'logs')}" if="${string::get-length(string::trim(logdir))==0}" />
+        <mkdir dir="${logdir}" unless="${directory::exists(logdir)}" />
+        <property name="nant-output" value="${path::combine(logdir,'subnant-'+subnant-tstamp+'.log')}" />
+        <loadtasks assembly="${path::combine(nantcontrib-bindir,'NAnt.Contrib.Tasks.dll')}" />
         <!-- Note: Anything before this task will not be logged -->
-        <record name="${nant-output}" level="Info" action="Start"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}"/>
-        <fail if="${string::get-length(svn-bindir)>0 and directory::exists(svn-bindir)!=true}" message="Subversion binary directory not found: ${svn-bindir}"/>
+        <record name="${nant-output}" level="Info" action="Start" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}" />
+        <fail if="${string::get-length(svn-bindir)>0 and directory::exists(svn-bindir)!=true}" message="Subversion binary directory not found: ${svn-bindir}" />
         <!-- ::TODO:: Investigate option for UTC instead of server localtime output? -->
-        <echo message="Subnant started ${subnant::ticks-to-string(subnant-started)} (time in seconds unless noted)" file="${subnant-output}" append="false"/>
-        <echo message="" file="${subnant-output}" append="true"/>
+        <echo message="Subnant started ${subnant::ticks-to-string(subnant-started)} (time in seconds unless noted)" file="${subnant-output}" append="false" />
+        <echo message="" file="${subnant-output}" append="true" />
     </target>
    
     <target name="init-logs">
-        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/max-age" property="logs-max-age"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/archive" property="archive"/>
-        <property name="archive" value="${string::trim(string::to-lower(archive))}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/max-age" property="logs-max-age" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/archive" property="archive" />
+        <property name="archive" value="${string::trim(string::to-lower(archive))}" />
         <foreach item="File" property="log-file" if="${int::parse(logs-max-age)>=0}">
             <in>
                 <items>
-                    <include name="${path::combine(logdir,'*.log')}"/>
-                    <exclude name="${nant-output}"/>
+                    <include name="${path::combine(logdir,'*.log')}" />
+                    <exclude name="${nant-output}" />
                 </items>
             </in>
             <do>
                 <if test="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-max-age)) and subnant::can-delete-file(log-file)}">
                     <zip if="${archive=='true'}" zipfile="${path::combine(logdir,'archive.zip')}" failonerror="false" ziplevel="9" comment="Subnant logs">
                         <fileset>
-                            <!--<include name="${archived-logs}"/> ::TODO:: Append zip? Or unzip to temp and re-add? -->
-                            <include name="${log-file}"/>
-                            <exclude name="${nant-output}"/>
+                            <!--<include name="${archived-logs}" /> ::TODO:: Append zip? Or unzip to temp and re-add? -->
+                            <include name="${log-file}" />
+                            <exclude name="${nant-output}" />
                         </fileset>
                     </zip>
-                    <delete file="${log-file}"/>
+                    <delete file="${log-file}" />
                 </if>
             </do>
         </foreach>
     </target>
 
     <target name="init-repos">
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/svn-root" property="svn-root" unless="${property::exists('svn-root')}"/>
-        <fail unless="${directory::exists(svn-root)}" message="Repository root directory doesn't exist: ${svn-root}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/svn-root" property="svn-root" unless="${property::exists('svn-root')}" />
+        <fail unless="${directory::exists(svn-root)}" message="Repository root directory doesn't exist: ${svn-root}" />
     </target>
 
     <target name="init-wc">
-        <property name="wc" value="${directory::get-current-directory()}" unless="${property::exists('wc')}"/>
+        <property name="wc" value="${directory::get-current-directory()}" unless="${property::exists('wc')}" />
     </target>
 
     <target name="init-svn">
-        <property name="svn" value="${path::combine(svn-bindir,'svn')}"/>
+        <property name="svn" value="${path::combine(svn-bindir,'svn')}" />
     </target>
 
     <target name="init-svnadmin">
-        <property name="svnadmin" value="${path::combine(svn-bindir,'svnadmin')}"/>
+        <property name="svnadmin" value="${path::combine(svn-bindir,'svnadmin')}" />
     </target>
 
     <target name="init-svnlook">
-        <property name="svnlook" value="${path::combine(svn-bindir,'svnlook')}"/>
+        <property name="svnlook" value="${path::combine(svn-bindir,'svnlook')}" />
     </target>
 
     <target name="init-shell">
         <if test="${platform::is-win32()}">
-            <property name="shell"        value="CMD"/>
-            <property name="shell-switch" value="/S /C "/>
+            <property name="shell"        value="CMD" />
+            <property name="shell-switch" value="/S /C " />
         </if>
         <if test="${platform::is-unix()}">
-            <property name="shell"        value="sh"/>
-            <property name="shell-switch" value="-c "/>
+            <property name="shell"        value="sh" />
+            <property name="shell-switch" value="-c " />
         </if>
     </target>
    
     <target name="verify-repos-exists" if="${subnant::get-target()!='help'}">
         <if test="${property::exists('repos')}">
             <if test="${string::get-length(string::trim(repos))==0}">
-                <fail message="repos was set but no value entered"/>
+                <fail message="repos was set but no value entered" />
             </if>
             <foreach item="String" in="${repos}" delim="," property="repo">
                 <fail unless="${directory::exists(path::combine(svn-root,repo)) and file::exists(path::combine(svn-root,path::combine(repo,'format')))}"
-                    message="Can't find repository ${repo} under ${svn-root}"/>
+                    message="Can't find repository ${repo} under ${svn-root}" />
             </foreach>
         </if>
     </target>
 
     <target name="verify-wc-exists" if="${subnant::get-target()!='help'}">
-        <fail if="${string::get-length(wc)==0}" message="Option wc was defined but no value set"/>
+        <fail if="${string::get-length(wc)==0}" message="Option wc was defined but no value set" />
         <foreach item="String" in="${wc}" delim="," property="path">
             <if test="${not file::exists(path::combine(path,'.svn/format')) and not file::exists(path::combine(path,'_svn/format'))}">
-                <fail message="${path} is not a working copy"/>
+                <fail message="${path} is not a working copy" />
             </if>
         </foreach>
     </target>
 
     <target name="build-repos-list" if="${subnant::get-target()!='help'}">
         <if test="${not property::exists('repos')}">
-            <property name="repos" value=""/>
+            <property name="repos" value="" />
             <foreach item="Folder" in="${svn-root}" property="repo">
                 <do>
-                    <loadfile file="${path::combine(repo,'format')}" property="fs-format" failonerror="false"/>
+                    <loadfile file="${path::combine(repo,'format')}" property="fs-format" failonerror="false" />
                     <if test="${int::parse(fs-format) &gt; 0}">
-                        <property name="repos" value="${repos+subnant::return-directory-name(repo)+','}"/>
+                        <property name="repos" value="${repos+subnant::return-directory-name(repo)+','}" />
                     </if>
                 </do>
             </foreach>
             <if test="${string::get-length(repos) &gt; 0}">
-                <property name="repos" value="${string::substring(repos,0,string::get-length(repos)-1)}"/>
+                <property name="repos" value="${string::substring(repos,0,string::get-length(repos)-1)}" />
             </if>
             <if test="${string::get-length(repos)==0}">
-                <fail message="No repositories found under ${svn-root}"/>
+                <fail message="No repositories found under ${svn-root}" />
             </if>
         </if>
     </target>
 
     <!-- Final targets -->
     <target name="on-success">
-        <property name="subject" value="Success on ${subnant::get-build-targets()}"/>
+        <property name="subject" value="Success on ${subnant::get-build-targets()}" />
         <if test="${property::exists('nant-output') and file::exists(nant-output)}">
             <record name="${nant-output}" action="Close" />
         </if>
-        <call target="finally"/>
+        <call target="finally" />
     </target>
 
     <target name="on-failure">
-        <property name="subject" value="*** ERROR during ${subnant::get-build-targets()} ***"/>
+        <property name="subject" value="*** ERROR during ${subnant::get-build-targets()} ***" />
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
-            <property name="attach-output" value="true"/>
-            <echo file="${subnant-output}" append="true" message="*** ERROR occurred - log attached ***"/>
+            <property name="attach-output" value="true" />
+            <echo file="${subnant-output}" append="true" message="*** ERROR occurred - log attached ***" />
         </if>
         <if test="${property::exists('nant-output') and file::exists(nant-output)}">
             <record name="${nant-output}" action="Close" />
         </if>
-        <call target="finally"/>
+        <call target="finally" />
     </target>
 
     <target name="finally">
-        <call target="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))!='false'}"/>
-        <call target="delete-temp-files"/>
+        <call target="mail" if="${property::exists('sendmail') and string::trim(string::to-lower(sendmail))!='false'}" />
+        <call target="delete-temp-files" />
     </target>
 
     <target name="mail">
-        <fail unless="${property::exists('subnant-config')}" message="Email not sent as config file not yet set"/>
+        <fail unless="${property::exists('subnant-config')}" message="Email not sent as config file not yet set" />
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
-            <echo message="" file="${subnant-output}" append="true"/>
-            <echo message="${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::format-elapsed-time(subnant-started, true)})" file="${subnant-output}" append="true"/>
-            <loadfile file="${subnant-output}" property="message"/>
+            <echo message="" file="${subnant-output}" append="true" />
+            <echo message="${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::format-elapsed-time(subnant-started, true)})" file="${subnant-output}" append="true" />
+            <loadfile file="${subnant-output}" property="message" />
         </if>
         <if test="${not property::exists('subnant-output') and not file::exists(subnant-output)}">
-            <property name="message" value="No output generated by Subnant log (problem before record start? run from console for info)"/>
+            <property name="message" value="No output generated by Subnant log (problem before record start? run from console for info)" />
         </if>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from"   property="mail-from"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host"   property="mail-host"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/prefix" property="mail-prefix"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from"   property="mail-from" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host"   property="mail-host" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/prefix" property="mail-prefix" />
         <if test="${property::exists('sendmail')==true and string::trim(string::to-lower(sendmail))!='true'}">
-            <property name="mail-tolist" value="${sendmail}"/>
+            <property name="mail-tolist" value="${sendmail}" />
         </if>
         <if test="${not property::exists('mail-tolist')}">
-            <xmlpeek file="${subnant-config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
+            <xmlpeek file="${subnant-config}" xpath="/configuration/mail/tolist" property="mail-tolist" />
         </if>
         <echo level="Warning">Sending mail to ${mail-tolist}</echo>
         <mail mailhost="${mail-host}" from="${mail-from}" tolist="${mail-tolist}" subject="${mail-prefix} ${subject}" message="${message}">
             <attachments>
-                <include name="${nant-output}" if="${property::exists('attach-output') and file::exists(nant-output)}"/>
+                <include name="${nant-output}" if="${property::exists('attach-output') and file::exists(nant-output)}" />
             </attachments>
         </mail>
     </target>
 
     <target name="delete-temp-files">
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
-            <delete file="${subnant-output}"/>
+            <delete file="${subnant-output}" />
         </if>
         <if test="${property::exists('exec-output') and file::exists(exec-output)}">
-            <delete file="${exec-output}"/>
+            <delete file="${exec-output}" />
         </if>
         <if test="${property::exists('exec-result') and file::exists(exec-result)}">
-            <delete file="${exec-result}"/>
+            <delete file="${exec-result}" />
         </if>
     </target>
 

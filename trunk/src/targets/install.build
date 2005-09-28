@@ -9,37 +9,37 @@ $Id$
 -->
 <project name="install" default="install">
 
-    <target name="install" depends="init-windows,init-linux,install-windows,install-linux"/>
+    <target name="install" depends="init-windows,init-linux,install-windows,install-linux" />
 
     <target name="init-windows" if="${platform::is-win32()}">
         <property name="install-prefix" value="${environment::get-folder-path('ProgramFiles')}"
-            unless="${property::exists('install-prefix')}"/>
-        <property name="install-bindir" value="${path::combine(install-prefix, 'Subnant')}"/>
+            unless="${property::exists('install-prefix')}" />
+        <property name="install-bindir" value="${path::combine(install-prefix, 'Subnant')}" />
         <property name="wrapper" value="${path::combine(install-bindir, 'subnant.bat')}" />
     </target>
 
     <target name="init-linux" if="${platform::is-unix()}">
-        <property name="install-prefix" value="/usr/local" unless="${property::exists('install-prefix')}"/>
-        <property name="install-bindir" value="${path::combine(install-prefix, 'bin')}"/>
+        <property name="install-prefix" value="/usr/local" unless="${property::exists('install-prefix')}" />
+        <property name="install-bindir" value="${path::combine(install-prefix, 'bin')}" />
         <property name="wrapper" value="${path::combine(install-bindir, 'subnant')}" />
     </target>
 
     <target name="install-windows" if="${platform::is-win32()}">
         <echo file="${wrapper}" append="false">@echo off</echo>
         <echo file="${wrapper}" append="true">nant -emacs -indent:-8 -quiet -nologo -buildfile:"${subnant-root}\src\subnant.build" %*</echo>
-        <echo message="Created ${wrapper} wrapper script" level="Warning"/>
-        <echo message="Searching environment path for ${install-bindir}" level="Warning"/>
+        <echo message="Created ${wrapper} wrapper script" level="Warning" />
+        <echo message="Searching environment path for ${install-bindir}" level="Warning" />
         <echo message="Found in path, subnant command should be available" level="Warning"
-            unless="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}"/>
+            unless="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}" />
         <echo message="Not found, please add ${install-bindir} to your environment path" level="Warning"
-            unless="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}"/>
+            unless="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}" />
     </target>
 
     <target name="install-linux" if="${platform::is-unix()}">
         <echo file="${wrapper}" append="false">#!/bin/sh</echo>
         <echo file="${wrapper}" append="true">nant -emacs -indent:-8 -quiet -nologo -buildfile:${subnant-root}/src/subnant.build $@</echo>
         <exec program="chmod" commandline="a+x ${path::combine(install-bindir, 'subnant')}" failonerror="${failonerror}" resultproperty="exec-result" />
-        <echo message="Created ${wrapper} wrapper script" level="Warning"/>
+        <echo message="Created ${wrapper} wrapper script" level="Warning" />
     </target>
 
     <target name="help">

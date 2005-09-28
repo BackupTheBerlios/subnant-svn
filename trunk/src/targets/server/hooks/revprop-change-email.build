@@ -12,132 +12,132 @@ $Id$
     <!-- Main (default) Target -->
     <target name="revprop-change-email" depends="init,get-hook-emails">
         <if test="${prop-list!=''}">
-            <call target="build-changes"/>
-            <call target="mail-changes"/>
+            <call target="build-changes" />
+            <call target="mail-changes" />
         </if>
     </target>
 
     <!-- Sub targets -->
     <target name="init">
-        <fail unless="${property::exists('repos')}"    message="repos not set"/>
-        <fail unless="${property::exists('rev')}"      message="rev not set"/>
-        <fail unless="${property::exists('user')}"     message="user not set"/>
-        <fail unless="${property::exists('propname')}" message="propname not set"/>
-        <property name="action"       value="" unless="${property::exists('action')}"/>
-        <property name="hook-prop"    value="hook:revprop-change-email" unless="${property::exists('hook-prop')}"/>
-        <property name="svnlook-file" value="${exec-output}-svnlook-result"/>
-        <property name="dir-file"     value="${exec-output}-revprop-change-email"/>
-        <property name="repo"         value="${path::get-file-name(repos)}"/>
-        <property name="mail-tolist"  value=""/>
-        <property name="prop-list"    value=""/>
-        <property name="dir-check"    value=""/>
+        <fail unless="${property::exists('repos')}"    message="repos not set" />
+        <fail unless="${property::exists('rev')}"      message="rev not set" />
+        <fail unless="${property::exists('user')}"     message="user not set" />
+        <fail unless="${property::exists('propname')}" message="propname not set" />
+        <property name="action"       value="" unless="${property::exists('action')}" />
+        <property name="hook-prop"    value="hook:revprop-change-email" unless="${property::exists('hook-prop')}" />
+        <property name="svnlook-file" value="${exec-output}-svnlook-result" />
+        <property name="dir-file"     value="${exec-output}-revprop-change-email" />
+        <property name="repo"         value="${path::get-file-name(repos)}" />
+        <property name="mail-tolist"  value="" />
+        <property name="prop-list"    value="" />
+        <property name="dir-check"    value="" />
     </target>
 
     <target name="get-hook-emails">
         <!-- Get list of directories changed for revision -->
-        <property name="subcommand" value="dirs-changed"/>
-        <call target="exec-svnlook"/>
-        <loadfile file="${exec-output}" property="dir-list-prop"/>
+        <property name="subcommand" value="dirs-changed" />
+        <call target="exec-svnlook" />
+        <loadfile file="${exec-output}" property="dir-list-prop" />
         <!-- Build unique directory tree list back to root node -->
-        <echo file="${dir-file}" message="${subnant::build-dir-list(dir-list-prop)}"/>
+        <echo file="${dir-file}" message="${subnant::build-dir-list(dir-list-prop)}" />
         <!-- Search the built directory list -->
-        <call target="find-hook-prop"/>
+        <call target="find-hook-prop" />
         <!-- Delete our temp directory list -->
-        <delete file="${dir-file}" if="${file::exists(dir-file)}"/>
+        <delete file="${dir-file}" if="${file::exists(dir-file)}" />
     </target>
 
     <target name="find-hook-prop">
         <!-- Don't fail svnlook if hook:revprop-change-email property not found -->
-        <property name="orig-failonerror" value="${failonerror}"/>
-        <property name="failonerror" value="false"/>
+        <property name="orig-failonerror" value="${failonerror}" />
+        <property name="failonerror" value="false" />
         <!-- Search for hook:revprop-change-email property in each directory -->
         <foreach item="Line" in="${dir-file}" property="dir-check">
-            <property name="subcommand" value="propget"/>
-            <call target="exec-svnlook"/>
+            <property name="subcommand" value="propget" />
+            <call target="exec-svnlook" />
             <!-- If hook:revprop-change-email found, add each address -->
             <if test="${svnlook-result=='0'}">
                 <!-- Email addresses may be line delimited -->
                 <foreach item="Line" in="${exec-output}" property="address-line">
                     <!-- Only add address if it and subcommand don't already exist in list -->
                     <property name="prop-list" value="${prop-list};${address-line}"
-                        unless="${string::contains(string::to-lower(prop-list),string::to-lower(address-line))}"/>
+                        unless="${string::contains(string::to-lower(prop-list),string::to-lower(address-line))}" />
                 </foreach>
             </if>
         </foreach>
         <!-- Trim start of list to remove semi-comma (if it exists) -->
         <property name="prop-list" value="${string::substring(prop-list,1,string::get-length(prop-list)-1)}"
-            if="${string::starts-with(prop-list,';')}"/>
-        <property name="failonerror" value="${orig-failonerror}"/>
-        <property name="mail-tolist" value="${prop-list}"/>
+            if="${string::starts-with(prop-list,';')}" />
+        <property name="failonerror" value="${orig-failonerror}" />
+        <property name="mail-tolist" value="${prop-list}" />
     </target>
 
     <target name="build-changes">
-        <echo message="Author: ${user}"  file="${svnlook-file}" append="false"/>
-        <echo message="" file="${svnlook-file}" append="true"/>
-        <echo message="Revision: ${rev}" file="${svnlook-file}" append="true"/>
+        <echo message="Author: ${user}"  file="${svnlook-file}" append="false" />
+        <echo message="" file="${svnlook-file}" append="true" />
+        <echo message="Revision: ${rev}" file="${svnlook-file}" append="true" />
         <if test="${action!=''}">
-            <property name="action-text" if="${action=='A'}" value="Added"/>
-            <property name="action-text" if="${action=='M'}" value="Modified"/>
-            <property name="action-text" if="${action=='D'}" value="Deleted"/>
-            <echo message="" file="${svnlook-file}" append="true"/>
-            <echo message="Action: ${action-text}" file="${svnlook-file}" append="true"/>
+            <property name="action-text" if="${action=='A'}" value="Added" />
+            <property name="action-text" if="${action=='M'}" value="Modified" />
+            <property name="action-text" if="${action=='D'}" value="Deleted" />
+            <echo message="" file="${svnlook-file}" append="true" />
+            <echo message="Action: ${action-text}" file="${svnlook-file}" append="true" />
         </if>
-        <echo message="" file="${svnlook-file}" append="true"/>
-        <echo message="Property: ${propname}" file="${svnlook-file}" append="true"/>
+        <echo message="" file="${svnlook-file}" append="true" />
+        <echo message="Property: ${propname}" file="${svnlook-file}" append="true" />
         <if test="${action!='A'}">
-            <echo message="" file="${svnlook-file}" append="true"/>
-            <echo message="Old value: ${subnant::get-stdin()}" file="${svnlook-file}" append="true"/>
+            <echo message="" file="${svnlook-file}" append="true" />
+            <echo message="Old value: ${subnant::get-stdin()}" file="${svnlook-file}" append="true" />
         </if>   
         <if test="${action!='D'}">
             <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
-                <arg value="propget"/>
-                <arg value="--revprop"/>
-                <arg value="--revision"/>
-                <arg value="${rev}"/>
-                <arg value="${repos}"/>
-                <arg value="${propname}"/>
+                <arg value="propget" />
+                <arg value="--revprop" />
+                <arg value="--revision" />
+                <arg value="${rev}" />
+                <arg value="${repos}" />
+                <arg value="${propname}" />
             </exec>
             <if test="${svnlook-result!='0' and failonerror!='false'}">
-                <log-echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}"/>
+                <log-echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}" />
             </if>
-            <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***"/>
-            <echo message="" file="${svnlook-file}" append="true"/>
-            <loadfile file="${exec-output}" property="propval"/>
-            <property name="prepend" if="${action=='A'}" value="Value"/>   
-            <property name="prepend" if="${action!='A'}" value="New value"/>   
-            <echo message="${prepend}: ${propval}" file="${svnlook-file}" append="true"/>
+            <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***" />
+            <echo message="" file="${svnlook-file}" append="true" />
+            <loadfile file="${exec-output}" property="propval" />
+            <property name="prepend" if="${action=='A'}" value="Value" />   
+            <property name="prepend" if="${action!='A'}" value="New value" />   
+            <echo message="${prepend}: ${propval}" file="${svnlook-file}" append="true" />
         </if>
     </target>
 
     <target name="mail-changes">
-        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from" property="mail-from"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host" property="mail-host"/>
-        <echo message="Sending revprop-change-email for repository ${repo} on revision ${rev} to ${mail-tolist}" level="Warning"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from" property="mail-from" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host" property="mail-host" />
+        <echo message="Sending revprop-change-email for repository ${repo} on revision ${rev} to ${mail-tolist}" level="Warning" />
         <mail mailhost="${mail-host}" from="${mail-from}" tolist="${mail-tolist}"
           subject="[${repo} revprop-change] rev ${rev}">
             <files>
-                <include name="${svnlook-file}"/>
+                <include name="${svnlook-file}" />
             </files>
         </mail>
-        <echo message="Sent revprop-change-email for repository ${repo} on revision ${rev} to ${mail-tolist}" file="${subnant-output}" append="true"/>
-        <delete file="${svnlook-file}" if="${file::exists(svnlook-file)}"/>
+        <echo message="Sent revprop-change-email for repository ${repo} on revision ${rev} to ${mail-tolist}" file="${subnant-output}" append="true" />
+        <delete file="${svnlook-file}" if="${file::exists(svnlook-file)}" />
     </target>
 
     <target name="exec-svnlook">
         <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
-            <arg value="${subcommand}"/>
-            <arg value="${repos}"/>
+            <arg value="${subcommand}" />
+            <arg value="${repos}" />
             <!-- propget (used by get-hook-emails) should not use revision -->
-            <arg value="--revision" unless="${subcommand=='propget'}"/>
-            <arg value="${rev}"     unless="${subcommand=='propget'}"/>
+            <arg value="--revision" unless="${subcommand=='propget'}" />
+            <arg value="${rev}"     unless="${subcommand=='propget'}" />
             <!-- propget (used by get-hook-emails) needs property and path -->
-            <arg value="${hook-prop}" if="${subcommand=='propget'}"/>
-            <arg value="${dir-check}" if="${subcommand=='propget'}"/>
+            <arg value="${hook-prop}" if="${subcommand=='propget'}" />
+            <arg value="${dir-check}" if="${subcommand=='propget'}" />
         </exec>
         <if test="${svnlook-result!='0' and failonerror!='false'}">
-            <log-echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}"/>
+            <log-echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}" />
         </if>
-        <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***"/>
+        <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***" />
     </target>
 
     <target name="help">

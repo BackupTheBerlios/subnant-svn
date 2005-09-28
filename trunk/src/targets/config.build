@@ -60,58 +60,58 @@ logregex            ${bugtraq-logregex}
     <target name="init">
         <!-- ::TODO:: Parse automatically from subnant.config? -->
         <!-- Get all properties except for nantcontrib-bindir, svn-bindir & logdir (defined already) -->
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/svn-root"        property="svn-root"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root"       property="dump-root"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/hotcopy-root"    property="hotcopy-root"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/fs-type"         property="fs-type"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/config-dir"      property="config-dir"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/verify-hotcopy"  property="verify-hotcopy"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/compress-dump"   property="compress-dump"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from"                 property="mail-from"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host"                 property="mail-host"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/tolist"               property="mail-tolist"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/prefix"               property="mail-prefix"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/max-age"              property="max-age"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/archive"              property="archive"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/message"           property="bugtraq-message"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/append"            property="bugtraq-append"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/url"               property="bugtraq-url"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/label"             property="bugtraq-label"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/number"            property="bugtraq-number"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/warnifnoissue"     property="bugtraq-warnifnoissue"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/logregex"          property="bugtraq-logregex"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/svn-root"        property="svn-root" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root"       property="dump-root" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/hotcopy-root"    property="hotcopy-root" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/fs-type"         property="fs-type" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/config-dir"      property="config-dir" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/verify-hotcopy"  property="verify-hotcopy" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/compress-dump"   property="compress-dump" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/from"                 property="mail-from" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/host"                 property="mail-host" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/tolist"               property="mail-tolist" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/mail/prefix"               property="mail-prefix" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/max-age"              property="max-age" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/logs/archive"              property="archive" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/message"           property="bugtraq-message" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/append"            property="bugtraq-append" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/url"               property="bugtraq-url" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/label"             property="bugtraq-label" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/number"            property="bugtraq-number" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/warnifnoissue"     property="bugtraq-warnifnoissue" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/logregex"          property="bugtraq-logregex" />
         <!-- Ready program location settings -->
-        <property name="nantcontrib-dir" value="[not set - path used]" if="${string::get-length(nantcontrib-bindir)==0}"/>
-        <property name="nantcontrib-dir" value="${nantcontrib-bindir}" unless="${string::get-length(nantcontrib-bindir)==0}"/>
-        <property name="svn-dir"         value="[not set - path used]" if="${string::get-length(svn-bindir)==0}"/>
-        <property name="svn-dir"         value="${svn-bindir}"         unless="${string::get-length(svn-bindir)==0}"/>
+        <property name="nantcontrib-dir" value="[not set - path used]" if="${string::get-length(nantcontrib-bindir)==0}" />
+        <property name="nantcontrib-dir" value="${nantcontrib-bindir}" unless="${string::get-length(nantcontrib-bindir)==0}" />
+        <property name="svn-dir"         value="[not set - path used]" if="${string::get-length(svn-bindir)==0}" />
+        <property name="svn-dir"         value="${svn-bindir}"         unless="${string::get-length(svn-bindir)==0}" />
         <!-- Ready repository settings -->
-        <property name="svn-rootdir"     value="${svn-root}"               unless="${string::get-length(svn-root)==0}"/>
-        <property name="svn-rootdir"     value="[not set]"                 if="${string::get-length(svn-root)==0}"/>
-        <property name="svn-rootdir"     value="[invalid] ${svn-root}"     if="${string::get-length(svn-root)>0 and directory::exists(svn-root)==false}"/>
-        <property name="dump-rootdir"    value="${dump-root}"              unless="${string::get-length(dump-root)==0}"/>
-        <property name="dump-rootdir"    value="[not set]"                 if="${string::get-length(dump-root)==0}"/>
-        <property name="dump-rootdir"    value="[invalid] ${dump-root}"    if="${string::get-length(dump-root)>0 and directory::exists(dump-root)==false}"/>
-        <property name="hotcopy-rootdir" value="${hotcopy-root}"           unless="${string::get-length(hotcopy-root)==0}"/>
-        <property name="hotcopy-rootdir" value="[not set]"                 if="${string::get-length(hotcopy-root)==0}"/>
-        <property name="hotcopy-rootdir" value="[invalid] ${hotcopy-root}" if="${string::get-length(hotcopy-root)>0 and directory::exists(hotcopy-root)==false}"/>
-        <property name="config-dir"      value="[not set]"                 if="${string::get-length(config-dir)==0}"/>
+        <property name="svn-rootdir"     value="${svn-root}"               unless="${string::get-length(svn-root)==0}" />
+        <property name="svn-rootdir"     value="[not set]"                 if="${string::get-length(svn-root)==0}" />
+        <property name="svn-rootdir"     value="[invalid] ${svn-root}"     if="${string::get-length(svn-root)>0 and directory::exists(svn-root)==false}" />
+        <property name="dump-rootdir"    value="${dump-root}"              unless="${string::get-length(dump-root)==0}" />
+        <property name="dump-rootdir"    value="[not set]"                 if="${string::get-length(dump-root)==0}" />
+        <property name="dump-rootdir"    value="[invalid] ${dump-root}"    if="${string::get-length(dump-root)>0 and directory::exists(dump-root)==false}" />
+        <property name="hotcopy-rootdir" value="${hotcopy-root}"           unless="${string::get-length(hotcopy-root)==0}" />
+        <property name="hotcopy-rootdir" value="[not set]"                 if="${string::get-length(hotcopy-root)==0}" />
+        <property name="hotcopy-rootdir" value="[invalid] ${hotcopy-root}" if="${string::get-length(hotcopy-root)>0 and directory::exists(hotcopy-root)==false}" />
+        <property name="config-dir"      value="[not set]"                 if="${string::get-length(config-dir)==0}" />
         <!-- Ready backup settings -->
-        <property name="verify"          value="${string::trim(string::to-lower(verify-hotcopy))}"/>
-        <property name="level"           value="${string::trim(string::to-lower(compress-dump))}"/>
-        <property name="compress"        value="level ${level}"     if="${level!='false' and int::parse(level)&gt;=1 and int::parse(level)&lt;=9}"/>
-        <property name="compress"        value="[disabled]"         if="${level=='false'}"/>
-        <property name="compress"        value="[invalid] ${level}" if="${level!='false' and (int::parse(level)&lt;1 or int::parse(level)&gt;9)}"/>
+        <property name="verify"          value="${string::trim(string::to-lower(verify-hotcopy))}" />
+        <property name="level"           value="${string::trim(string::to-lower(compress-dump))}" />
+        <property name="compress"        value="level ${level}"     if="${level!='false' and int::parse(level)&gt;=1 and int::parse(level)&lt;=9}" />
+        <property name="compress"        value="[disabled]"         if="${level=='false'}" />
+        <property name="compress"        value="[invalid] ${level}" if="${level!='false' and (int::parse(level)&lt;1 or int::parse(level)&gt;9)}" />
         <!-- Ready log settings -->
-        <property name="log-dir"         value="${logdir}"           if="${directory::exists(logdir)}"/>
-        <property name="log-dir"         value="[invalid] ${logdir}" unless="${directory::exists(logdir)}"/>
+        <property name="log-dir"         value="${logdir}"           if="${directory::exists(logdir)}" />
+        <property name="log-dir"         value="[invalid] ${logdir}" unless="${directory::exists(logdir)}" />
         <!-- Ready bugtraq settings -->
         <!-- xmlpeek doesn't like CDATA, so search for start/end tags and remove from url if found -->
-        <property name="bugtraq-url" value="${string::trim(bugtraq-url)}"/>
+        <property name="bugtraq-url" value="${string::trim(bugtraq-url)}" />
         <if test="${string::substring(bugtraq-url,1,8)=='![CDATA[' and string::substring(bugtraq-url,string::get-length(bugtraq-url)-3,2)==']]'}">
-            <property name="bugtraq-url" value="${string::substring(bugtraq-url,9,string::get-length(bugtraq-url)-12)}"/>
+            <property name="bugtraq-url" value="${string::substring(bugtraq-url,9,string::get-length(bugtraq-url)-12)}" />
         </if>
-        <property name="bugtraq-logregex" value="[not set]" if="${string::trim(bugtraq-logregex)==''}"/>
+        <property name="bugtraq-logregex" value="[not set]" if="${string::trim(bugtraq-logregex)==''}" />
     </target>
 
     <target name="help">

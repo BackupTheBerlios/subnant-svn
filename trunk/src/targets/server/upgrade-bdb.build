@@ -11,88 +11,88 @@ $Id$
 
     <target name="upgrade-bdb" depends="init">
         <foreach item="String" delim="," in="${upgrade-repos}" property="repo">
-            <property name="fs-type-file" value="${path::combine(upgrade-svn-root,repo+'/db/fs-type')}"/>
+            <property name="fs-type-file" value="${path::combine(upgrade-svn-root,repo+'/db/fs-type')}" />
             <if test="${file::exists(fs-type-file)}">
-                <loadfile file="${fs-type-file}" property="fs-type" failonerror="true"/>
-                <property name="fs-type" value="${string::trim(string::to-lower(fs-type))}"/>
+                <loadfile file="${fs-type-file}" property="fs-type" failonerror="true" />
+                <property name="fs-type" value="${string::trim(string::to-lower(fs-type))}" />
             </if>
             <!-- svn pre 1.1 had no repos/db/fs-type file (or choice!), so assume bdb if missing -->   
             <if test="${not file::exists(fs-type-file)}">
-                <property name="fs-type" value="bdb" if="${file::exists(path::combine(upgrade-svn-root,repo+'/format'))}"/>
+                <property name="fs-type" value="bdb" if="${file::exists(path::combine(upgrade-svn-root,repo+'/format'))}" />
             </if>
             <if test="${fs-type=='bdb'}">
-                <call target="svnadmin-recover"/>
+                <call target="svnadmin-recover" />
                 <nant buildfile="${subnant-root}/src/targets/server/hotcopy.build" target="hotcopy">
                     <properties>
-                        <property name="hotcopy-repos" value="${repo}"/>   
-                        <property name="verify"        value="true"/>   
+                        <property name="hotcopy-repos" value="${repo}" />   
+                        <property name="verify"        value="true" />   
                     </properties>
                 </nant>
-                <call target="svnadmin-list-unused-dblogs"/>
-                <call target="delete-files"/>
-                <property name="upgrade-count" value="${int::parse(upgrade-count)+1}"/>   
+                <call target="svnadmin-list-unused-dblogs" />
+                <call target="delete-files" />
+                <property name="upgrade-count" value="${int::parse(upgrade-count)+1}" />   
             </if>
             <if test="${fs-type!='bdb'}">
-                <log-echo message="Repository ${repo} (${fs-type}) not of type bdb so not upgraded" file="${subnant-output}"/>
+                <log-echo message="Repository ${repo} (${fs-type}) not of type bdb so not upgraded" file="${subnant-output}" />
             </if>
         </foreach>
-        <property name="failonerror" value="${orig-failonerror}"/>
-        <echo message="${string::pad-right('Upgraded '+upgrade-count+' repositories',60,' ')}(${subnant::format-elapsed-time(upgrade-started, true)})" file="${subnant-output}" append="true"/>
+        <property name="failonerror" value="${orig-failonerror}" />
+        <echo message="${string::pad-right('Upgraded '+upgrade-count+' repositories',60,' ')}(${subnant::format-elapsed-time(upgrade-started, true)})" file="${subnant-output}" append="true" />
     </target>
 
     <target name="init">
-        <property name="upgrade-started"  value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="upgrade-repos"    value="${repos}"    unless="${property::exists('upgrade-repos')}"/>
-        <property name="upgrade-svn-root" value="${svn-root}" unless="${property::exists('upgrade-svn-root')}"/>
-        <property name="upgrade-ok"       value="true"/>
-        <property name="upgrade-count"    value="0"/>
-        <property name="orig-failonerror" value="${failonerror}"/>
-        <property name="failonerror"      value="true"/>
-        <property name="svnadmin-file"    value="${exec-output}-svnadmin-result"/>
-        <property name="unused-dblogs"    value=""/>
+        <property name="upgrade-started"  value="${datetime::get-ticks(datetime::now())}" />
+        <property name="upgrade-repos"    value="${repos}"    unless="${property::exists('upgrade-repos')}" />
+        <property name="upgrade-svn-root" value="${svn-root}" unless="${property::exists('upgrade-svn-root')}" />
+        <property name="upgrade-ok"       value="true" />
+        <property name="upgrade-count"    value="0" />
+        <property name="orig-failonerror" value="${failonerror}" />
+        <property name="failonerror"      value="true" />
+        <property name="svnadmin-file"    value="${exec-output}-svnadmin-result" />
+        <property name="unused-dblogs"    value="" />
     </target>
 
     <target name="svnadmin-recover">
-        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
-        <echo level="Warning" message="Recovering ${repo}"/>
+        <property name="started" value="${datetime::get-ticks(datetime::now())}" />
+        <echo level="Warning" message="Recovering ${repo}" />
         <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="upgrade-result">
-            <arg value="recover"/>
-            <arg value="${path::combine(upgrade-svn-root,repo)}"/>
+            <arg value="recover" />
+            <arg value="${path::combine(upgrade-svn-root,repo)}" />
         </exec>
-        <echo file="${exec-result}" message="${upgrade-result}"/>
+        <echo file="${exec-result}" message="${upgrade-result}" />
         <if test="${upgrade-result=='0'}">
-            <echo message="${string::pad-right('Recovered '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Recovered '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true" />
         </if>
         <if test="${upgrade-result!='0'}">
-            <echo message="${'*** ERROR recovering '+repo+' ***'}" file="${subnant-output}" append="true"/>
-            <property name="upgrade-ok" value="false"/>
+            <echo message="${'*** ERROR recovering '+repo+' ***'}" file="${subnant-output}" append="true" />
+            <property name="upgrade-ok" value="false" />
         </if>
     </target>
 
     <target name="svnadmin-list-unused-dblogs">
-        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="unused-dblogs" value=""/>
-        <echo level="Warning" message="Listing unused-dblogs in ${repo}"/>
+        <property name="started" value="${datetime::get-ticks(datetime::now())}" />
+        <property name="unused-dblogs" value="" />
+        <echo level="Warning" message="Listing unused-dblogs in ${repo}" />
         <exec program="${svnadmin}" failonerror="${failonerror}" output="${svnadmin-file}" resultproperty="upgrade-result">
-            <arg value="list-unused-dblogs"/>
-            <arg value="${path::combine(upgrade-svn-root,repo)}"/>
+            <arg value="list-unused-dblogs" />
+            <arg value="${path::combine(upgrade-svn-root,repo)}" />
         </exec>
-        <echo file="${exec-result}" message="${upgrade-result}"/>
+        <echo file="${exec-result}" message="${upgrade-result}" />
         <if test="${upgrade-result=='0'}">
-            <loadfile file="${svnadmin-file}" property="unused-dblogs" if="${file::exists(svnadmin-file)}"/>
+            <loadfile file="${svnadmin-file}" property="unused-dblogs" if="${file::exists(svnadmin-file)}" />
             <property name="unused-dblogs" value="${string::trim(unused-dblogs)}" />
             <if test="${string::get-length(unused-dblogs)>0}">
-                <log-echo message="${string::pad-right('Unused dblogs:',60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}"/>
-                <log-echo message="${unused-dblogs}" file="${subnant-output}"/>
+                <log-echo message="${string::pad-right('Unused dblogs:',60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" />
+                <log-echo message="${unused-dblogs}" file="${subnant-output}" />
             </if>
             <if test="${string::get-length(unused-dblogs)==0}">
-                <log-echo message="${string::pad-right('No unused dblogs found in '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}"/>
+                <log-echo message="${string::pad-right('No unused dblogs found in '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" />
             </if>
         </if>
-        <delete file="${svnadmin-file}" if="${file::exists(svnadmin-file)}"/>
+        <delete file="${svnadmin-file}" if="${file::exists(svnadmin-file)}" />
         <if test="${upgrade-result!='0'}">
-            <echo message="${'*** ERROR listing unused dblogs '+repo+' ***'}" file="${subnant-output}" append="true"/>
-            <property name="upgrade-ok" value="false"/>
+            <echo message="${'*** ERROR listing unused dblogs '+repo+' ***'}" file="${subnant-output}" append="true" />
+            <property name="upgrade-ok" value="false" />
         </if>
     </target>
 
@@ -101,22 +101,22 @@ $Id$
             <foreach item="Line" in="${unused-dblogs}" property="dblog">
                 <property name="dblog" value="${string::trim(dblog)}" />
                 <if test="${file::exists(dblog)}">
-                    <echo message="Deleting ${dblog}" level="Warning"/>
-                    <delete file="${dblog}"/>
-                    <echo message="Deleted ${dblog}" file="${subnant-output}" append="true"/>
+                    <echo message="Deleting ${dblog}" level="Warning" />
+                    <delete file="${dblog}" />
+                    <echo message="Deleted ${dblog}" file="${subnant-output}" append="true" />
                 </if>
             </foreach>
         </if>
         <foreach item="File" property="dbfile">
             <in>
                 <items>
-                    <include name="${path::combine(upgrade-svn-root,repo+'/db/__db.00?')}"/>
+                    <include name="${path::combine(upgrade-svn-root,repo+'/db/__db.00?')}" />
                 </items>
             </in>
             <do>
-                <echo message="Deleting ${dbfile}" level="Warning"/>
-                <delete file="${dbfile}"/>
-                <echo message="Deleted ${dbfile}" file="${subnant-output}" append="true"/>
+                <echo message="Deleting ${dbfile}" level="Warning" />
+                <delete file="${dbfile}" />
+                <echo message="Deleted ${dbfile}" file="${subnant-output}" append="true" />
             </do>
         </foreach>
     </target>

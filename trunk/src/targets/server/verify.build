@@ -11,39 +11,39 @@ $Id$
 
     <target name="verify" depends="init">
         <foreach item="String" delim="," in="${verify-repos}" property="repo">
-            <call target="svnadmin-verify"/>
+            <call target="svnadmin-verify" />
         </foreach>
         <if test="${verify-ok=='true' and int::parse(verify-count)&gt;1}">
-            <echo message="${string::pad-right('Verified '+verify-count+' repositories',60,' ')}(${subnant::format-elapsed-time(verify-started, true)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Verified '+verify-count+' repositories',60,' ')}(${subnant::format-elapsed-time(verify-started, true)})" file="${subnant-output}" append="true" />
         </if>
         <if test="${verify-ok!='true'}">
-            <fail message="${string::pad-right('Verify completed with errors!',60,' ')}(${subnant::format-elapsed-time(verify-started, true)})"/>
+            <fail message="${string::pad-right('Verify completed with errors!',60,' ')}(${subnant::format-elapsed-time(verify-started, true)})" />
         </if>
     </target>
 
     <target name="init">
-        <property name="verify-started"  value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="verify-repos"    value="${repos}"    unless="${property::exists('verify-repos')}"/>
-        <property name="verify-svn-root" value="${svn-root}" unless="${property::exists('verify-svn-root')}"/>
-        <property name="verify-ok"       value="true"/>
-        <property name="verify-count"    value="0"/>
+        <property name="verify-started"  value="${datetime::get-ticks(datetime::now())}" />
+        <property name="verify-repos"    value="${repos}"    unless="${property::exists('verify-repos')}" />
+        <property name="verify-svn-root" value="${svn-root}" unless="${property::exists('verify-svn-root')}" />
+        <property name="verify-ok"       value="true" />
+        <property name="verify-count"    value="0" />
     </target>
 
     <target name="svnadmin-verify">
-        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
-        <echo level="Warning" message="Verifying ${repo}"/>
+        <property name="started" value="${datetime::get-ticks(datetime::now())}" />
+        <echo level="Warning" message="Verifying ${repo}" />
         <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="verify-result">
-            <arg value="verify"/>
-            <arg value="${path::combine(verify-svn-root,repo)}"/>
+            <arg value="verify" />
+            <arg value="${path::combine(verify-svn-root,repo)}" />
         </exec>
-        <echo file="${exec-result}" message="${verify-result}"/>
+        <echo file="${exec-result}" message="${verify-result}" />
         <if test="${verify-result=='0'}">
-            <echo message="${string::pad-right('Verified '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
-            <property name="verify-count" value="${int::parse(verify-count)+1}"/>   
+            <echo message="${string::pad-right('Verified '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true" />
+            <property name="verify-count" value="${int::parse(verify-count)+1}" />   
         </if>
         <if test="${verify-result!='0'}">
-            <echo message="${'*** ERROR verifying '+repo+' ***'}" file="${subnant-output}" append="true"/>
-            <property name="verify-ok" value="false"/>
+            <echo message="${'*** ERROR verifying '+repo+' ***'}" file="${subnant-output}" append="true" />
+            <property name="verify-ok" value="false" />
         </if>
     </target>
     <target name="help">

@@ -10,10 +10,10 @@ $Id$
 <project name="test-hotcopy" default="test-hotcopy">
 
     <target name="test-hotcopy">
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment" />
         <nant buildfile="${subnant-root}/src/subnant.build" target="hotcopy">
             <properties>
-                <property name="verify"   value="true"/>   
+                <property name="verify"   value="true" />   
             </properties>
         </nant>
     </target>

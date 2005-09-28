@@ -10,8 +10,8 @@ $Id$
 <project name="test-upgrade-bdb" default="test-upgrade-bdb">
 
     <target name="test-upgrade-bdb">
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
-        <nant buildfile="${subnant-root}/src/subnant.build" target="upgrade-bdb"/>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment" />
+        <nant buildfile="${subnant-root}/src/subnant.build" target="upgrade-bdb" />
     </target>
 
 </project>

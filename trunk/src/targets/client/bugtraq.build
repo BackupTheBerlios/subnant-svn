@@ -11,64 +11,64 @@ $Id$
 
     <target name="bugtraq" depends="init">
         <foreach item="String" in="${wc}" delim="," property="path">
-            <property name="propname" value="bugtraq:message"/>
-            <property name="propval"  value="${bugtraq-message}"/>
-            <call target="propset"/>
-            <property name="propname" value="bugtraq:append"/>
-            <property name="propval"  value="${bugtraq-append}"/>
+            <property name="propname" value="bugtraq:message" />
+            <property name="propval"  value="${bugtraq-message}" />
+            <call target="propset" />
+            <property name="propname" value="bugtraq:append" />
+            <property name="propval"  value="${bugtraq-append}" />
             <!-- append is true by default -->
-            <call target="propset" if="${bugtraq-append!='true'}"/>
-            <property name="propname" value="bugtraq:url"/>
-            <property name="propval"  value="${bugtraq-url}"/>
-            <call target="propset"/>
-            <property name="propname" value="bugtraq:label"/>
-            <property name="propval"  value="${bugtraq-label}"/>
-            <call target="propset"/>
-            <property name="propname" value="bugtraq:number"/>
-            <property name="propval"  value="${bugtraq-number}"/>
+            <call target="propset" if="${bugtraq-append!='true'}" />
+            <property name="propname" value="bugtraq:url" />
+            <property name="propval"  value="${bugtraq-url}" />
+            <call target="propset" />
+            <property name="propname" value="bugtraq:label" />
+            <property name="propval"  value="${bugtraq-label}" />
+            <call target="propset" />
+            <property name="propname" value="bugtraq:number" />
+            <property name="propval"  value="${bugtraq-number}" />
             <!-- number is true by default -->
-            <call target="propset" if="${bugtraq-number!='true'}"/>
-            <property name="propname" value="bugtraq:warnifnoissue"/>
-            <property name="propval"  value="${bugtraq-warnifnoissue}"/>
+            <call target="propset" if="${bugtraq-number!='true'}" />
+            <property name="propname" value="bugtraq:warnifnoissue" />
+            <property name="propval"  value="${bugtraq-warnifnoissue}" />
             <!-- warnifnoissue is false by default -->
-            <call target="propset" if="${bugtraq-warnifnoissue=='true'}"/>
-            <property name="propname" value="bugtraq:logregex"/>
-            <property name="propval"  value="${bugtraq-logregex}"/>
+            <call target="propset" if="${bugtraq-warnifnoissue=='true'}" />
+            <property name="propname" value="bugtraq:logregex" />
+            <property name="propval"  value="${bugtraq-logregex}" />
             <!-- dont set logregex if nothing entered -->
-            <call target="propset" if="${string::get-length(bugtraq-logregex)!=0}"/>
-            <log-echo message="Set bugtraq properties in ${path}" file="${subnant-output}"/>
+            <call target="propset" if="${string::get-length(bugtraq-logregex)!=0}" />
+            <log-echo message="Set bugtraq properties in ${path}" file="${subnant-output}" />
         </foreach>
     </target>
    
     <target name="init">
         <!-- Read bugtraq properties from config -->
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/message"       property="bugtraq-message"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/append"        property="bugtraq-append"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/url"           property="bugtraq-url"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/label"         property="bugtraq-label"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/number"        property="bugtraq-number"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/warnifnoissue" property="bugtraq-warnifnoissue"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/logregex"      property="bugtraq-logregex"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/message"       property="bugtraq-message" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/append"        property="bugtraq-append" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/url"           property="bugtraq-url" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/label"         property="bugtraq-label" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/number"        property="bugtraq-number" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/warnifnoissue" property="bugtraq-warnifnoissue" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/logregex"      property="bugtraq-logregex" />
         <!-- Ready properties -->
-        <property name="bugtraq-append"        value="${string::trim(string::to-lower(bugtraq-append))}"/>
-        <property name="bugtraq-number"        value="${string::trim(string::to-lower(bugtraq-number))}"/>
-        <property name="bugtraq-warnifnoissue" value="${string::trim(string::to-lower(bugtraq-warnifnoissue))}"/>
-        <property name="bugtraq-url"           value="${string::trim(bugtraq-url)}"/>
+        <property name="bugtraq-append"        value="${string::trim(string::to-lower(bugtraq-append))}" />
+        <property name="bugtraq-number"        value="${string::trim(string::to-lower(bugtraq-number))}" />
+        <property name="bugtraq-warnifnoissue" value="${string::trim(string::to-lower(bugtraq-warnifnoissue))}" />
+        <property name="bugtraq-url"           value="${string::trim(bugtraq-url)}" />
         <!-- xmlpeek doesn't like CDATA, so search for start and end tags, if found remove from url -->
         <if test="${string::substring(bugtraq-url,1,8)=='![CDATA[' and string::substring(bugtraq-url,string::get-length(bugtraq-url)-3,2)==']]'}">
-            <property name="bugtraq-url" value="${string::substring(bugtraq-url,9,string::get-length(bugtraq-url)-12)}"/>
+            <property name="bugtraq-url" value="${string::substring(bugtraq-url,9,string::get-length(bugtraq-url)-12)}" />
         </if>
     </target>
 
     <target name="propset">
         <exec program="${svn}" failonerror="${failonerror}" resultproperty="exec-result">
-            <arg value="propset"/>
-            <arg value="${propname}"/>
-            <arg value="${propval}"/>
-            <arg value="${path}"/>
+            <arg value="propset" />
+            <arg value="${propname}" />
+            <arg value="${propval}" />
+            <arg value="${path}" />
         </exec>
         <if test="${exec-result!='0'}">
-            <log-echo message="*** ERROR setting bugtraq property ${propname} to ${propval}" file="${subnant-output}"/>
+            <log-echo message="*** ERROR setting bugtraq property ${propname} to ${propval}" file="${subnant-output}" />
         </if>
     </target>
 

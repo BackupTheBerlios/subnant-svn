@@ -11,306 +11,306 @@ $Id$
 
     <target name="test" depends="init">
         <if test="${string::to-lower(skip-fsfs)!='true'}">
-            <property name="test-fs" value="fsfs"/>
-            <call target="test-repo"/>
+            <property name="test-fs" value="fsfs" />
+            <call target="test-repo" />
         </if>
         <if test="${string::to-lower(skip-bdb)!='true'}">
-            <property name="test-fs" value="bdb"/>
-            <call target="test-repo"/>
+            <property name="test-fs" value="bdb" />
+            <call target="test-repo" />
         </if>
-        <delete dir="${test-root}" if="${keep-test=='false' and directory::exists(test-root)}"/>
-        <log-echo message="${string::pad-right('Test complete',60,' ')}(${subnant::format-elapsed-time(test-started, true)})" file="${subnant-output}"/>
+        <delete dir="${test-root}" if="${keep-test=='false' and directory::exists(test-root)}" />
+        <log-echo message="${string::pad-right('Test complete',60,' ')}(${subnant::format-elapsed-time(test-started, true)})" file="${subnant-output}" />
     </target>
 
     <target name="init">
-        <property name="test-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="keep-test"    value="false" unless="${property::exists('keep-test') and string::to-lower(keep-test)=='true'}"/>
-        <property name="skip-bdb"     value="false" unless="${property::exists('skip-bdb') and string::to-lower(skip-bdb)=='true'}"/>
-        <property name="skip-fsfs"    value="false" unless="${property::exists('skip-fsfs') and string::to-lower(skip-fsfs)=='true'}"/>
-        <property name="test-root"    value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),subnant-tstamp)}" unless="${property::exists('test-root')}"/>
-        <mkdir dir="${test-root}" unless="${directory::exists(test-root)}"/>
+        <property name="test-started" value="${datetime::get-ticks(datetime::now())}" />
+        <property name="keep-test"    value="false" unless="${property::exists('keep-test') and string::to-lower(keep-test)=='true'}" />
+        <property name="skip-bdb"     value="false" unless="${property::exists('skip-bdb') and string::to-lower(skip-bdb)=='true'}" />
+        <property name="skip-fsfs"    value="false" unless="${property::exists('skip-fsfs') and string::to-lower(skip-fsfs)=='true'}" />
+        <property name="test-root"    value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),subnant-tstamp)}" unless="${property::exists('test-root')}" />
+        <mkdir dir="${test-root}" unless="${directory::exists(test-root)}" />
     </target>
 
     <target name="init-client">
-        <property name="test-message" value="${'message for test '+subnant-tstamp}"/>
+        <property name="test-message" value="${'message for test '+subnant-tstamp}" />
     </target>
 
     <target name="init-server">
-        <property name="svn-root"     value="${path::combine(test-root,'repos')}"/>
-        <property name="dump-root"    value="${path::combine(test-root,'dumps')}"/>
-        <property name="hotcopy-root" value="${path::combine(test-root,'hotcopy')}"/>
-        <mkdir dir="${svn-root}"     unless="${directory::exists(svn-root)}"/>
-        <mkdir dir="${dump-root}"    unless="${directory::exists(dump-root)}"/>
-        <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}"/>
+        <property name="svn-root"     value="${path::combine(test-root,'repos')}" />
+        <property name="dump-root"    value="${path::combine(test-root,'dumps')}" />
+        <property name="hotcopy-root" value="${path::combine(test-root,'hotcopy')}" />
+        <mkdir dir="${svn-root}"     unless="${directory::exists(svn-root)}" />
+        <mkdir dir="${dump-root}"    unless="${directory::exists(dump-root)}" />
+        <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}" />
     </target>
 
     <target name="init-hooks">
-        <property name="hook-dir" value="${path::combine(subnant-root,'hooks')}"/>
+        <property name="hook-dir" value="${path::combine(subnant-root,'hooks')}" />
         <if test="${platform::is-win32()}">
-            <property name="hook-ext"   value=".bat"/>
-            <property name="hook-param" value="%"/>
+            <property name="hook-ext"   value=".bat" />
+            <property name="hook-param" value="%" />
         </if>
         <if test="${platform::is-unix()}">
-            <property name="hook-ext"   value=""/>
-            <property name="hook-param" value="$"/>
+            <property name="hook-ext"   value="" />
+            <property name="hook-param" value="$" />
         </if>
     </target>
    
     <target name="test-repo" depends="init-client,init-server,init-hooks">
-        <log-echo message="[Testing ${test-fs} repository]" file="${subnant-output}"/>
-        <property name="repos"      value="${'test-repo-'+test-fs}"/>
-        <property name="fs-type"    value="${test-fs}"/>
-        <property name="wc"         value="${path::combine(test-root,'wc-'+test-fs)}"/>
+        <log-echo message="[Testing ${test-fs} repository]" file="${subnant-output}" />
+        <property name="repos"      value="${'test-repo-'+test-fs}" />
+        <property name="fs-type"    value="${test-fs}" />
+        <property name="wc"         value="${path::combine(test-root,'wc-'+test-fs)}" />
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
-                <property name="test-target" value="${string::to-lower(string::trim(test-target))}"/>
-                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|mirror|revprop-change-(access|email)|upgrade-bdb|verify))" input="${test-target}" failonerror="false"/>
-                <call target="run-test"/>
+                <property name="test-target" value="${string::to-lower(string::trim(test-target))}" />
+                <regex pattern="(?'valid'.*(bugtraq|commit-(access|allower|email|message)|create|dump|hotcopy|load|migrate|mirror|revprop-change-(access|email)|upgrade-bdb|verify))" input="${test-target}" failonerror="false" />
+                <call target="run-test" />
             </foreach>
         </if>
         <if test="${not property::exists('target')}">
             <!-- Client targets -->
-            <property name="test-target" value="bugtraq"/>
-            <call target="run-test"/>
+            <property name="test-target" value="bugtraq" />
+            <call target="run-test" />
             <!-- Server targets -->
-            <property name="test-target" value="create"/>
-            <call target="run-test"/>
-            <property name="test-target" value="dump"/>
-            <call target="run-test"/>
-            <property name="test-target" value="hotcopy"/>
-            <call target="run-test"/>
-            <property name="test-target" value="load"/>
-            <call target="run-test"/>
-            <property name="test-target" value="migrate"/>
-            <call target="run-test"/>
-            <property name="test-target" value="mirror"/>
-            <call target="run-test"/>
-            <property name="test-target" value="upgrade-bdb"/>
-            <call target="run-test"/>
-            <property name="test-target" value="verify"/>
-            <call target="run-test"/>
+            <property name="test-target" value="create" />
+            <call target="run-test" />
+            <property name="test-target" value="dump" />
+            <call target="run-test" />
+            <property name="test-target" value="hotcopy" />
+            <call target="run-test" />
+            <property name="test-target" value="load" />
+            <call target="run-test" />
+            <property name="test-target" value="migrate" />
+            <call target="run-test" />
+            <property name="test-target" value="mirror" />
+            <call target="run-test" />
+            <property name="test-target" value="upgrade-bdb" />
+            <call target="run-test" />
+            <property name="test-target" value="verify" />
+            <call target="run-test" />
             <!-- Hook targets -->
-            <property name="test-target" value="commit-access"/>
-            <call target="run-test"/>
-            <property name="test-target" value="commit-allower"/>
-            <call target="run-test"/>
-            <property name="test-target" value="commit-email"/>
-            <call target="run-test"/>
-            <property name="test-target" value="commit-message"/>
-            <call target="run-test"/>
-            <property name="test-target" value="revprop-change-access"/>
-            <call target="run-test"/>
-            <property name="test-target" value="revprop-change-email"/>
-            <call target="run-test"/>
+            <property name="test-target" value="commit-access" />
+            <call target="run-test" />
+            <property name="test-target" value="commit-allower" />
+            <call target="run-test" />
+            <property name="test-target" value="commit-email" />
+            <call target="run-test" />
+            <property name="test-target" value="commit-message" />
+            <call target="run-test" />
+            <property name="test-target" value="revprop-change-access" />
+            <call target="run-test" />
+            <property name="test-target" value="revprop-change-email" />
+            <call target="run-test" />
         </if>
-        <log-echo message="" file="${subnant-output}"/>
+        <log-echo message="" file="${subnant-output}" />
     </target>
 
     <target name="run-test">
-        <log-echo message="" file="${subnant-output}"/>
-        <log-echo message="[Testing ${test-target}]" file="${subnant-output}"/>
-        <property name="build-path" value=""/>
+        <log-echo message="" file="${subnant-output}" />
+        <log-echo message="[Testing ${test-target}]" file="${subnant-output}" />
+        <property name="build-path" value="" />
         <!-- Client targets: bugtraq -->
         <if test="${test-target=='bugtraq'}">
-            <property name="build-path" value="${subnant-root}/src/tests/client"/>
+            <property name="build-path" value="${subnant-root}/src/tests/client" />
         </if>
         <!-- Server targets: create,dump,hotcopy,load,migrate,mirror,upgrade-bdb,verify -->
         <if test="${test-target=='create' or test-target=='dump' or test-target=='hotcopy' or test-target=='load' or test-target=='migrate' or test-target=='mirror' or test-target=='upgrade-bdb' or test-target=='verify'}">
-            <property name="build-path" value="${subnant-root}/src/tests/server"/>
+            <property name="build-path" value="${subnant-root}/src/tests/server" />
         </if>
         <!-- Hook targets: commit-access,commit-allower,commit-email,commit-message,revprop-change-access,revprop-change-email -->
         <if test="${test-target=='commit-access' or test-target=='commit-allower' or test-target=='commit-email' or test-target=='commit-message' or test-target=='revprop-change-access' or test-target=='revprop-change-email'}">
-            <property name="build-path" value="${subnant-root}/src/tests/server/hooks"/>
+            <property name="build-path" value="${subnant-root}/src/tests/server/hooks" />
         </if>
-        <fail if="${build-path==''}" message="Unknown test target: ${test-target}"/>
+        <fail if="${build-path==''}" message="Unknown test target: ${test-target}" />
         <if test="${directory::exists(path::combine(svn-root,repos))}">
-            <echo message="Deleting ${repos}" level="Warning"/>
-            <delete dir="${path::combine(svn-root,repos)}"/>
+            <echo message="Deleting ${repos}" level="Warning" />
+            <delete dir="${path::combine(svn-root,repos)}" />
         </if>
-        <nant buildfile="${build-path}/${test-target}.build" target="test-${test-target}"/>
+        <nant buildfile="${build-path}/${test-target}.build" target="test-${test-target}" />
     </target>
 
     <target name="create-test-environment">
         <nant buildfile="${subnant-root}/src/subnant.build" target="create">
             <properties>
-                <property name="no-hooks"    value="true"/>
-                <property name="no-svnserve" value="true"/>
+                <property name="no-hooks"    value="true" />
+                <property name="no-svnserve" value="true" />
             </properties>
         </nant>
-        <call target="create-workingcopy"/>
-        <property name="should-pass" value="true"/>
-        <echo message="Subnant test file - first edit" file="${path::combine(wc,'test.txt')}"/>
-        <exec program="${svn}" commandline="add test.txt" workingdir="${wc}" failonerror="true"/>
-        <property name="test-message" value="added test file to working copy"/>
-        <call target="commit-workingcopy"/>
-        <echo message="Subnant test file - second edit" file="${path::combine(wc,'test.txt')}"/>
-        <property name="test-message" value="modified test file in working copy"/>
-        <call target="commit-workingcopy"/>
+        <call target="create-workingcopy" />
+        <property name="should-pass" value="true" />
+        <echo message="Subnant test file - first edit" file="${path::combine(wc,'test.txt')}" />
+        <exec program="${svn}" commandline="add test.txt" workingdir="${wc}" failonerror="true" />
+        <property name="test-message" value="added test file to working copy" />
+        <call target="commit-workingcopy" />
+        <echo message="Subnant test file - second edit" file="${path::combine(wc,'test.txt')}" />
+        <property name="test-message" value="modified test file in working copy" />
+        <call target="commit-workingcopy" />
     </target>
 
     <target name="create-workingcopy">
         <if test="${directory::exists(test-root)}">
             <if test="${directory::exists(path::combine(test-root,wc))}">
-                <echo message="Deleting ${wc}" level="Warning"/>
-                <delete dir="${path::combine(test-root,wc)}"/>
+                <echo message="Deleting ${wc}" level="Warning" />
+                <delete dir="${path::combine(test-root,wc)}" />
             </if>
-            <mkdir dir="${wc}"/>
+            <mkdir dir="${wc}" />
             <exec program="${svn}" workingdir="${wc}" failonerror="${failonerror}" resultproperty="svn-result">
-                <arg value="checkout"/>
-                <arg value="${subnant::to-uri(path::combine(svn-root,repos))}"/>
-                <arg value="."/>
+                <arg value="checkout" />
+                <arg value="${subnant::to-uri(path::combine(svn-root,repos))}" />
+                <arg value="." />
             </exec>
-            <log-echo message="Checked out ${path::get-file-name(repos)} to ${path::get-file-name(wc)}" file="${subnant-output}"/>
+            <log-echo message="Checked out ${path::get-file-name(repos)} to ${path::get-file-name(wc)}" file="${subnant-output}" />
         </if>
     </target>
 
     <target name="create-hook">
-        <fail unless="${property::exists('hook')}"      message="hook property not defined"/>
-        <fail unless="${property::exists('hook-exec')}" message="hook-exec property not defined"/>
-        <property name="hook-script" value="${path::combine(svn-root,repos+'/hooks/'+hook+hook-ext)}"/>
+        <fail unless="${property::exists('hook')}"      message="hook property not defined" />
+        <fail unless="${property::exists('hook-exec')}" message="hook-exec property not defined" />
+        <property name="hook-script" value="${path::combine(svn-root,repos+'/hooks/'+hook+hook-ext)}" />
         <!-- ::TODO:: Ponder: user-defined hook scripts, especially post-commit scripts, will envariably 
              spawn processes so that the server is not waiting for them to complete, the problem with doing
              this in a test environment is deletion of repositories can be blocked due to file locks.
              So for the time being we create scripts from each test to ensure no conflict.
         <if test="${file::exists(hook-script)}">
-            <log-echo message="Using standard hook ${path::get-file-name(hook-script)}" file="${subnant-output}"/>
-            <log-echo message="(Note: Test might fail deleting repository if hook spawns process)" file="${subnant-output}"/>
+            <log-echo message="Using standard hook ${path::get-file-name(hook-script)}" file="${subnant-output}" />
+            <log-echo message="(Note: Test might fail deleting repository if hook spawns process)" file="${subnant-output}" />
         </if>
         -->
         <if test="${not file::exists(hook-script)}">
             <if test="${platform::is-unix()}">
                 <!-- hook scripts have no environment variables, but PKG_CONFIG_PATH is needed by NAnt -->
-                <exec program="printenv" commandline="PKG_CONFIG_PATH" output="${exec-output}"/>
-                <loadfile file="${exec-output}" property="pkg-config-path"/>
-                <echo message="#!/bin/sh" file="${hook-script}" append="false"/>
-                <echo message='export PKG_CONFIG_PATH="${string::trim(pkg-config-path)}"' file="${hook-script}" append="true"/>
-                <echo message="${hook-exec}" file="${hook-script}" append="true"/>
-                <exec program="chmod" commandline="a+x ${hook-script}"/>
+                <exec program="printenv" commandline="PKG_CONFIG_PATH" output="${exec-output}" />
+                <loadfile file="${exec-output}" property="pkg-config-path" />
+                <echo message="#!/bin/sh" file="${hook-script}" append="false" />
+                <echo message='export PKG_CONFIG_PATH="${string::trim(pkg-config-path)}"' file="${hook-script}" append="true" />
+                <echo message="${hook-exec}" file="${hook-script}" append="true" />
+                <exec program="chmod" commandline="a+x ${hook-script}" />
             </if>
             <if test="${platform::is-win32()}">
-                <echo message="${hook-exec}" file="${hook-script}" append="false"/>
+                <echo message="${hook-exec}" file="${hook-script}" append="false" />
             </if>
-            <fail unless="${file::exists(hook-script)}" message="*** ERROR creating hook ${hook} ***"/>
-            <log-echo message="Created hook ${path::get-file-name(hook-script)}" file="${subnant-output}"/>
+            <fail unless="${file::exists(hook-script)}" message="*** ERROR creating hook ${hook} ***" />
+            <log-echo message="Created hook ${path::get-file-name(hook-script)}" file="${subnant-output}" />
         </if>
     </target>
 
     <target name="commit-workingcopy">
-        <log-echo message='Committing with log "${test-message}"' file="${subnant-output}"/>
+        <log-echo message='Committing with log "${test-message}"' file="${subnant-output}" />
         <exec program="${svn}" workingdir="${wc}" failonerror="false" resultproperty="svn-result">
             <arg line='commit --message "${test-message}"'/>
         </exec>
         <if test="${svn-result=='0' and should-pass=='true'}">
-            <log-echo message="Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)}" file="${subnant-output}"/>
+            <log-echo message="Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)}" file="${subnant-output}" />
         </if>
         <if test="${svn-result!='0' and should-pass=='false'}">
-            <log-echo message="Commit failed as expected" file="${subnant-output}"/>
+            <log-echo message="Commit failed as expected" file="${subnant-output}" />
         </if>
         <if test="${svn-result=='0' and should-pass=='false'}">
-            <fail message="*** ERROR Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} when it should have failed ***"/>
+            <fail message="*** ERROR Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} when it should have failed ***" />
         </if>
         <if test="${svn-result!='0' and should-pass=='true'}">
-            <fail message="*** ERROR committing ${path::get-file-name(wc)} to ${path::get-file-name(repos)} ***"/>
+            <fail message="*** ERROR committing ${path::get-file-name(wc)} to ${path::get-file-name(repos)} ***" />
         </if>
     </target>
 
     <target name="propset">
         <exec program="${svn}" failonerror="${failonerror}" resultproperty="svn-result">
-            <arg value="propset"/>
-            <arg value="${propname}"/>
-            <arg value="${propval}"/>
-            <arg value="${wc}"/>
+            <arg value="propset" />
+            <arg value="${propname}" />
+            <arg value="${propval}" />
+            <arg value="${wc}" />
         </exec>
         <if test="${svn-result=='0'}">
-            <log-echo message="Set property ${propname} to ${propval}" file="${subnant-output}"/>
+            <log-echo message="Set property ${propname} to ${propval}" file="${subnant-output}" />
         </if>
         <if test="${svn-result!='0'}">
-            <log-echo message="*** ERROR setting property ${propname} to ${propval} in ${wc} ***" file="${subnant-output}"/>
+            <log-echo message="*** ERROR setting property ${propname} to ${propval} in ${wc} ***" file="${subnant-output}" />
         </if>
     </target>
 
     <target name="revpropset">
         <exec program="${svn}" workingdir="${wc}" failonerror="false" resultproperty="svn-result">
-            <arg value="propset"/>
-            <arg value="--revprop"/>
-            <arg value="-r"/>
-            <arg value="${rev}"/>
-            <arg value="${propname}"/>
-            <arg value="${propval}"/>
+            <arg value="propset" />
+            <arg value="--revprop" />
+            <arg value="-r" />
+            <arg value="${rev}" />
+            <arg value="${propname}" />
+            <arg value="${propval}" />
         </exec>
         <if test="${svn-result=='0' and should-pass=='true'}">
-            <log-echo message="Set revision property ${propname} to ${propval} on revision ${rev}" file="${subnant-output}"/>
+            <log-echo message="Set revision property ${propname} to ${propval} on revision ${rev}" file="${subnant-output}" />
         </if>
         <if test="${svn-result!='0' and should-pass=='false'}">
-            <log-echo message="Setting of revision property failed as expected" file="${subnant-output}"/>
+            <log-echo message="Setting of revision property failed as expected" file="${subnant-output}" />
         </if>
         <if test="${svn-result=='0' and should-pass=='false'}">
-            <fail message="*** ERROR setting revision property ${propname} to ${propval} on revision ${rev} in ${wc} passed when it should have failed ***"/>
+            <fail message="*** ERROR setting revision property ${propname} to ${propval} on revision ${rev} in ${wc} passed when it should have failed ***" />
         </if>
         <if test="${svn-result!='0' and should-pass=='true'}">
-            <fail message="*** ERROR setting revision property ${propname} to ${propval} on revision ${rev} in ${wc} ***"/>
+            <fail message="*** ERROR setting revision property ${propname} to ${propval} on revision ${rev} in ${wc} ***" />
         </if>
     </target>
 
     <target name="revpropdel">
         <exec program="${svn}" workingdir="${wc}" failonerror="false" resultproperty="svn-result">
-            <arg value="propdel"/>
-            <arg value="${propname}"/>
-            <arg value="--revprop"/>
-            <arg value="-r"/>
-            <arg value="${rev}"/>
+            <arg value="propdel" />
+            <arg value="${propname}" />
+            <arg value="--revprop" />
+            <arg value="-r" />
+            <arg value="${rev}" />
         </exec>
         <if test="${svn-result=='0' and should-pass=='true'}">
-            <log-echo message="Deleted revision property ${propname} in revision ${rev}" file="${subnant-output}"/>
+            <log-echo message="Deleted revision property ${propname} in revision ${rev}" file="${subnant-output}" />
         </if>
         <if test="${svn-result!='0' and should-pass=='false'}">
-            <log-echo message="Deleting of revision property failed as expected" file="${subnant-output}"/>
+            <log-echo message="Deleting of revision property failed as expected" file="${subnant-output}" />
         </if>
         <if test="${svn-result=='0' and should-pass=='false'}">
-            <fail message="*** ERROR deleting revision property ${propname} for revision ${rev} in ${wc} passed when it should have failed ***"/>
+            <fail message="*** ERROR deleting revision property ${propname} for revision ${rev} in ${wc} passed when it should have failed ***" />
         </if>
         <if test="${svn-result!='0' and should-pass=='true'}">
-            <fail message="*** ERROR deleting revision property ${propname} for revision ${rev} in ${wc} ***"/>
+            <fail message="*** ERROR deleting revision property ${propname} for revision ${rev} in ${wc} ***" />
         </if>
     </target>
    
     <target name="proplist">
         <exec program="${svnlook}" output="${exec-output}" failonerror="true" resultproperty="svnlook-result">
-            <arg value="proplist"/>
-            <arg value="${path::combine(svn-root,repos)}"/>
-            <arg value="/"/>
+            <arg value="proplist" />
+            <arg value="${path::combine(svn-root,repos)}" />
+            <arg value="/" />
         </exec>
         <if test="${svnlook-result=='0' and file::exists(exec-output)}">
-            <loadfile file="${exec-output}" property="proplist"/>
-            <property name="proplist" value="${string::trim-end(proplist)}"/>
+            <loadfile file="${exec-output}" property="proplist" />
+            <property name="proplist" value="${string::trim-end(proplist)}" />
             <if test="${string::contains(proplist,propfind)}">
-                <log-echo message="Found ${propfind} in property list" file="${subnant-output}"/>
+                <log-echo message="Found ${propfind} in property list" file="${subnant-output}" />
             </if>
             <if test="${not string::contains(proplist,propfind)}">
-                <fail message="*** ERROR ${propfind} not found in property list ***"/>
+                <fail message="*** ERROR ${propfind} not found in property list ***" />
             </if>
         </if>
         <if test="${svnlook-result!='0' or file::exists(exec-output)==false}">
-            <fail message="*** ERROR getting property list from ${path::combine(svn-root,repos)} ***"/>
+            <fail message="*** ERROR getting property list from ${path::combine(svn-root,repos)} ***" />
         </if>
     </target>
 
     <target name="search-log">
         <exec program="${svnlook}" output="${exec-output}" failonerror="true" resultproperty="svnlook-result">
-            <arg value="log"/>
-            <arg value="${path::combine(svn-root,repos)}"/>
+            <arg value="log" />
+            <arg value="${path::combine(svn-root,repos)}" />
         </exec>
         <if test="${svnlook-result=='0' and file::exists(exec-output)}">
-            <loadfile file="${exec-output}" property="test-output"/>
+            <loadfile file="${exec-output}" property="test-output" />
             <if test="${string::contains(test-output,test-message)}">
-                <log-echo message='Found log "${test-message}" in repository' file="${subnant-output}"/>
+                <log-echo message='Found log "${test-message}" in repository' file="${subnant-output}" />
             </if>
             <if test="${not string::contains(test-output,test-message)}">
                 <fail message='Did not find log "${test-message}" in repository'/>
             </if>
         </if>
         <if test="${svnlook-result!='0' or file::exists(exec-output)==false}">
-            <fail message="*** ERROR searching log from ${path::combine(svn-root,repos)} ***"/>
+            <fail message="*** ERROR searching log from ${path::combine(svn-root,repos)} ***" />
         </if>
     </target>
 

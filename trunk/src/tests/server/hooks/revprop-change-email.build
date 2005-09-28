@@ -11,74 +11,74 @@ $Id$
 
     <target name="test-revprop-change-email" depends="init">
         <!-- Create repository, checkout working copy and commit 2 revisions -->
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment" />
         <nant buildfile="${subnant-root}/src/targets/test.build" target="revpropset">
             <properties>
-                <property name="propname"    value="svn:log"/>
-                <property name="propval"     value="modified svn:log property for revprop-email test on revision 1"/>
-                <property name="rev"         value="1"/>
-                <property name="should-pass" value="false"/>
+                <property name="propname"    value="svn:log" />
+                <property name="propval"     value="modified svn:log property for revprop-email test on revision 1" />
+                <property name="rev"         value="1" />
+                <property name="should-pass" value="false" />
             </properties>
         </nant>
         <!-- Create a pre-revprop-change hook that will always pass  -->
         <!-- (otherwise post-revprop-change hook will always fail) -->
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-hook">
             <properties>
-                <property name="hook"      value="pre-revprop-change"/>
-                <property name="hook-exec" value="exit 0"/>
+                <property name="hook"      value="pre-revprop-change" />
+                <property name="hook-exec" value="exit 0" />
             </properties>
         </nant>
         <!-- Create a post-revprop-change hook that triggers test target-->
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-hook">
             <properties>
-                <property name="hook"      value="post-revprop-change"/>
-                <property name="hook-exec" value="subnant revprop-change-email -D:repos=${hook-param}1 -D:rev=${hook-param}2 -D:user=${hook-param}3 -D:propname=${hook-param}4 -D:action=${hook-param}5"/>
+                <property name="hook"      value="post-revprop-change" />
+                <property name="hook-exec" value="subnant revprop-change-email -D:repos=${hook-param}1 -D:rev=${hook-param}2 -D:user=${hook-param}3 -D:propname=${hook-param}4 -D:action=${hook-param}5" />
             </properties>
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy"/>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy" />
         <nant buildfile="${subnant-root}/src/targets/test.build" target="propset">
             <properties>
-                <property name="propname" value="hook:revprop-change-email"/>
-                <property name="propval"  value="${mail-tolist}"/>
+                <property name="propname" value="hook:revprop-change-email" />
+                <property name="propval"  value="${mail-tolist}" />
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
-                <property name="test-message" value="set hook:revprop-change-email property"/>
-                <property name="should-pass"  value="true"/>
+                <property name="test-message" value="set hook:revprop-change-email property" />
+                <property name="should-pass"  value="true" />
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="revpropset">
             <properties>
-                <property name="propname"    value="svn:mime-type"/>
-                <property name="propval"     value="text/plain"/>
-                <property name="rev"         value="1"/>
-                <property name="should-pass" value="true"/>
+                <property name="propname"    value="svn:mime-type" />
+                <property name="propval"     value="text/plain" />
+                <property name="rev"         value="1" />
+                <property name="should-pass" value="true" />
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="revpropset">
             <properties>
-                <property name="propname"    value="svn:log"/>
-                <property name="propval"     value="modified svn:log for revprop-change-email test"/>
-                <property name="rev"         value="1"/>
-                <property name="should-pass" value="true"/>
+                <property name="propname"    value="svn:log" />
+                <property name="propval"     value="modified svn:log for revprop-change-email test" />
+                <property name="rev"         value="1" />
+                <property name="should-pass" value="true" />
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="revpropdel">
             <properties>
-                <property name="propname"    value="svn:mime-type"/>
-                <property name="rev"         value="1"/>
-                <property name="should-pass" value="true"/>
+                <property name="propname"    value="svn:mime-type" />
+                <property name="rev"         value="1" />
+                <property name="should-pass" value="true" />
             </properties>
         </nant>
     </target>
     
     <target name="init">
         <if test="${property::exists('sendmail')==true and string::trim(string::to-lower(sendmail))!='true'}">
-            <property name="mail-tolist" value="${sendmail}"/>
+            <property name="mail-tolist" value="${sendmail}" />
         </if>
         <if test="${not property::exists('mail-tolist')}">
-            <xmlpeek file="${subnant-config}" xpath="/configuration/mail/tolist" property="mail-tolist"/>
+            <xmlpeek file="${subnant-config}" xpath="/configuration/mail/tolist" property="mail-tolist" />
         </if>
     </target>
 

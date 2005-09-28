@@ -10,7 +10,7 @@ $Id$
 <project name="test-revprop-change-access" default="test-revprop-change-access">
 
     <target name="test-revprop-change-access">
-        <echo message="::TODO::" level="Warning"/>   
+        <echo message="::TODO::" level="Warning" />   
     </target>
 
 </project>

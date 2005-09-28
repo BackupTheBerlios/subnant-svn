@@ -11,106 +11,106 @@ $Id$
 
     <target name="dump" depends="init">
         <foreach item="String" delim="," in="${dump-repos}" property="repo">
-            <call target="svnadmin-dump"/>
+            <call target="svnadmin-dump" />
         </foreach>
         <if test="${dump-ok=='true' and int::parse(dump-count)&gt;1}">
-            <property name="summary" value="${subnant::format-length(total-dump-size,false)}"/>
-            <property name="summary" if="${ziplevel!='false'}" value="${summary+' to '+subnant::format-length(total-zip-size,false)}"/>
-            <property name="summary" value="${summary+' in '+subnant::format-elapsed-time(dump-started,true)}"/>
-            <echo message="${string::pad-right('Dumped '+dump-count+' repositories',60,' ')}(${summary})" file="${subnant-output}" append="true"/>
+            <property name="summary" value="${subnant::format-length(total-dump-size,false)}" />
+            <property name="summary" if="${ziplevel!='false'}" value="${summary+' to '+subnant::format-length(total-zip-size,false)}" />
+            <property name="summary" value="${summary+' in '+subnant::format-elapsed-time(dump-started,true)}" />
+            <echo message="${string::pad-right('Dumped '+dump-count+' repositories',60,' ')}(${summary})" file="${subnant-output}" append="true" />
         </if>
         <if test="${dump-ok!='true'}">
-            <fail message="${string::pad-right('Dump completed with errors!',60,' ')}(${subnant::format-elapsed-time(dump-started, true)})"/>
+            <fail message="${string::pad-right('Dump completed with errors!',60,' ')}(${subnant::format-elapsed-time(dump-started, true)})" />
         </if>
     </target>
 
     <target name="init">
-        <property name="dump-started"     value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="rev"              value="false" unless="${property::exists('rev')}"/>
-        <property name="dump-incremental" value="false"/>
-        <property name="dump-deltas"      value="false"/>
-        <property name="dump-ok"          value="true"/>
-        <property name="dump-count"       value="0"/>
-        <property name="file-size"        value="0"/>
-        <property name="total-dump-size"  value="0"/>
-        <property name="total-zip-size"   value="0"/>
-        <property name="arg-revision"     value=""/>
-        <property name="arg-incremental"  value=""/>
-        <property name="arg-deltas"       value=""/>
+        <property name="dump-started"     value="${datetime::get-ticks(datetime::now())}" />
+        <property name="rev"              value="false" unless="${property::exists('rev')}" />
+        <property name="dump-incremental" value="false" />
+        <property name="dump-deltas"      value="false" />
+        <property name="dump-ok"          value="true" />
+        <property name="dump-count"       value="0" />
+        <property name="file-size"        value="0" />
+        <property name="total-dump-size"  value="0" />
+        <property name="total-zip-size"   value="0" />
+        <property name="arg-revision"     value="" />
+        <property name="arg-incremental"  value="" />
+        <property name="arg-deltas"       value="" />
         <!-- Read in defaults -->
-        <property name="dump-repos"       value="${repos}" unless="${property::exists('dump-repos')}"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root"     property="dump-root" unless="${property::exists('dump-root')}"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/compress-dump" property="ziplevel"  unless="${property::exists('compress')}"/>
+        <property name="dump-repos"       value="${repos}" unless="${property::exists('dump-repos')}" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root"     property="dump-root" unless="${property::exists('dump-root')}" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/compress-dump" property="ziplevel"  unless="${property::exists('compress')}" />
         <!-- Assign from parameters -->
-        <property name="ziplevel"         value="${compress}"    if="${property::exists('compress')}"/>
-        <property name="dump-incremental" value="${incremental}" if="${property::exists('incremental')}"/>
-        <property name="dump-deltas"      value="${deltas}"      if="${property::exists('deltas')}"/>
+        <property name="ziplevel"         value="${compress}"    if="${property::exists('compress')}" />
+        <property name="dump-incremental" value="${incremental}" if="${property::exists('incremental')}" />
+        <property name="dump-deltas"      value="${deltas}"      if="${property::exists('deltas')}" />
         <!-- Tidy up -->
-        <property name="ziplevel"         value="${string::to-lower(string::trim(ziplevel))}"/>
-        <property name="ziplevel"         value="6" if="${ziplevel=='true'}"/>
-        <property name="dump-incremental" value="${string::to-lower(string::trim(dump-incremental))}"/>
-        <property name="dump-deltas"      value="${string::to-lower(string::trim(dump-deltas))}"/>
+        <property name="ziplevel"         value="${string::to-lower(string::trim(ziplevel))}" />
+        <property name="ziplevel"         value="6" if="${ziplevel=='true'}" />
+        <property name="dump-incremental" value="${string::to-lower(string::trim(dump-incremental))}" />
+        <property name="dump-deltas"      value="${string::to-lower(string::trim(dump-deltas))}" />
         <!-- Assign switches -->
-        <property name="arg-revision"     value="--revision ${rev}" if="${rev!='false'}"/>
-        <property name="arg-incremental"  value="--incremental"     if="${dump-incremental=='true'}"/>
-        <property name="arg-deltas"       value="--deltas"          if="${dump-deltas=='true'}"/>
+        <property name="arg-revision"     value="--revision ${rev}" if="${rev!='false'}" />
+        <property name="arg-incremental"  value="--incremental"     if="${dump-incremental=='true'}" />
+        <property name="arg-deltas"       value="--deltas"          if="${dump-deltas=='true'}" />
         <!-- Verify properties -->
-        <fail unless="${directory::exists(dump-root)}" message="dump-root is invalid or does not exist in filesystem: ${dump-root}"/>
-        <fail if="${dump-incremental!='false' and dump-incremental!='true'}" message="incremental must be set true or false"/>
-        <fail if="${dump-deltas!='false' and dump-deltas!='true'}" message="deltas must be set true or false"/>
-        <fail if="${ziplevel!='false' and int::parse(ziplevel)&lt;1 and int::parse(ziplevel)&gt;9}" message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)"/>
+        <fail unless="${directory::exists(dump-root)}" message="dump-root is invalid or does not exist in filesystem: ${dump-root}" />
+        <fail if="${dump-incremental!='false' and dump-incremental!='true'}" message="incremental must be set true or false" />
+        <fail if="${dump-deltas!='false' and dump-deltas!='true'}" message="deltas must be set true or false" />
+        <fail if="${ziplevel!='false' and int::parse(ziplevel)&lt;1 and int::parse(ziplevel)&gt;9}" message="compress must be set false or at compression level 1 (lowest) through to 9 (highest)" />
     </target>
 
     <target name="init-dump">
-        <property name="started"   value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="repo"      value="${subnant::return-directory-name(repo)}"/>
-        <property name="dump-dir"  value="${path::combine(dump-root,repo)}"/>
-        <property name="dump-file" value="${path::combine(dump-dir,repo)}"/>
-        <property name="dump-file" if="${rev!='false'}" value="${dump-file+'.r'+string::replace(rev,':','-')}"/>
-        <property name="dump-file" value="${dump-file+'.dump'}"/>
-        <mkdir dir="${dump-dir}" unless="${directory::exists(dump-dir)}"/>
+        <property name="started"   value="${datetime::get-ticks(datetime::now())}" />
+        <property name="repo"      value="${subnant::return-directory-name(repo)}" />
+        <property name="dump-dir"  value="${path::combine(dump-root,repo)}" />
+        <property name="dump-file" value="${path::combine(dump-dir,repo)}" />
+        <property name="dump-file" if="${rev!='false'}" value="${dump-file+'.r'+string::replace(rev,':','-')}" />
+        <property name="dump-file" value="${dump-file+'.dump'}" />
+        <mkdir dir="${dump-dir}" unless="${directory::exists(dump-dir)}" />
     </target>
 
     <target name="svnadmin-dump">
-        <call target="init-dump"/>
-        <echo level="Warning" message="Dumping ${repo} ${string::trim(arg-revision+' '+arg-incremental+' '+arg-deltas)}"/>
+        <call target="init-dump" />
+        <echo level="Warning" message="Dumping ${repo} ${string::trim(arg-revision+' '+arg-incremental+' '+arg-deltas)}" />
         <exec program="${shell}" failonerror="${failonerror}" resultproperty="dump-result">
             <arg line='${shell-switch}""${svnadmin}" dump "${path::combine(svn-root,repo)}" &gt; "${dump-file}" ${arg-revision} ${arg-incremental} ${arg-deltas}"'/>
         </exec>
-        <echo file="${exec-result}" message="${dump-result}" append="false"/>
+        <echo file="${exec-result}" message="${dump-result}" append="false" />
         <if test="${dump-result=='0' and file::exists(dump-file)}">
-            <property name="file-size"       value="${file::get-length(dump-file)}"/>   
-            <property name="total-dump-size" value="${long::parse(total-dump-size)+long::parse(file-size)}"/>   
-            <echo message="${string::pad-right('Dumped '+repo,60,' ')}(${subnant::format-length(file-size,false)+' in '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
-            <call target="compress-dump-file" if="${ziplevel!='false'}"/>
-            <property name="dump-count" value="${int::parse(dump-count)+1}"/>   
+            <property name="file-size"       value="${file::get-length(dump-file)}" />   
+            <property name="total-dump-size" value="${long::parse(total-dump-size)+long::parse(file-size)}" />   
+            <echo message="${string::pad-right('Dumped '+repo,60,' ')}(${subnant::format-length(file-size,false)+' in '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true" />
+            <call target="compress-dump-file" if="${ziplevel!='false'}" />
+            <property name="dump-count" value="${int::parse(dump-count)+1}" />   
         </if>
         <if test="${dump-result!='0'}">
-            <echo message="${'*** ERROR dumping '+repo+' ***'}" file="${subnant-output}" append="true"/>
-            <delete file="${dump-file}" if="${file::exists(dump-file)}"/>
-            <property name="dump-ok" value="false"/>
+            <echo message="${'*** ERROR dumping '+repo+' ***'}" file="${subnant-output}" append="true" />
+            <delete file="${dump-file}" if="${file::exists(dump-file)}" />
+            <property name="dump-ok" value="false" />
         </if>
     </target>
 
     <target name="compress-dump-file">
-        <property name="started"  value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="zip-file" value="${dump-file}.zip"/>
-        <delete file="${zip-file}" if="${file::exists(zip-file)}"/>
-        <echo level="Warning" message="Compressing ${path::get-file-name(dump-file)}"/>
+        <property name="started"  value="${datetime::get-ticks(datetime::now())}" />
+        <property name="zip-file" value="${dump-file}.zip" />
+        <delete file="${zip-file}" if="${file::exists(zip-file)}" />
+        <echo level="Warning" message="Compressing ${path::get-file-name(dump-file)}" />
         <zip zipfile="${zip-file}" failonerror="${failonerror}" ziplevel="${ziplevel}" comment="Subversion repository dump">
             <fileset>
-                <include name="${dump-file}"/>   
+                <include name="${dump-file}" />   
             </fileset>
         </zip>
         <if test="${file::exists(zip-file)}">
-            <delete file="${dump-file}" if="${file::exists(zip-file)}"/>
-            <property name="file-size"      value="${file::get-length(zip-file)}"/>   
-            <property name="total-zip-size" value="${long::parse(total-zip-size)+long::parse(file-size)}"/>   
-            <echo message="${string::pad-right('Compressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-length(file-size,false)+' in '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
+            <delete file="${dump-file}" if="${file::exists(zip-file)}" />
+            <property name="file-size"      value="${file::get-length(zip-file)}" />   
+            <property name="total-zip-size" value="${long::parse(total-zip-size)+long::parse(file-size)}" />   
+            <echo message="${string::pad-right('Compressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-length(file-size,false)+' in '+subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true" />
         </if>
         <if test="${not file::exists(zip-file)}">
-            <echo message="${'*** ERROR compressing '+repo+' (zip not created) ***'}" file="${subnant-output}" append="true"/>
-            <property name="dump-ok" value="false"/>
+            <echo message="${'*** ERROR compressing '+repo+' (zip not created) ***'}" file="${subnant-output}" append="true" />
+            <property name="dump-ok" value="false" />
         </if>
     </target>
 

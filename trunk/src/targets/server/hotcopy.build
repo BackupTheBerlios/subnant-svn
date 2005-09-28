@@ -11,56 +11,56 @@ $Id$
 
     <target name="hotcopy" depends="init">
         <foreach item="String" delim="," in="${hotcopy-repos}" property="repo">
-            <call target="svnadmin-hotcopy"/>
+            <call target="svnadmin-hotcopy" />
         </foreach>
         <if test="${hotcopy-ok=='true' and int::parse(hotcopy-count)&gt;1}">
-            <echo message="${string::pad-right('Hotcopied '+hotcopy-count+' repositories',60,' ')}(${subnant::format-elapsed-time(hotcopy-started, true)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Hotcopied '+hotcopy-count+' repositories',60,' ')}(${subnant::format-elapsed-time(hotcopy-started, true)})" file="${subnant-output}" append="true" />
         </if>
         <if test="${hotcopy-ok!='true'}">
-            <fail message="${string::pad-right('Hotcopy completed with errors!',60,' ')}(${subnant::format-elapsed-time(hotcopy-started, true)})"/>
+            <fail message="${string::pad-right('Hotcopy completed with errors!',60,' ')}(${subnant::format-elapsed-time(hotcopy-started, true)})" />
         </if>
     </target>
 
     <target name="init">
-        <property name="hotcopy-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="hotcopy-ok"      value="true"/>
-        <property name="hotcopy-count"   value="0"/>
-        <property name="hotcopy-repos"   value="${repos}" unless="${property::exists('hotcopy-repos')}"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/hotcopy-root"   property="hotcopy-root"         unless="${property::exists('hotcopy-root')}"/>
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/verify-hotcopy" property="verify-after-hotcopy" unless="${property::exists('verify')}"/>
-        <property name="verify-after-hotcopy" value="${verify}" if="${property::exists('verify')}"/>
-        <property name="verify-after-hotcopy" value="${string::to-lower(string::trim(verify-after-hotcopy))}"/>
-        <fail unless="${directory::exists(hotcopy-root)}" message="hotcopy-root is invalid or does not exist in filesystem: ${hotcopy-root}"/>
-        <fail if="${verify-after-hotcopy!='false' and verify-after-hotcopy!='true'}" message="verify must be set true or false"/>
+        <property name="hotcopy-started" value="${datetime::get-ticks(datetime::now())}" />
+        <property name="hotcopy-ok"      value="true" />
+        <property name="hotcopy-count"   value="0" />
+        <property name="hotcopy-repos"   value="${repos}" unless="${property::exists('hotcopy-repos')}" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/hotcopy-root"   property="hotcopy-root"         unless="${property::exists('hotcopy-root')}" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/verify-hotcopy" property="verify-after-hotcopy" unless="${property::exists('verify')}" />
+        <property name="verify-after-hotcopy" value="${verify}" if="${property::exists('verify')}" />
+        <property name="verify-after-hotcopy" value="${string::to-lower(string::trim(verify-after-hotcopy))}" />
+        <fail unless="${directory::exists(hotcopy-root)}" message="hotcopy-root is invalid or does not exist in filesystem: ${hotcopy-root}" />
+        <fail if="${verify-after-hotcopy!='false' and verify-after-hotcopy!='true'}" message="verify must be set true or false" />
     </target>
 
     <target name="svnadmin-hotcopy">
-        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
-        <echo level="Warning" message="Hotcopying ${repo}"/>
-        <delete dir="${path::combine(hotcopy-root,repo)}" if="${directory::exists(path::combine(hotcopy-root,repo))}"/>
+        <property name="started" value="${datetime::get-ticks(datetime::now())}" />
+        <echo level="Warning" message="Hotcopying ${repo}" />
+        <delete dir="${path::combine(hotcopy-root,repo)}" if="${directory::exists(path::combine(hotcopy-root,repo))}" />
         <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="hotcopy-result">
-            <arg value="hotcopy"/>
-            <arg value="${path::combine(svn-root,repo)}"/>
-            <arg value="${path::combine(hotcopy-root,repo)}"/>
-            <arg value="--clean-logs"/>
+            <arg value="hotcopy" />
+            <arg value="${path::combine(svn-root,repo)}" />
+            <arg value="${path::combine(hotcopy-root,repo)}" />
+            <arg value="--clean-logs" />
         </exec>
         <if test="${hotcopy-result=='0'}">
-            <echo message="${string::pad-right('Hotcopied '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Hotcopied '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true" />
             <if test="${verify-after-hotcopy=='true'}">
                 <nant buildfile="verify.build" target="verify">
                     <properties>
-                        <property name="verify-repos"    value="${repo}"/>
-                        <property name="verify-svn-root" value="${hotcopy-root}"/>
+                        <property name="verify-repos"    value="${repo}" />
+                        <property name="verify-svn-root" value="${hotcopy-root}" />
                     </properties>
                 </nant>
-                <loadfile file="${exec-result}" property="verify-result"/>
-                <property name="hotcopy-ok" value="false" if="${string::trim(verify-result)!='0'}"/>
+                <loadfile file="${exec-result}" property="verify-result" />
+                <property name="hotcopy-ok" value="false" if="${string::trim(verify-result)!='0'}" />
             </if>
-            <property name="hotcopy-count" value="${int::parse(hotcopy-count)+1}"/>   
+            <property name="hotcopy-count" value="${int::parse(hotcopy-count)+1}" />   
         </if>
         <if test="${hotcopy-result!='0'}">
-            <echo message="${string::pad-right('*** ERROR hotcopying '+repo+' ***',60,' ')}" file="${subnant-output}" append="true"/>
-            <property name="hotcopy-ok" value="false"/>
+            <echo message="${string::pad-right('*** ERROR hotcopying '+repo+' ***',60,' ')}" file="${subnant-output}" append="true" />
+            <property name="hotcopy-ok" value="false" />
         </if>
     </target>
 

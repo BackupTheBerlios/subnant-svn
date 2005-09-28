@@ -11,82 +11,82 @@ $Id$
 
     <target name="load" depends="init">
         <foreach item="String" delim="," in="${load-dump}" property="dump-file">
-            <call target="svnadmin-load"/>
+            <call target="svnadmin-load" />
         </foreach>
         <if test="${load-ok=='true' and int::parse(load-count)&gt;1}">
-            <echo message="${string::pad-right('Loaded '+load-count+' repositories',60,' ')}(${subnant::format-elapsed-time(load-started, true)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Loaded '+load-count+' repositories',60,' ')}(${subnant::format-elapsed-time(load-started, true)})" file="${subnant-output}" append="true" />
         </if>
         <if test="${load-ok!='true'}">
-            <fail message="${string::pad-right('Load completed with errors!',60,' ')}(${subnant::format-elapsed-time(load-started, true)})"/>
+            <fail message="${string::pad-right('Load completed with errors!',60,' ')}(${subnant::format-elapsed-time(load-started, true)})" />
         </if>
     </target>
 
     <target name="init">
-        <property name="load-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="load-ok"      value="true"/>
-        <property name="load-count"   value="0"/>
-        <property name="temp-dir"     value=""/>
+        <property name="load-started" value="${datetime::get-ticks(datetime::now())}" />
+        <property name="load-ok"      value="true" />
+        <property name="load-count"   value="0" />
+        <property name="temp-dir"     value="" />
         <if test="${not property::exists('load-dump')}">
-            <fail unless="${property::exists('dump')}" message="dump not defined"/>
-            <property name="load-dump" value="${dump}"/>
+            <fail unless="${property::exists('dump')}" message="dump not defined" />
+            <property name="load-dump" value="${dump}" />
         </if>   
-        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}"/>
-        <fail unless="${directory::exists(dump-root)}"   message="dump-root is invalid or does not exist in filesystem: ${dump-root}"/>
+        <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}" />
+        <fail unless="${directory::exists(dump-root)}"   message="dump-root is invalid or does not exist in filesystem: ${dump-root}" />
     </target>
 
     <target name="init-load">
-        <property name="started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="repo"    value="${path::get-file-name-without-extension(dump-file)}"/>
+        <property name="started" value="${datetime::get-ticks(datetime::now())}" />
+        <property name="repo"    value="${path::get-file-name-without-extension(dump-file)}" />
         <!-- Subnant dump filename format: <repos>.[rX[-Y]].dump[.zip] -->
         <if test="${string::contains(dump-file,'.')}">
-            <property name="repo" value="${string::substring(dump-file,0,string::index-of(dump-file,'.'))}"/>
+            <property name="repo" value="${string::substring(dump-file,0,string::index-of(dump-file,'.'))}" />
         </if>
         <!-- ::TODO:: Create fileset to cater for wildcards for r*.dump -->
         <if test="${string::contains(dump-file,'.r*.')}">
-            <fail message="::TODO:: Revision wildcards not yet implemented"/>
+            <fail message="::TODO:: Revision wildcards not yet implemented" />
         </if>
-        <property name="dump-file"  value="${path::combine(path::combine(dump-root,repo),dump-file)}"/>
-        <property name="dump-file"  value="${dump-file+'.dump'}"     if="${file::exists(dump-file+'.dump')}"     unless="${file::exists(dump-file)}"/>
-        <property name="dump-file"  value="${dump-file+'.dump.zip'}" if="${file::exists(dump-file+'.dump.zip')}" unless="${file::exists(dump-file)}"/>
-        <property name="compressed" value="false"/>
-        <call target="uncompress-dump-file" if="${string::to-lower(path::get-extension(dump-file))=='.zip'}"/>
-        <fail unless="${file::exists(dump-file)}" message="Dumpfile not found ${dump-file}"/>
+        <property name="dump-file"  value="${path::combine(path::combine(dump-root,repo),dump-file)}" />
+        <property name="dump-file"  value="${dump-file+'.dump'}"     if="${file::exists(dump-file+'.dump')}"     unless="${file::exists(dump-file)}" />
+        <property name="dump-file"  value="${dump-file+'.dump.zip'}" if="${file::exists(dump-file+'.dump.zip')}" unless="${file::exists(dump-file)}" />
+        <property name="compressed" value="false" />
+        <call target="uncompress-dump-file" if="${string::to-lower(path::get-extension(dump-file))=='.zip'}" />
+        <fail unless="${file::exists(dump-file)}" message="Dumpfile not found ${dump-file}" />
     </target>
 
     <target name="svnadmin-load">
-        <call target="init-load"/>
-        <echo message="Loading ${path::get-file-name(dump-file)}" level="Warning"/>
+        <call target="init-load" />
+        <echo message="Loading ${path::get-file-name(dump-file)}" level="Warning" />
         <exec program="${shell}" failonerror="${failonerror}" resultproperty="load-result">
             <arg line='${shell-switch}""${svnadmin}" load "${path::combine(svn-root,repo)}" &lt; "${dump-file}""'/>
         </exec>
         <if test="${compressed and directory::exists(temp-dir)}">
-            <delete dir="${temp-dir}"/>
+            <delete dir="${temp-dir}" />
         </if>
         <if test="${load-result=='0'}">
-            <echo message="${string::pad-right('Loaded '+repo,60,' ')}(${subnant::format-elapsed-time(started, true)})" file="${subnant-output}" append="true"/>
-            <property name="load-count" value="${int::parse(load-count)+1}"/>   
+            <echo message="${string::pad-right('Loaded '+repo,60,' ')}(${subnant::format-elapsed-time(started, true)})" file="${subnant-output}" append="true" />
+            <property name="load-count" value="${int::parse(load-count)+1}" />   
         </if>
         <if test="${load-result!='0'}">
-            <echo message="${'*** ERROR loading '+repo+' ***'}" file="${subnant-output}" append="true"/>
-            <property name="load-ok" value="false"/>
+            <echo message="${'*** ERROR loading '+repo+' ***'}" file="${subnant-output}" append="true" />
+            <property name="load-ok" value="false" />
         </if>
     </target>
 
     <target name="uncompress-dump-file">
-        <property name="started"    value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="compressed" value="true"/>
-        <property name="zip-file"   value="${dump-file}"/>
-        <property name="temp-dir"   value="${path::combine(path::get-temp-path(),'subnant-load-'+subnant-tstamp+'-'+repo)}"/>
-        <echo message="Uncompressing ${path::get-file-name(dump-file)}" level="Warning"/>
-        <mkdir dir="${temp-dir}" unless="${directory::exists(temp-dir)}"/>
-        <unzip zipfile="${zip-file}" todir="${temp-dir}" failonerror="${failonerror}"/>
-        <property name="dump-file"  value="${path::combine(temp-dir,path::get-file-name-without-extension(dump-file))}"/>
+        <property name="started"    value="${datetime::get-ticks(datetime::now())}" />
+        <property name="compressed" value="true" />
+        <property name="zip-file"   value="${dump-file}" />
+        <property name="temp-dir"   value="${path::combine(path::get-temp-path(),'subnant-load-'+subnant-tstamp+'-'+repo)}" />
+        <echo message="Uncompressing ${path::get-file-name(dump-file)}" level="Warning" />
+        <mkdir dir="${temp-dir}" unless="${directory::exists(temp-dir)}" />
+        <unzip zipfile="${zip-file}" todir="${temp-dir}" failonerror="${failonerror}" />
+        <property name="dump-file"  value="${path::combine(temp-dir,path::get-file-name-without-extension(dump-file))}" />
         <if test="${file::exists(dump-file)}">
-            <echo message="${string::pad-right('Uncompressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true"/>
+            <echo message="${string::pad-right('Uncompressed '+path::get-file-name(zip-file),60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true" />
         </if>
         <if test="${not file::exists(zip-file)}">
-            <echo message="${'*** ERROR uncompressing '+repo+' (zip not created) ***'}" file="${subnant-output}" append="true"/>
-            <property name="dump-ok" value="false"/>
+            <echo message="${'*** ERROR uncompressing '+repo+' (zip not created) ***'}" file="${subnant-output}" append="true" />
+            <property name="dump-ok" value="false" />
         </if>
     </target>
 

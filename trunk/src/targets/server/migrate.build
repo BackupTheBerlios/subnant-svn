@@ -13,51 +13,51 @@ $Id$
         <foreach item="String" delim="," in="${migrate-repos}" property="repo">
             <nant buildfile="verify.build" target="verify">
                 <properties>
-                    <property name="verify-repos" value="${repo}"/>
+                    <property name="verify-repos" value="${repo}" />
                 </properties>
             </nant>
             <nant buildfile="dump.build" target="dump">
                 <properties>
-                    <property name="dump-repos" value="${repo}"/>   
-                    <property name="compress"   value="false"/>   
+                    <property name="dump-repos" value="${repo}" />   
+                    <property name="compress"   value="false" />   
                 </properties>
             </nant>
             <nant buildfile="create.build" target="create">
                 <properties>
-                    <property name="create-repos" value="${repo}"/>   
-                    <property name="svn-root"     value="${to-svn-root}"/>
-                    <property name="svn-bindir"   value="${to-svn-bindir}"/>
+                    <property name="create-repos" value="${repo}" />   
+                    <property name="svn-root"     value="${to-svn-root}" />
+                    <property name="svn-bindir"   value="${to-svn-bindir}" />
                 </properties>
             </nant>
             <nant buildfile="load.build" target="load">
                 <properties>
-                    <property name="load-dump"  value="${repo}.dump"/>
-                    <property name="svn-root"   value="${to-svn-root}"/>
-                    <property name="svn-bindir" value="${to-svn-bindir}"/>
+                    <property name="load-dump"  value="${repo}.dump" />
+                    <property name="svn-root"   value="${to-svn-root}" />
+                    <property name="svn-bindir" value="${to-svn-bindir}" />
                 </properties>
             </nant>
             <nant buildfile="verify.build" target="verify">
                 <properties>
-                    <property name="verify-repos" value="${repo}"/>
-                    <property name="svn-root"     value="${to-svn-root}"/>
-                    <property name="svn-bindir"   value="${to-svn-bindir}"/>
+                    <property name="verify-repos" value="${repo}" />
+                    <property name="svn-root"     value="${to-svn-root}" />
+                    <property name="svn-bindir"   value="${to-svn-bindir}" />
                 </properties>
             </nant>
-            <echo message="::TODO:: Copy existing hooks from old repos into new repos (overwrite default hooks)" level="Warning"/>
-            <echo message="::TODO:: Delete source repository if requested" level="Warning"/>
-            <property name="migrate-count" value="${int::parse(migrate-count)+1}"/>   
+            <echo message="::TODO:: Copy existing hooks from old repos into new repos (overwrite default hooks)" level="Warning" />
+            <echo message="::TODO:: Delete source repository if requested" level="Warning" />
+            <property name="migrate-count" value="${int::parse(migrate-count)+1}" />   
         </foreach>
-        <log-echo message="${string::pad-right('Migrated '+migrate-count+' repositories',60,' ')}(${subnant::format-elapsed-time(migrate-started, true)})" file="${subnant-output}"/>
+        <log-echo message="${string::pad-right('Migrated '+migrate-count+' repositories',60,' ')}(${subnant::format-elapsed-time(migrate-started, true)})" file="${subnant-output}" />
      </target>
 
     <target name="init">
-        <property name="migrate-started" value="${datetime::get-ticks(datetime::now())}"/>
-        <property name="to-svn-bindir"   value="${svn-bindir}" unless="${property::exists('to-svn-bindir')}"/>
-        <property name="migrate-repos"   value="${repos}"      unless="${property::exists('migrate-repos')}"/>
-        <property name="migrate-count"   value="0"/>
-        <fail message="to-svn-root not set"                           unless="${property::exists('to-svn-root')}"/>
-        <fail message="to-svn-root doesn't exist: ${to-svn-root}"     unless="${directory::exists(to-svn-root)}"/>
-        <fail message="to-svn-bindir doesn't exist: ${to-svn-bindir}" unless="${directory::exists(to-svn-bindir)}"/>
+        <property name="migrate-started" value="${datetime::get-ticks(datetime::now())}" />
+        <property name="to-svn-bindir"   value="${svn-bindir}" unless="${property::exists('to-svn-bindir')}" />
+        <property name="migrate-repos"   value="${repos}"      unless="${property::exists('migrate-repos')}" />
+        <property name="migrate-count"   value="0" />
+        <fail message="to-svn-root not set"                           unless="${property::exists('to-svn-root')}" />
+        <fail message="to-svn-root doesn't exist: ${to-svn-root}"     unless="${directory::exists(to-svn-root)}" />
+        <fail message="to-svn-bindir doesn't exist: ${to-svn-bindir}" unless="${directory::exists(to-svn-bindir)}" />
     </target>
 
     <target name="help">

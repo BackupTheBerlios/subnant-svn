@@ -10,7 +10,7 @@ $Id$
 <project name="revprop-change-access" default="revprop-change-access">
 
     <target name="revprop-change-access" depends="init">
-        <echo file="${subnant-output}" append="true" message="::TODO:: revprop access"/>
+        <echo file="${subnant-output}" append="true" message="::TODO:: revprop access" />
     </target>
    
     <target name="init">

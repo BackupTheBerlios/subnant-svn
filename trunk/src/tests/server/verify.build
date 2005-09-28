@@ -10,8 +10,8 @@ $Id$
 <project name="test-verify" default="test-verify">
 
     <target name="test-verify">
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
-        <nant buildfile="${subnant-root}/src/subnant.build" target="verify"/>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment" />
+        <nant buildfile="${subnant-root}/src/subnant.build" target="verify" />
     </target>
 
 </project>

@@ -10,46 +10,48 @@ $Id$
 <project name="test-mirror" default="test-mirror">
 
     <target name="test-mirror" depends="init">
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment" />
         <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
-                <property name="compress" value="false"/>   
+                <property name="compress" value="false" />   
             </properties>
         </nant>
-        <log-echo message="[Testing uncompressed dump]" file="${subnant-output}"/>
-        <copy file="${path::combine(dump-dir,repos+'.dump')}" todir="${mirror-dir}"/>
+        <log-echo message="[Testing uncompressed dump]" file="${subnant-output}" />
+        <copy file="${path::combine(dump-dir,repos+'.dump')}" todir="${mirror-dir}" />
         <nant buildfile="${subnant-root}/src/subnant.build" target="mirror">
             <properties>
-                <property name="url" value="${mirror-url}"/>
+                <property name="url"           value="${mirror-url}" />
+                <property name="replace-repos" value="true" />
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
-                <property name="compress" value="9"/>   
+                <property name="compress" value="9" />   
             </properties>
         </nant>
-        <copy file="${path::combine(dump-dir,repos+'.dump.zip')}" todir="${mirror-dir}"/>
-        <log-echo message="[Testing Zip dump]" file="${subnant-output}"/>
+        <copy file="${path::combine(dump-dir,repos+'.dump.zip')}" todir="${mirror-dir}" />
+        <log-echo message="[Testing Zip dump]" file="${subnant-output}" />
         <nant buildfile="${subnant-root}/src/subnant.build" target="mirror">
             <properties>
-                <property name="url" value="${mirror-url}.zip"/>   
+                <property name="url"           value="${mirror-url}.zip" />   
+                <property name="replace-repos" value="true" />
             </properties>
         </nant>
-        <log-echo message="[::TODO:: Test GZip dump]" file="${subnant-output}"/>
+        <log-echo message="[::TODO:: Test GZip dump]" file="${subnant-output}" />
         <!-- How to test .gz from local file without using <tar>? (as there is no <untar>)
         <nant buildfile="${subnant-root}/src/targets/server/mirror.build" target="mirror">
             <properties>
-                <property name="url" value="http://svn.berlios.de/svndumps/subnant-repos.gz"/>
+                <property name="url" value="http://svn.berlios.de/svndumps/subnant-repos.gz" />
             </properties>
         </nant>
         -->
     </target>
 
     <target name="init">
-        <property name="dump-dir"   value="${path::combine(dump-root,repos)}"/>
-        <property name="mirror-dir" value="${path::combine(dump-dir,'mirror')}"/>
-        <property name="mirror-url" value="${subnant::to-uri(path::combine(mirror-dir,repos+'.dump'))}"/>
-        <mkdir dir="${mirror-dir}" unless="${directory::exists(mirror-dir)}"/>   
+        <property name="dump-dir"   value="${path::combine(dump-root,repos)}" />
+        <property name="mirror-dir" value="${path::combine(dump-dir,'mirror')}" />
+        <property name="mirror-url" value="${subnant::to-uri(path::combine(mirror-dir,repos+'.dump'))}" />
+        <mkdir dir="${mirror-dir}" unless="${directory::exists(mirror-dir)}" />   
     </target>
    
 </project>

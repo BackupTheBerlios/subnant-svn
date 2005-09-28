@@ -10,22 +10,22 @@ $Id$
 <project name="test-dump" default="test-dump">
 
     <target name="test-dump">
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment"/>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment" />
         <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
-                <property name="compress" value="false"/>   
+                <property name="compress" value="false" />   
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
-                <property name="compress" value="9"/>   
+                <property name="compress" value="9" />   
             </properties> 
         </nant>
         <nant buildfile="${subnant-root}/src/subnant.build" target="dump">
             <properties>
-                <property name="incremental" value="true"/>   
-                <property name="deltas"      value="true"/>   
-                <property name="rev"         value="0:2"/>   
+                <property name="incremental" value="true" />   
+                <property name="deltas"      value="true" />   
+                <property name="rev"         value="0:2" />   
             </properties>
         </nant>
     </target>
