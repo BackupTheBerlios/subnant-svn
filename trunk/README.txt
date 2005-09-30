@@ -134,25 +134,17 @@ Repository targets:
 
 Repository hook targets:
 
-  * commit-access
+  * check-case-insensitive
 
-    Provides granular access control to a repository using pre-commit hook in
-    conjunction with Subversion properties
-
-    For more information:
-    http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/commit-access.html
-
-
-  * commit-allower
-
-    Provides user-level access control to a repository using start-commit hook
+    Check files being added to the repository do not already exist with
+    the same name in the same path, but with a different filename case
 
 
   * commit-email
 
     Sends email using post-commit hook by reading Subversion hook:commit-email
     property on parent directory(s) of committed files  
-    
+
     Can show who, why, what, when and where changes were committed
 
     For more information:
@@ -162,15 +154,6 @@ Repository hook targets:
   * commit-message
 
     Ensures log message is entered by using pre-commit hook
-
-
-  * revprop-change-access
-
-    Provides granular access control to revision property changes using
-    pre-revprop-change hook in conjunction with Subversion properties
-
-    For more information:
-    http://svn.berlios.de/viewcvs/*checkout*/subnant/trunk/doc/revprop-change-access.html  
 
 
   * revprop-change-email

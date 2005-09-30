@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$ 
+-->
+<project name="check-case-insensitive" default="check-case-insensitive">
+
+    <target name="check-case-insensitive" depends="init">
+        <echo file="${subnant-output}" append="true" message="::TODO:: Check case insensitive" />
+    </target>
+   
+    <target name="init">
+    </target>
+
+    <target name="help">
+        <echo level="Warning">
+            <![CDATA[check-case-insensitive:
+
+Usage: subnant check-case-insensitive -D:repos=<repo> -D:txn=<txn> [-D:<option>=<value>]
+
+Purpose: Check files being added to the repository do not already exist with
+the same name in the same path, but with a different case
+
+Should only be used in conjunction with the pre-commit hook
+
+Required:
+repos           full path to repository
+txn             Subversion transaction number
+
+Example:
+subnant check-case-insensitive -D:repos=/path/to/repo -D:txn=1-1
+]]>
+        </echo>
+    </target>
+   
+</project>

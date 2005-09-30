@@ -10,12 +10,14 @@ $Id$
 <project name="test-bugtraq" default="test-bugtraq">
 
     <target name="test-bugtraq">
-        <nant buildfile="${subnant-root}/src/subnant.build"      target="create" />
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy" />
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment" />
         <nant buildfile="${subnant-root}/src/subnant.build"      target="bugtraq" />
+        <!-- svn update is needed for bdb wc, but not fsfs, wtf? -->
+        <exec program="${svn}" commandline="update" workingdir="${wc}" failonerror="true" />
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
-                <property name="should-pass" value="true" />
+                <property name="test-message" value="set bugtraq properties" />
+                <property name="should-pass"  value="true" />
             </properties>
         </nant>        
         <nant buildfile="${subnant-root}/src/targets/test.build" target="proplist">

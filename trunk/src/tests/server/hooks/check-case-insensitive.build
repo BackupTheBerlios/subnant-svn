@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id: commit-message.build 202 2005-09-28 13:01:32Z sshnug_si $
+-->
+<project name="test-check-case-insensitive" default="test-check-case-insensitive">
+
+    <target name="test-check-case-insensitive" depends="init">
+        <echo message="::TODO::" level="Warning" />
+        <!-- TODO
+        <nant buildfile="${subnant-root}/src/subnant.build" target="create">
+            <properties>
+                <property name="no-hooks"    value="true" />
+                <property name="no-svnserve" value="true" />
+            </properties>
+        </nant>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-hook">
+            <properties>
+                <property name="hook"      value="pre-commit" />
+                <property name="hook-exec" value="subnant check-case-insensitive -D:repos=${hook-param}1 -D:txn=${hook-param}2" />
+            </properties>
+        </nant>
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy" />
+        <echo message="Subnant TEST file" file="${path::combine(wc,'TEST.TXT')}" />
+        <exec program="${svn}" commandline="add TEST.TXT" workingdir="${wc}" failonerror="true" />
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
+            <properties>
+                <property name="should-pass" value="false" />
+            </properties>
+        </nant>
+        <move file="TEST.TXT" tofile="test2.txt" />
+        <exec program="${svn}" commandline="add test2.txt" workingdir="${wc}" failonerror="true" />
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
+            <properties>
+                <property name="should-pass" value="true" />
+            </properties>
+        </nant>
+        -->
+    </target>
+
+    <target name="init">
+    </target>
+
+</project>
