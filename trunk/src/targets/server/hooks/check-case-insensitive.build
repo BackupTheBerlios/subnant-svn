@@ -9,11 +9,50 @@ $Id$
 -->
 <project name="check-case-insensitive" default="check-case-insensitive">
 
-    <target name="check-case-insensitive" depends="init">
-        <echo file="${subnant-output}" append="true" message="::TODO:: Check case insensitive" />
+    <target name="check-case-insensitive" depends="init,check-for-additions">
+        <call target="search-for-existing" if="${files-added=='true'}" />
     </target>
    
     <target name="init">
+        <fail unless="${property::exists('repos')}" message="repos not set" />
+        <fail unless="${property::exists('txn')}"   message="txn not set" />
+        <property name="files-added" value="false" />
+        <property name="error-msg"
+            value="Cannot add file as it exists with the same name but different case"
+            unless="${property::exists('error-msg')}" />
+        <property name="path" value="" />
+    </target>
+
+    <target name="check-for-additions">
+        <property name="subcommand" value="changed" />
+        <call target="exec-svnlook" />
+        <foreach item="Line" in="${exec-output}" property="changed">
+            <if test="${string::substring(changed,0,1)=='A'}">
+                <property name="files-added" value="true" />
+            </if>
+        </foreach>
+    </target>
+
+    <target name="search-for-existing">
+        <property name="subcommand" value="tree" />
+        <call target="exec-svnlook" />
+        <loadfile file="${exec-output}" property="tree-result" />
+        <stderr message="${tree-result}" />
+        <fail message="${tree-result}" />   
+    </target>
+
+    <target name="exec-svnlook">
+        <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
+            <arg value="${subcommand}" />
+            <arg value="${repos}" />
+            <arg value="${path}" if="${subcommand=='tree'}" />
+            <arg value="--transaction" />
+            <arg value="${txn}" />
+        </exec>
+        <if test="${svnlook-result!='0' and failonerror!='false'}">
+            <log-echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}" />
+        </if>
+        <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***" />
     </target>
 
     <target name="help">
@@ -22,14 +61,17 @@ $Id$
 
 Usage: subnant check-case-insensitive -D:repos=<repo> -D:txn=<txn> [-D:<option>=<value>]
 
-Purpose: Check files being added to the repository do not already exist with
+Purpose: Check files being added to repository do not already exist with
 the same name in the same path, but with a different case
 
-Should only be used in conjunction with the pre-commit hook
+Should only be used in conjunction with a pre-commit hook
 
 Required:
 repos           full path to repository
 txn             Subversion transaction number
+
+Options:
+error-msg      override default error returned when existing file found
 
 Example:
 subnant check-case-insensitive -D:repos=/path/to/repo -D:txn=1-1

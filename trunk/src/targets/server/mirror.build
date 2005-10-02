@@ -25,7 +25,7 @@ $Id$
                     <property name="no-hooks"     value="true" unless="${property::exists('no-hooks')}" />
                 </properties>
             </nant>
-        </if>   
+        </if>
         <nant buildfile="load.build" target="load">
             <properties>
                 <property name="load-dump" value="${dump-file}" />
