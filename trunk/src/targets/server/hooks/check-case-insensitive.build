@@ -9,36 +9,44 @@ $Id$
 -->
 <project name="check-case-insensitive" default="check-case-insensitive">
 
-    <target name="check-case-insensitive" depends="init,check-for-additions">
-        <call target="search-for-existing" if="${files-added=='true'}" />
+    <target name="check-case-insensitive" depends="init,check-for-files-added">
+        <if test="${files-were-added=='true'}">
+            <call target="search-for-existing-files" />
+            <delete file="${files-added}" if="${file::exists(files-added)}" />
+        </if>
     </target>
    
     <target name="init">
         <fail unless="${property::exists('repos')}" message="repos not set" />
         <fail unless="${property::exists('txn')}"   message="txn not set" />
-        <property name="files-added" value="false" />
+        <property name="files-added" value="${exec-output}-check-case" />
+        <property name="files-were-added" value="false" />
         <property name="file-exists-msg"
-            value="Cannot add file as it exists with the same name but different case"
+            value="Cannot add as file(s) already exist with the same name but different case"
             unless="${property::exists('file-exists-msg')}" />
         <property name="path" value="" />
     </target>
 
-    <target name="check-for-additions">
+    <target name="check-for-files-added">
         <property name="subcommand" value="changed" />
         <call target="exec-svnlook" />
+        <!-- ::TODO:: Create custom-function passing search type variable (A) returning line delimited list (or empty string) -->
         <foreach item="Line" in="${exec-output}" property="changed">
             <if test="${string::substring(changed,0,1)=='A'}">
-                <property name="files-added" value="true" />
+                <property name="files-were-added" value="true" />
+                <echo file="${files-added}" message="${string::substring(changed,4,string::get-length(changed)-4)}" append="true" />   
             </if>
         </foreach>
     </target>
 
-    <target name="search-for-existing">
+    <target name="search-for-existing-files">
         <property name="subcommand" value="tree" />
         <call target="exec-svnlook" />
         <loadfile file="${exec-output}" property="tree-result" />
-        <stderr message="${tree-result}" />
-        <fail message="${tree-result}" />   
+        <!-- ::TODO:: Search each file added (only in path added) for any existing files matching name (case insensitive) -->
+        <loadfile file="${files-added}" property="files" />
+        <stderr message="${files}" />
+        <fail message="${files}" />   
     </target>
 
     <target name="exec-svnlook">

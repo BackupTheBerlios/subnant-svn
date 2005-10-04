@@ -30,6 +30,14 @@ $Id: commit-message.build 202 2005-09-28 13:01:32Z sshnug_si $
                 <property name="should-pass" value="false" />
             </properties>
         </nant>
+        <delete file="${path::combine(wc,'TEST.TXT')}" />
+        <echo message="Subnant TeSt file" file="${path::combine(wc,'TeSt.TxT')}" />
+        <exec program="${svn}" commandline="add TeSt.TxT" workingdir="${wc}" failonerror="true" />
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
+            <properties>
+                <property name="should-pass" value="false" />
+            </properties>
+        </nant>
     </target>
 
 </project>
