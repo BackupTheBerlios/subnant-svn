@@ -17,9 +17,9 @@ $Id$
         <fail unless="${property::exists('repos')}" message="repos not set" />
         <fail unless="${property::exists('txn')}"   message="txn not set" />
         <property name="files-added" value="false" />
-        <property name="error-msg"
+        <property name="file-exists-msg"
             value="Cannot add file as it exists with the same name but different case"
-            unless="${property::exists('error-msg')}" />
+            unless="${property::exists('file-exists-msg')}" />
         <property name="path" value="" />
     </target>
 
@@ -67,11 +67,11 @@ the same name in the same path, but with a different case
 Should only be used in conjunction with a pre-commit hook
 
 Required:
-repos           full path to repository
-txn             Subversion transaction number
+repos            full path to repository
+txn              Subversion transaction number
 
 Options:
-error-msg      override default error returned when existing file found
+file-exists-msg  override default error returned when existing file found
 
 Example:
 subnant check-case-insensitive -D:repos=/path/to/repo -D:txn=1-1

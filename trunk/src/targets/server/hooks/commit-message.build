@@ -23,15 +23,15 @@ $Id$
         <loadfile file="${exec-output}" property="log-message" />
         <if test="${string::get-length(string::trim(log-message))==0}">
             <log-echo message="Commit denied - no log message entered for repository ${repos} on transaction ${txn}" file="${subnant-output}" />
-            <stderr message="${error-msg}" />
-            <fail message="${error-msg}" />
+            <stderr message="${no-log-msg}" />
+            <fail message="${no-log-msg}" />
         </if>
     </target>
    
     <target name="init">
         <fail unless="${property::exists('repos')}" message="repos not set" />
         <fail unless="${property::exists('txn')}"   message="txn not set" />
-        <property name="error-msg" value="No log message entered" unless="${property::exists('error-msg')}" />
+        <property name="no-log-msg" value="No log message entered" unless="${property::exists('no-log-msg')}" />
     </target>
 
     <target name="help">
@@ -47,7 +47,7 @@ repos           full path to repository
 txn             Subversion transaction number
 
 Options:
-error-msg       override default error returned when no log message entered
+no-log-msg      override default error returned when no log message entered
 
 Examples:
 subnant commit-message -D:repos=/path/to/repos -D:txn=1-1
