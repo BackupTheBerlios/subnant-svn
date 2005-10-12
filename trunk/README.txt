@@ -40,8 +40,13 @@ Windows Installation:
   // Export, checkout or extract Subnant into local filesystem
   svn export svn://svn.berlios.de/subnant/trunk "C:\Program Files\Subnant"
 
+  // Create config file by cloning example
+  cd "C:\Program Files\Subnant\conf"
+  copy subnant.config.example subnant.config
+  [edit subnant.config]
+
   // Use NAnt to install subnant wrapper script
-  cd "C:\Program Files\Subnant\src"
+  cd ..\src
   nant install
 
 
@@ -50,23 +55,22 @@ Linux Installation:
   // Export, checkout or extract Subnant into local filesystem
   svn export svn://svn.berlios.de/subnant/trunk /usr/local/subnant
 
-  // Use NAnt to install subnant wrapper script
-  cd /usr/local/subnant/src
-  nant install
-
-
-Setup:
-
   // Create config file by cloning example
-  cd ../conf
-  copy subnant.config.example subnant.config
+  cd /usr/local/subnant/conf
+  cp subnant.config.example subnant.config
   [edit subnant.config]
 
-  // Display current configuration
-  subnant config
+  // Use NAnt to install subnant wrapper script
+  cd ../src
+  nant install
+  // NOTE: If you get a pkg-config error and installed mono from rpm,
+  // ensure mono-devel rpm is also installed along with mono-core
 
 
 Run:
+
+  // Display current configuration
+  subnant config
 
   // Project help and help for each main target is available
   subnant -projecthelp
