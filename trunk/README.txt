@@ -178,7 +178,7 @@ Working copy targets:
     Sets bugtraq properties defined in subnant.config
 
     For information about bug tracking integration with Subversion and clients:
-    http://tortoisesvn.tigris.org/docs/TortoiseSVN_en/ch04s10.html
+    http://tortoisesvn.sourceforge.net/docs/release/TortoiseSVN_en/ch05s24.html
 
 
 Other targets:
