@@ -11,9 +11,6 @@ $Id$
 
     <description>Subversion administration using NAnt</description>
 
-    <include buildfile="include/custom-functions.include" />
-    <include buildfile="include/custom-tasks.include" />
-
     <!-- Global properties -->
     <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}" />
     <!-- Use timestamp to reduce risk of concurrent scripts using same log|result|output files -->
@@ -29,7 +26,7 @@ $Id$
     <property name="subnant-config" value="${path::combine(path::combine(subnant-root,'conf'),'subnant.config')}" />
 
     <!-- Main targets (starts with default) -->
-    <target name="help" description="Display help">
+    <target name="help" description="Display help" depends="init-library">
         <if test="${subnant::get-targets-count()==1}">
             <echo level="Warning">
                 <![CDATA[Subversion administration using NAnt
@@ -140,10 +137,36 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
 
     <!-- Sub targets -->
     <target name="init">
+        <call target="init-library" />
         <call target="init-subnant" />
-        <call target="init-logs" unless="${subnant::get-target()=='help'}" />
+        <call target="init-logs" />
     </target>
 
+    <target name="init-library">
+        <if test="${not file::exists('../bin/Subnant.Functions.dll')}">
+            <csc target="library" output="../bin/Subnant.Functions.dll">
+                <sources>
+                    <include name="include/Functions.cs"/>
+                </sources>
+                <references basedir="${nant::get-base-directory()}">
+                    <include name="NAnt.Core.dll"/>
+                </references>
+            </csc>
+        </if>
+        <loadtasks assembly="../bin/Subnant.Functions.dll" />
+        <if test="${not file::exists('../bin/Subnant.Tasks.dll')}">
+            <csc target="library" output="../bin/Subnant.Tasks.dll">
+                <sources>
+                    <include name="include/Tasks.cs"/>
+                </sources>
+                <references basedir="${nant::get-base-directory()}">
+                    <include name="NAnt.Core.dll"/>
+                </references>
+            </csc>
+        </if>
+        <loadtasks assembly="../bin/Subnant.Tasks.dll" />
+    </target>   
+   
     <target name="init-subnant">
         <fail unless="${file::exists(subnant-config)}" message="File not found: ${path::get-file-name(subnant-config)}" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/nantcontrib-bindir" property="nantcontrib-bindir" />
