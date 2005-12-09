@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="test-verify" default="test-verify">
+<project name="test-verify" default="test-verify" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="test-verify">
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment" />

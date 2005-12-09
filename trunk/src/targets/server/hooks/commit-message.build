@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="commit-message" default="commit-message">
+<project name="commit-message" default="commit-message" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="commit-message" depends="init">
         <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
@@ -31,7 +31,7 @@ $Id$
     <target name="init">
         <fail unless="${property::exists('repos')}" message="repos not set" />
         <fail unless="${property::exists('txn')}"   message="txn not set" />
-        <property name="no-log-msg" value="No log message entered" unless="${property::exists('no-log-msg')}" />
+        <property name="no-log-msg" value="No log message entered" overwrite="false" />
     </target>
 
     <target name="help">

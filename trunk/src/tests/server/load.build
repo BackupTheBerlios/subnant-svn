@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="test-load" default="test-load">
+<project name="test-load" default="test-load" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="test-load">
         <log-echo message="[Test load from standard dump]" file="${subnant-output}" />

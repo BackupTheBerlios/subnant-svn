@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="dump" default="dump">
+<project name="dump" default="dump" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="dump" depends="init">
         <foreach item="String" delim="," in="${dump-repos}" property="repo">
@@ -26,7 +26,7 @@ $Id$
 
     <target name="init">
         <property name="dump-started"     value="${datetime::get-ticks(datetime::now())}" />
-        <property name="rev"              value="false" unless="${property::exists('rev')}" />
+        <property name="rev"              value="false" overwrite="false" />
         <property name="dump-incremental" value="false" />
         <property name="dump-deltas"      value="false" />
         <property name="dump-ok"          value="true" />
@@ -38,7 +38,7 @@ $Id$
         <property name="arg-incremental"  value="" />
         <property name="arg-deltas"       value="" />
         <!-- Read in defaults -->
-        <property name="dump-repos"       value="${repos}" unless="${property::exists('dump-repos')}" />
+        <property name="dump-repos"       value="${repos}" overwrite="false" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root"     property="dump-root" unless="${property::exists('dump-root')}" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/compress-dump" property="ziplevel"  unless="${property::exists('compress')}" />
         <!-- Assign from parameters -->

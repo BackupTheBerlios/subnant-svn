@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="bugtraq" default="bugtraq">
+<project name="bugtraq" default="bugtraq" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="bugtraq" depends="init">
         <foreach item="String" in="${wc}" delim="," property="path">

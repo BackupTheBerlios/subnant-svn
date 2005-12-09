@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="subnant" default="help" basedir=".">
+<project name="subnant" default="help" basedir="." xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <description>Subversion administration using NAnt</description>
 
@@ -217,7 +217,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="init-wc">
-        <property name="wc" value="${directory::get-current-directory()}" unless="${property::exists('wc')}" />
+        <property name="wc" value="${directory::get-current-directory()}" overwrite="false" />
     </target>
 
     <target name="init-svn">

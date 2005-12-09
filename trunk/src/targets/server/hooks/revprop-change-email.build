@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="revprop-change-email" default="revprop-change-email">
+<project name="revprop-change-email" default="revprop-change-email" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <!-- Main (default) Target -->
     <target name="revprop-change-email" depends="init,get-hook-emails">
@@ -23,8 +23,8 @@ $Id$
         <fail unless="${property::exists('rev')}"      message="rev not set" />
         <fail unless="${property::exists('user')}"     message="user not set" />
         <fail unless="${property::exists('propname')}" message="propname not set" />
-        <property name="action"       value="" unless="${property::exists('action')}" />
-        <property name="hook-prop"    value="hook:revprop-change-email" unless="${property::exists('hook-prop')}" />
+        <property name="action"       value="" overwrite="false" />
+        <property name="hook-prop"    value="hook:revprop-change-email" overwrite="false" />
         <property name="svnlook-file" value="${exec-output}-svnlook-result" />
         <property name="dir-file"     value="${exec-output}-revprop-change-email" />
         <property name="repo"         value="${path::get-file-name(repos)}" />

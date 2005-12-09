@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="commit-email" default="commit-email">
+<project name="commit-email" default="commit-email" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <!-- Main (default) Target -->
     <target name="commit-email" depends="init,get-hook-emails">
@@ -18,7 +18,7 @@ $Id$
     <target name="init">
         <fail unless="${property::exists('repos')}" message="repos not set" />
         <fail unless="${property::exists('rev')}"   message="rev not set" />
-        <property name="hook-prop"    value="hook:commit-email" unless="${property::exists('hook-prop')}" />
+        <property name="hook-prop"    value="hook:commit-email" overwrite="false" />
         <property name="svnlook-file" value="${exec-output}-svnlook-result" />
         <property name="dir-file"     value="${exec-output}-commit-email" />
         <property name="repo"         value="${path::get-file-name(repos)}" />

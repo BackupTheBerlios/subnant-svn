@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="mirror" default="mirror">
+<project name="mirror" default="mirror" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="mirror" depends="init">
         <call target="get-dump" />
@@ -21,8 +21,8 @@ $Id$
             <nant buildfile="create.build" target="create">
                 <properties>
                     <property name="create-repos" value="${mirror-repos}" />
-                    <property name="no-svnserve"  value="true" unless="${property::exists('no-svnserve')}" />
-                    <property name="no-hooks"     value="true" unless="${property::exists('no-hooks')}" />
+                    <property name="no-svnserve"  value="true" overwrite="false" />
+                    <property name="no-hooks"     value="true" overwrite="false" />
                 </properties>
             </nant>
         </if>

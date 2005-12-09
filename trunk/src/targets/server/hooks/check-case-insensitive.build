@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="check-case-insensitive" default="check-case-insensitive">
+<project name="check-case-insensitive" default="check-case-insensitive" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="check-case-insensitive" depends="init,check-for-files-added">
         <if test="${files-were-added=='true'}">
@@ -21,9 +21,8 @@ $Id$
         <fail unless="${property::exists('txn')}"   message="txn not set" />
         <property name="files-added" value="${exec-output}-check-case" />
         <property name="files-were-added" value="false" />
-        <property name="file-exists-msg"
-            value="Cannot add as file(s) already exist with the same name but different case"
-            unless="${property::exists('file-exists-msg')}" />
+        <property name="file-exists-msg" overwrite="false"
+            value="Cannot add as file(s) already exist with the same name but different case" />
         <property name="path" value="" />
     </target>
 

@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="test-commit-email" default="test-commit-email">
+<project name="test-commit-email" default="test-commit-email" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="test-commit-email" depends="init">
         <nant buildfile="${subnant-root}/src/subnant.build" target="create">

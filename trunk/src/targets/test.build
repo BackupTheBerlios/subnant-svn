@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="test" default="test">
+<project name="test" default="test" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="test" depends="init">
         <if test="${string::to-lower(skip-fsfs)!='true'}">
@@ -19,15 +19,18 @@ $Id$
             <call target="test-repo" />
         </if>
         <delete dir="${test-root}" if="${string::to-lower(keep-test)!='true' and directory::exists(test-root)}" />
-        <log-echo message="${string::pad-right('Test complete',60,' ')}(${subnant::format-elapsed-time(test-started, true)})" file="${subnant-output}" />
+        <log-echo
+            message="${string::pad-right('Test complete',60,' ')}(${subnant::format-elapsed-time(test-started, true)})"
+            file="${subnant-output}" />
     </target>
 
     <target name="init">
         <property name="test-started" value="${datetime::get-ticks(datetime::now())}" />
-        <property name="keep-test"    value="false" unless="${property::exists('keep-test')}" />
-        <property name="skip-bdb"     value="false" unless="${property::exists('skip-bdb')}" />
-        <property name="skip-fsfs"    value="false" unless="${property::exists('skip-fsfs')}" />
-        <property name="test-root"    value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),subnant-tstamp)}" unless="${property::exists('test-root')}" />
+        <property name="keep-test"    value="false" overwrite="false" />
+        <property name="skip-bdb"     value="false" overwrite="false" />
+        <property name="skip-fsfs"    value="false" overwrite="false" />
+        <property name="test-root" overwrite="false"
+            value="${path::combine(path::combine(path::get-temp-path(),'subnant-test'),subnant-tstamp)}" />
         <mkdir dir="${test-root}" unless="${directory::exists(test-root)}" />
     </target>
 
@@ -64,7 +67,9 @@ $Id$
         <if test="${property::exists('target')}">
             <foreach item="String" delim="," in="${target}" property="test-target">
                 <property name="test-target" value="${string::to-lower(string::trim(test-target))}" />
-                <regex pattern="(?'valid'.*(bugtraq|check-case-insensitive|commit-(email|message)|create|dump|hotcopy|load|migrate|mirror|revprop-change-email|upgrade-bdb|verify))" input="${test-target}" failonerror="false" />
+                <regex 
+                    pattern="(?'valid'.*(bugtraq|check-case-insensitive|commit-(email|message)|create|dump|hotcopy|load|migrate|mirror|revprop-change-email|upgrade-bdb|verify))" 
+                    input="${test-target}" failonerror="false" />
                 <call target="run-test" />
             </foreach>
         </if>

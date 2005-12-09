@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="hotcopy" default="hotcopy">
+<project name="hotcopy" default="hotcopy" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="hotcopy" depends="init">
         <foreach item="String" delim="," in="${hotcopy-repos}" property="repo">
@@ -25,7 +25,7 @@ $Id$
         <property name="hotcopy-started" value="${datetime::get-ticks(datetime::now())}" />
         <property name="hotcopy-ok"      value="true" />
         <property name="hotcopy-count"   value="0" />
-        <property name="hotcopy-repos"   value="${repos}" unless="${property::exists('hotcopy-repos')}" />
+        <property name="hotcopy-repos"   value="${repos}" overwrite="false" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/hotcopy-root"   property="hotcopy-root"         unless="${property::exists('hotcopy-root')}" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/verify-hotcopy" property="verify-after-hotcopy" unless="${property::exists('verify')}" />
         <property name="verify-after-hotcopy" value="${verify}" if="${property::exists('verify')}" />

@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="load" default="load">
+<project name="load" default="load" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="load" depends="init">
         <foreach item="String" delim="," in="${load-dump}" property="dump-file">

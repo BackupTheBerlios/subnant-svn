@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="migrate" default="migrate">
+<project name="migrate" default="migrate" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="migrate" depends="init">
         <foreach item="String" delim="," in="${migrate-repos}" property="repo">
@@ -52,8 +52,8 @@ $Id$
 
     <target name="init">
         <property name="migrate-started" value="${datetime::get-ticks(datetime::now())}" />
-        <property name="to-svn-bindir"   value="${svn-bindir}" unless="${property::exists('to-svn-bindir')}" />
-        <property name="migrate-repos"   value="${repos}"      unless="${property::exists('migrate-repos')}" />
+        <property name="to-svn-bindir"   value="${svn-bindir}" overwrite="false" />
+        <property name="migrate-repos"   value="${repos}"      overwrite="false" />
         <property name="migrate-count"   value="0" />
         <fail message="to-svn-root not set"                           unless="${property::exists('to-svn-root')}" />
         <fail message="to-svn-root doesn't exist: ${to-svn-root}"     unless="${directory::exists(to-svn-root)}" />

@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="upgrade-bdb" default="upgrade-bdb">
+<project name="upgrade-bdb" default="upgrade-bdb" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="upgrade-bdb" depends="init">
         <foreach item="String" delim="," in="${upgrade-repos}" property="repo">
@@ -42,8 +42,8 @@ $Id$
 
     <target name="init">
         <property name="upgrade-started"  value="${datetime::get-ticks(datetime::now())}" />
-        <property name="upgrade-repos"    value="${repos}"    unless="${property::exists('upgrade-repos')}" />
-        <property name="upgrade-svn-root" value="${svn-root}" unless="${property::exists('upgrade-svn-root')}" />
+        <property name="upgrade-repos"    value="${repos}"    overwrite="false" />
+        <property name="upgrade-svn-root" value="${svn-root}" overwrite="false" />
         <property name="upgrade-ok"       value="true" />
         <property name="upgrade-count"    value="0" />
         <property name="orig-failonerror" value="${failonerror}" />

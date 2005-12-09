@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id: commit-message.build 202 2005-09-28 13:01:32Z sshnug_si $
 -->
-<project name="test-check-case-insensitive" default="test-check-case-insensitive">
+<project name="test-check-case-insensitive" default="test-check-case-insensitive" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="test-check-case-insensitive">
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-test-environment">

@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="verify" default="verify">
+<project name="verify" default="verify" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="verify" depends="init">
         <foreach item="String" delim="," in="${verify-repos}" property="repo">
@@ -23,8 +23,8 @@ $Id$
 
     <target name="init">
         <property name="verify-started"  value="${datetime::get-ticks(datetime::now())}" />
-        <property name="verify-repos"    value="${repos}"    unless="${property::exists('verify-repos')}" />
-        <property name="verify-svn-root" value="${svn-root}" unless="${property::exists('verify-svn-root')}" />
+        <property name="verify-repos"    value="${repos}"    overwrite="false" />
+        <property name="verify-svn-root" value="${svn-root}" overwrite="false" />
         <property name="verify-ok"       value="true" />
         <property name="verify-count"    value="0" />
     </target>

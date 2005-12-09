@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html <http://www.gnu.org/copyleft/gpl.html>
 
 $Id$ 
 -->
-<project name="create" default="create">
+<project name="create" default="create" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="create" depends="init">
         <foreach item="String" delim="," in="${create-repos}" property="repo">
@@ -25,7 +25,7 @@ $Id$
         <property name="create-started" value="${datetime::get-ticks(datetime::now())}" />
         <property name="create-ok"      value="true" />
         <property name="create-count"   value="0" />
-        <property name="create-repos"   value="${repos}" unless="${property::exists('create-repos')}" />
+        <property name="create-repos"   value="${repos}" overwrite="false" />
         <!-- Assign config values to properties so long as they haven't been passed as a command-line parameter -->
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/fs-type"    property="fs-type"    unless="${property::exists('fs-type')}" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/config-dir" property="config-dir" unless="${property::exists('config-dir')}" />
