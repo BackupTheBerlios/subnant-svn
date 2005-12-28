@@ -56,16 +56,16 @@
             <ol>
                 <li>Build list of directories changed using <code>svnlook dirs-changed</code></li>
                 <li>For each directory, then each parent directory, Search HEAD revision </li>
+            </ol>
             
-            script should call a program which searches the HEAD revision for
-                <em>hook:revprop-change-email</em> properties on or above the directories changed.
-
+            <p>Hook script should call a program which searches the HEAD revision for
+                <em>hook:revprop-change-email</em> properties on or above the directories changed.</p>
 
             <p>If matching properties are found, the hook script will:</p>
 
             <ol>
                 <li>Get values of <em>hook:revprop-change-email</em> property using
-                    <code>svnlook propget</code>
+                    <code>svnlook propget</code></li>
                 <li>Build list of email address, removing duplicates</li>
                 <li>Send email(s) containing author, revision, action, revision property modified,
                     and (if appropriate) the old and new property values</li>
