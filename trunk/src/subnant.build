@@ -13,6 +13,8 @@ $Id$
 
     <!-- Global properties -->
     <property name="subnant-started" value="${datetime::get-ticks(datetime::now())}" />
+    <property name="newline" if="${platform::is-unix()}" value="&#x0D;&#x0A;" overwrite="false" readonly="true" />
+    <property name="newline" if="${platform::is-win32()}" value="&#x0A;" overwrite="false" readonly="true" />
     <!-- Use timestamp to reduce risk of concurrent scripts using same log|result|output files -->
     <tstamp property="subnant-tstamp" pattern="yyyyMMdd-HHmmss-ffff" />
     <property name="nant.onsuccess"  value="on-success" />
@@ -181,8 +183,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-bindir" property="svn-bindir" unless="${property::exists('svn-bindir')}" />
         <fail if="${string::get-length(svn-bindir)>0 and directory::exists(svn-bindir)!=true}" message="Subversion binary directory not found: ${svn-bindir}" />
         <!-- ::TODO:: Investigate option for UTC instead of server localtime output? -->
-        <echo message="Subnant started ${subnant::ticks-to-string(subnant-started)} (time in seconds unless noted)" file="${subnant-output}" append="false" />
-        <echo message="" file="${subnant-output}" append="true" />
+        <echo message="Subnant started ${subnant::ticks-to-string(subnant-started)} (time in seconds unless noted)${newline}" file="${subnant-output}" append="false" />
     </target>
    
     <target name="init-logs">
@@ -198,7 +199,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
             </in>
             <do>
                 <if test="${file::get-last-write-time(log-file)&lt;(datetime::now()-timespan::from-days(logs-max-age)) and subnant::can-delete-file(log-file)}">
-                    <zip if="${archive=='true'}" zipfile="${path::combine(logdir,'archive.zip')}" failonerror="false" ziplevel="9" comment="Subnant logs">
+                    <zip if="${bool::parse(archive)==true}" zipfile="${path::combine(logdir,'archive.zip')}" failonerror="false" ziplevel="9" comment="Subnant logs">
                         <fileset>
                             <!--<include name="${archived-logs}" /> ::TODO:: Append zip? Or unzip to temp and re-add? -->
                             <include name="${log-file}" />
@@ -313,8 +314,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     <target name="mail">
         <fail unless="${property::exists('subnant-config')}" message="Email not sent as config file not yet set" />
         <if test="${property::exists('subnant-output') and file::exists(subnant-output)}">
-            <echo message="" file="${subnant-output}" append="true" />
-            <echo message="${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::format-elapsed-time(subnant-started, true)})" file="${subnant-output}" append="true" />
+            <echo message="${newline}${string::pad-right('Subnant finished '+subnant::ticks-to-string(datetime::get-ticks(datetime::now())),60,' ')}(${subnant::format-elapsed-time(subnant-started, true)})" file="${subnant-output}" append="true" />
             <loadfile file="${subnant-output}" property="message" />
         </if>
         <if test="${not property::exists('subnant-output') and not file::exists(subnant-output)}">

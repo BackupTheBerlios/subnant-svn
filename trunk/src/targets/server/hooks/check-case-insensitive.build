@@ -10,7 +10,7 @@ $Id$
 <project name="check-case-insensitive" default="check-case-insensitive" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="check-case-insensitive" depends="init,check-for-files-added">
-        <if test="${files-were-added=='true'}">
+        <if test="${bool::parse(files-were-added)==true}">
             <call target="search-for-existing-files" />
             <delete file="${files-added}" if="${file::exists(files-added)}" />
         </if>

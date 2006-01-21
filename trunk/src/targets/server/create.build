@@ -13,10 +13,10 @@ $Id$
         <foreach item="String" delim="," in="${create-repos}" property="repo">
             <call target="svnadmin-create" />
         </foreach>
-        <if test="${create-ok=='true' and int::parse(create-count)&gt;1}">
+        <if test="${bool::parse(create-ok)==true and int::parse(create-count)&gt;1}">
             <echo message="${string::pad-right('Created '+create-count+' repositories',60,' ')}(${subnant::format-elapsed-time(create-started, true)})" file="${subnant-output}" append="true" />
         </if>
-        <if test="${create-ok!='true'}">
+        <if test="${bool::parse(create-ok)!=true}">
             <fail message="${string::pad-right('Create completed with errors!',60,' ')}(${subnant::format-elapsed-time(create-started, false)})" />
         </if>
     </target>
@@ -32,18 +32,18 @@ $Id$
         <!-- Ready properties -->
         <property name="create-fs-type"    value="${string::trim(string::to-lower(fs-type))}" />
         <property name="create-config-dir" value="${string::trim(config-dir)}" />
+        <property name="no-svnserve" value="false" overwrite="false" />
+        <property name="no-hooks"    value="false" overwrite="false" />
         <!-- Verify properties -->
         <fail unless="${property::exists('repos')}" message="Can't create repository as repos property not defined" />
         <fail if="${create-fs-type!='bdb' and create-fs-type!='fsfs'}" message="fs-type must be bdb or fsfs" />
         <fail if="${string::get-length(create-config-dir)>=0 and directory::exists(create-config-dir)==false}" message="config-dir ${create-config-dir} doesn't exist" />
-        <!-- Assign, ready and verify bdb properties if needed -->
+        <!-- Assign and verify bdb properties -->
+        <property name="bdb-log-keep"   value="false" overwrite="false" />
+        <property name="bdb-txn-nosync" value="false" overwrite="false" />
         <if test="${create-fs-type=='bdb'}">
-            <property name="log-keep"   value="false" />
-            <property name="txn-nosync" value="false" />
-            <property name="log-keep"   value="${string::trim(string::to-lower(bdb-log-keep))}"   if="${property::exists('bdb-log-keep')}" />
-            <property name="txn-nosync" value="${string::trim(string::to-lower(bdb-txn-nosync))}" if="${property::exists('bdb-txn-nosync')}" />
-            <fail if="${log-keep!='true'   and log-keep!='false'}"   message="bdb-log-keep ${log-keep} must be true or false" />
-            <fail if="${txn-nosync!='true' and txn-nosync!='false'}" message="bdb-txn-nosync ${txn-nosync} must be true or false" />
+            <fail if="${bdb-log-keep!='true'   and bdb-log-keep!='false'}"   message="bdb-log-keep ${bdb-log-keep} must be true or false" />
+            <fail if="${bdb-txn-nosync!='true' and bdb-txn-nosync!='false'}" message="bdb-txn-nosync ${bdb-txn-nosync} must be true or false" />
         </if>
         <!-- Define file extension based upon operating sytem -->
         <property name="file-ext" value=".bat" if="${platform::is-win32()}" />
@@ -57,8 +57,8 @@ $Id$
         <echo level="Warning" message="Creating ${repo} (${create-fs-type})" />
         <exec program="${svnadmin}" failonerror="${failonerror}" resultproperty="create-result">
             <arg value="create" />
-            <arg value="--bdb-txn-nosync"     if="${create-fs-type=='bdb' and txn-nosync=='true'}" />
-            <arg value="--bdb-log-keep"       if="${create-fs-type=='bdb' and log-keep=='true'}" />
+            <arg value="--bdb-txn-nosync"     if="${bool::parse(bdb-txn-nosync)==true}" />
+            <arg value="--bdb-log-keep"       if="${bool::parse(bdb-log-keep)==true}" />
             <arg value="--config-dir"         if="${string::get-length(create-config-dir)>0}" />
             <arg value="${create-config-dir}" if="${string::get-length(create-config-dir)>0}" />
             <arg value="--fs-type" />
@@ -67,8 +67,8 @@ $Id$
         </exec>
         <if test="${create-result=='0'}">
             <echo message="${string::pad-right('Created '+repo+' ('+create-fs-type+') in '+svn-root,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true" />
-            <call target="copy-repos-conf"  unless="${property::exists('no-svnserve') and string::to-lower(no-svnserve)=='true'}" />
-            <call target="copy-repos-hooks" unless="${property::exists('no-hooks') and string::to-lower(no-hooks)=='true'}" />
+            <call target="copy-repos-conf"  unless="${bool::parse(no-svnserve)==true}" />
+            <call target="copy-repos-hooks" unless="${bool::parse(no-hooks)==true}" />
             <property name="create-count" value="${int::parse(create-count)+1}" />   
         </if>
         <if test="${create-result!='0'}">

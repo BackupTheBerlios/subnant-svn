@@ -13,13 +13,13 @@ $Id$
         <foreach item="String" delim="," in="${dump-repos}" property="repo">
             <call target="svnadmin-dump" />
         </foreach>
-        <if test="${dump-ok=='true' and int::parse(dump-count)&gt;1}">
+        <if test="${bool::parse(dump-ok)==true and int::parse(dump-count)&gt;1}">
             <property name="summary" value="${subnant::format-length(total-dump-size,false)}" />
             <property name="summary" if="${ziplevel!='false'}" value="${summary+' to '+subnant::format-length(total-zip-size,false)}" />
             <property name="summary" value="${summary+' in '+subnant::format-elapsed-time(dump-started,true)}" />
             <echo message="${string::pad-right('Dumped '+dump-count+' repositories',60,' ')}(${summary})" file="${subnant-output}" append="true" />
         </if>
-        <if test="${dump-ok!='true'}">
+        <if test="${bool::parse(dump-ok)!=true}">
             <fail message="${string::pad-right('Dump completed with errors!',60,' ')}(${subnant::format-elapsed-time(dump-started, true)})" />
         </if>
     </target>

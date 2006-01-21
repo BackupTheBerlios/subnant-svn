@@ -13,7 +13,7 @@ $Id$
         <call target="get-dump" />
         <call target="uncompress-dump" if="${dump-ext=='.zip' or dump-ext=='.gz'}" />
         <call target="set-dump-file" />
-        <if test="${recreate-repos=='true' and directory::exists(path::combine(svn-root,mirror-repos))}">
+        <if test="${bool::parse(replace-repos)==true and directory::exists(path::combine(svn-root,mirror-repos))}">
             <echo message="Deleting ${mirror-repos}" level="Warning" />
             <delete dir="${path::combine(svn-root,mirror-repos)}" />
         </if>   
@@ -36,9 +36,8 @@ $Id$
 
     <target name="init">
         <property name="mirror-started"  value="${datetime::get-ticks(datetime::now())}" />
-        <property name="mirror-repos"    value="${repos}" unless="${property::exists('mirror-repos')}" />
-        <property name="recreate-repos"  value="false" />
-        <property name="recreate-repos"  value="true" if="${property::exists('replace-repos') and string::trim(string::to-lower(replace-repos))=='true'}" />
+        <property name="mirror-repos"    value="${repos}" overwrite="false" />
+        <property name="replace-repos"   value="false" overwrite="false" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}" />
         <fail if="${string::get-length(string::trim(url))==0}"          message="url is invalid" />
         <fail if="${string::get-length(string::trim(mirror-repos))==0}" message="repos is invalid" />

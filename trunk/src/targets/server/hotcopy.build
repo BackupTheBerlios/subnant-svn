@@ -13,10 +13,10 @@ $Id$
         <foreach item="String" delim="," in="${hotcopy-repos}" property="repo">
             <call target="svnadmin-hotcopy" />
         </foreach>
-        <if test="${hotcopy-ok=='true' and int::parse(hotcopy-count)&gt;1}">
+        <if test="${bool::parse(hotcopy-ok)==true and int::parse(hotcopy-count)&gt;1}">
             <echo message="${string::pad-right('Hotcopied '+hotcopy-count+' repositories',60,' ')}(${subnant::format-elapsed-time(hotcopy-started, true)})" file="${subnant-output}" append="true" />
         </if>
-        <if test="${hotcopy-ok!='true'}">
+        <if test="${bool::parse(hotcopy-ok)!=true}">
             <fail message="${string::pad-right('Hotcopy completed with errors!',60,' ')}(${subnant::format-elapsed-time(hotcopy-started, true)})" />
         </if>
     </target>
@@ -46,7 +46,7 @@ $Id$
         </exec>
         <if test="${hotcopy-result=='0'}">
             <echo message="${string::pad-right('Hotcopied '+repo,60,' ')}(${subnant::format-elapsed-time(started, false)})" file="${subnant-output}" append="true" />
-            <if test="${verify-after-hotcopy=='true'}">
+            <if test="${bool::parse(verify-after-hotcopy)==true}">
                 <nant buildfile="verify.build" target="verify">
                     <properties>
                         <property name="verify-repos"    value="${repo}" />

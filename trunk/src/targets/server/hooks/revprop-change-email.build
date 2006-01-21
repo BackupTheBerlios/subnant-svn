@@ -73,20 +73,16 @@ $Id$
 
     <target name="build-changes">
         <echo message="Author: ${user}"  file="${svnlook-file}" append="false" />
-        <echo message="" file="${svnlook-file}" append="true" />
-        <echo message="Revision: ${rev}" file="${svnlook-file}" append="true" />
+        <echo message="${newline}Revision: ${rev}" file="${svnlook-file}" append="true" />
         <if test="${action!=''}">
             <property name="action-text" if="${action=='A'}" value="Added" />
             <property name="action-text" if="${action=='M'}" value="Modified" />
             <property name="action-text" if="${action=='D'}" value="Deleted" />
-            <echo message="" file="${svnlook-file}" append="true" />
-            <echo message="Action: ${action-text}" file="${svnlook-file}" append="true" />
+            <echo message="${newline}Action: ${action-text}" file="${svnlook-file}" append="true" />
         </if>
-        <echo message="" file="${svnlook-file}" append="true" />
-        <echo message="Property: ${propname}" file="${svnlook-file}" append="true" />
+        <echo message="${newline}Property: ${propname}" file="${svnlook-file}" append="true" />
         <if test="${action!='A'}">
-            <echo message="" file="${svnlook-file}" append="true" />
-            <echo message="Old value: ${subnant::get-stdin()}" file="${svnlook-file}" append="true" />
+            <echo message="${newline}Old value: ${subnant::get-stdin()}" file="${svnlook-file}" append="true" />
         </if>   
         <if test="${action!='D'}">
             <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
@@ -101,11 +97,10 @@ $Id$
                 <log-echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}" />
             </if>
             <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook ${subcommand} output file not found: ${exec-output} ***" />
-            <echo message="" file="${svnlook-file}" append="true" />
             <loadfile file="${exec-output}" property="propval" />
             <property name="prepend" if="${action=='A'}" value="Value" />   
             <property name="prepend" if="${action!='A'}" value="New value" />   
-            <echo message="${prepend}: ${propval}" file="${svnlook-file}" append="true" />
+            <echo message="${newline}${prepend}: ${propval}" file="${svnlook-file}" append="true" />
         </if>
     </target>
 

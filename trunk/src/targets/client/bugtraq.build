@@ -17,7 +17,7 @@ $Id$
             <property name="propname" value="bugtraq:append" />
             <property name="propval"  value="${bugtraq-append}" />
             <!-- append is true by default -->
-            <call target="propset" if="${bugtraq-append!='true'}" />
+            <call target="propset" if="${bool::parse(bugtraq-append)!=true}" />
             <property name="propname" value="bugtraq:url" />
             <property name="propval"  value="${bugtraq-url}" />
             <call target="propset" />
@@ -27,11 +27,11 @@ $Id$
             <property name="propname" value="bugtraq:number" />
             <property name="propval"  value="${bugtraq-number}" />
             <!-- number is true by default -->
-            <call target="propset" if="${bugtraq-number!='true'}" />
+            <call target="propset" if="${bool::parse(bugtraq-number)!=true}" />
             <property name="propname" value="bugtraq:warnifnoissue" />
             <property name="propval"  value="${bugtraq-warnifnoissue}" />
             <!-- warnifnoissue is false by default -->
-            <call target="propset" if="${bugtraq-warnifnoissue=='true'}" />
+            <call target="propset" if="${bool::parse(bugtraq-warnifnoissue)==true}" />
             <property name="propname" value="bugtraq:logregex" />
             <property name="propval"  value="${bugtraq-logregex}" />
             <!-- dont set logregex if nothing entered -->

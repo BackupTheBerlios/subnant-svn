@@ -13,10 +13,10 @@ $Id$
         <foreach item="String" delim="," in="${verify-repos}" property="repo">
             <call target="svnadmin-verify" />
         </foreach>
-        <if test="${verify-ok=='true' and int::parse(verify-count)&gt;1}">
+        <if test="${bool::parse(verify-ok)==true and int::parse(verify-count)&gt;1}">
             <echo message="${string::pad-right('Verified '+verify-count+' repositories',60,' ')}(${subnant::format-elapsed-time(verify-started, true)})" file="${subnant-output}" append="true" />
         </if>
-        <if test="${verify-ok!='true'}">
+        <if test="${bool::parse(verify-ok)!=true}">
             <fail message="${string::pad-right('Verify completed with errors!',60,' ')}(${subnant::format-elapsed-time(verify-started, true)})" />
         </if>
     </target>

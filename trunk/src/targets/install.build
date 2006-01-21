@@ -12,7 +12,8 @@ $Id$
     <target name="install" depends="init-windows,init-linux,install-windows,install-linux" />
 
     <target name="init-windows" if="${platform::is-win32()}">
-        <property name="install-prefix" value="${environment::get-folder-path('ProgramFiles')}" overwrite="false" />
+        <property name="install-prefix" value="${environment::get-folder-path('ProgramFiles')}"
+            overwrite="false" />
         <property name="install-bindir" value="${path::combine(install-prefix, 'Subnant')}" />
         <property name="wrapper" value="${path::combine(install-bindir, 'subnant.bat')}" />
     </target>

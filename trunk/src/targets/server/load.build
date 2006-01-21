@@ -13,10 +13,10 @@ $Id$
         <foreach item="String" delim="," in="${load-dump}" property="dump-file">
             <call target="svnadmin-load" />
         </foreach>
-        <if test="${load-ok=='true' and int::parse(load-count)&gt;1}">
+        <if test="${bool::parse(load-ok)==true and int::parse(load-count)&gt;1}">
             <echo message="${string::pad-right('Loaded '+load-count+' repositories',60,' ')}(${subnant::format-elapsed-time(load-started, true)})" file="${subnant-output}" append="true" />
         </if>
-        <if test="${load-ok!='true'}">
+        <if test="${bool::parse(load-ok)!=true}">
             <fail message="${string::pad-right('Load completed with errors!',60,' ')}(${subnant::format-elapsed-time(load-started, true)})" />
         </if>
     </target>
@@ -31,7 +31,7 @@ $Id$
             <property name="load-dump" value="${dump}" />
         </if>   
         <xmlpeek file="${subnant-config}" xpath="/configuration/svn-repos/dump-root" property="dump-root" unless="${property::exists('dump-root')}" />
-        <fail unless="${directory::exists(dump-root)}"   message="dump-root is invalid or does not exist in filesystem: ${dump-root}" />
+        <fail unless="${directory::exists(dump-root)}" message="dump-root is invalid or does not exist in filesystem: ${dump-root}" />
     </target>
 
     <target name="init-load">
