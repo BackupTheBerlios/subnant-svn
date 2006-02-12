@@ -56,28 +56,20 @@ namespace Subnant.Functions
 	    {
 	        return Project.BuildTargets.Count;
 	    }
-	
-	    /// <summary>
-	    /// Display list of build targets   
-	    /// </summary>
-	    [Function("get-build-targets")]
-	    public string GetBuildTargets()
-	    {
-	        String targets = String.Empty;
-	        System.Collections.Specialized.StringEnumerator targetEnumerator = Project.BuildTargets.GetEnumerator();
-	
-	        while (targetEnumerator.MoveNext())
-	        {   
-	            targets += targetEnumerator.Current+", ";
-	        }   
-	
-	        if (targets.EndsWith(", "))
-	        {   
-	            targets = targets.Substring(0, targets.Length-2);
-	        }   
-	
-	        return targets;
-	    }
+
+        /// <summary>
+        /// Get build targets called
+        /// </summary>
+        /// <returns>Comma separated list of build targets</returns>
+        [Function("get-build-targets")]
+        public string GetBuildTargets()
+        {
+            String[] targets = new String[Project.BuildTargets.Count];
+            
+            Project.BuildTargets.CopyTo(targets, 0);
+
+            return String.Join(", ", targets);
+        }
 	
 	    /// <summary>
 	    /// NAnt path::get-directory-name() returns full path, sometimes we just want directory name
