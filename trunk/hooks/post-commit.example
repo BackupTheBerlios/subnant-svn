@@ -9,4 +9,4 @@ export PKG_CONFIG_PATH="/usr/lib/pkgconfig"
 
 # Visit http://subnant.berlios.de for details on command below
 
-subnant commit-email -D:repos="$1" -D:rev="$2"
+subnant commit-email -D:repos="$1" -D:rev="$2" &

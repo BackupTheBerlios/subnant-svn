@@ -9,4 +9,4 @@ export PKG_CONFIG_PATH="/usr/lib/pkgconfig"
 
 # Visit http://subnant.berlios.de for details on command below
 
-subnant revprop-email -D:repos="$1" -D:rev="$2" -D:user="$3" -D:propname="$4" -D:action="$5"
+subnant revprop-email -D:repos="$1" -D:rev="$2" -D:user="$3" -D:propname="$4" -D:action="$5" &
