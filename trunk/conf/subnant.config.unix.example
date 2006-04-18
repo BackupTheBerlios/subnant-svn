@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+
+<configuration description="Settings for Subnant">
+
+    <nantcontrib-bindir
+        description="Location of NAntContrib binary files"
+        conditional="If empty assumes NAntContrib in NAnt/bin">/usr/bin/NAntContrib/bin</nantcontrib-bindir>
+
+    <svn-bindir
+        description="Default location of Subversion binary files"
+        conditional="If empty assumes Subversion binaries can be found in environment path"></svn-bindir>
+
+    <svn-repos description="Default repository settings">
+        <svn-root
+            description="Root location of repositories"
+            conditional="Must exist in file system">/svnroot/repos</svn-root>
+        <dump-root
+            description="Root location of repository dumps"
+            conditional="Must exist in file system">/svnroot/dumps</dump-root>
+        <hotcopy-root
+            description="Root location of repository hotcopy"
+            conditional="Must exist in file system">/svnroot/hotcopy</hotcopy-root>
+        <fs-type
+            description="Default type of repository created"
+            conditional="bdb or fsfs">fsfs</fs-type>
+        <config-dir
+            description="Read user configuration files from directory"
+            conditional="If empty assume default configuration"></config-dir>
+        <verify-hotcopy
+            description="Verify after hotcopy"
+            conditional="true or false">true</verify-hotcopy>
+        <compress-dump
+            description="Compress dump files"
+            conditional="false or compression level from 1 (lowest) to 9 (highest)">6</compress-dump>
+    </svn-repos>
+
+    <mail description="Email settings">
+        <from description="Email sent from this address">subnant@example.com</from>
+        <host description="Host used to send email">localhost</host>
+        <tolist
+            description="Address(es) mailed upon success or failure when sendmail option is set true"
+            conditional="Comma separated list of email addresses">svnadmin@example.com</tolist>
+            <!-- ::TODO:: Use <to> elements if/when NAnt <foreach> task supports xml/xpath -->
+            <!-- <to>svnadmin@example.com</to> -->
+            <!-- <to>support@example.com</to> -->
+        <prefix description="Subject prefix for email generated on success or failure">[Subnant]</prefix>
+    </mail>
+
+    <logs description="Settings for Subnant log">
+        <logdir
+            description="Location where Subnant log files are stored"
+            conditional="If empty use default directory subnant/logs"></logdir>
+        <max-age
+            description="Number of days to keeps logs"
+            conditional="Integer value from -1 where -1 = forever and 0 = only keep last">7</max-age>
+        <archive
+            description="Archive and compress old logs into logdir/archive.zip instead of deleting when past max-age"
+            conditional="true or false">false</archive>
+    </logs>
+
+    <unison description="Settings for Unison backup">
+        <unison-bin
+            description="Full path and name of Unison binary"
+            conditional="Must exist in file system">/usr/bin/unison</unison-bin>
+        <unison-root
+            description="Root location for unison backups"
+            conditional="Must exist in file system">/svnroot/unison-backup</unison-root>
+    </unison>
+
+    <bugtraq description="Settings for Bugtraq">
+        <message
+            description="Bugtracking log message format"
+            conditional="Must contain %BUGID%">Issue : %BUGID%</message>
+        <append
+            description="Append bugtracking message to end of log" 
+            conditional="true or false">true</append>
+        <url
+            description="URL of bugtracking tool"
+            conditional="Valid URL and contain %BUGID%">http://localhost/show_bug.cgi?id=%BUGID%</url>
+        <label
+            description="Label shown next to input of issue number"
+            conditional="Length should be kept to less than 25 characters">Bug-ID / Issue-Nr:</label>
+        <number
+            description="Only allow numbers in issue number"
+            conditional="true or false">true</number>
+        <warnifnoissue
+            description="Warn on empty issue number"
+            conditional="true or false">false</warnifnoissue>
+        <logregex
+            description="One or two regular expressions, separated by a newline, if empty property not set"
+            conditional="Valid regex"></logregex>
+    </bugtraq>
+
+</configuration>

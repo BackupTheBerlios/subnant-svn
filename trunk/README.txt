@@ -42,7 +42,7 @@ Windows Installation:
 
   // Create config file by cloning example
   cd "C:\Program Files\Subnant\conf"
-  copy subnant.config.example subnant.config
+  copy subnant.config.win32.example subnant.config
   [edit subnant.config]
 
   // Use NAnt to install subnant wrapper script
@@ -57,7 +57,7 @@ Linux Installation:
 
   // Create config file by cloning example
   cd /usr/local/subnant/conf
-  cp subnant.config.example subnant.config
+  cp subnant.config.unix.example subnant.config
   [edit subnant.config]
 
   // Use NAnt to install subnant wrapper script
