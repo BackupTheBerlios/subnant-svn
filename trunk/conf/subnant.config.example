@@ -13,13 +13,13 @@
     <svn-repos description="Default repository settings">
         <svn-root
             description="Root location of repositories"
-            conditional="Must exist in file system">/svnroot/repos</svn-root>
+            conditional="Must exist in file system">C:\svnroot\repos</svn-root>
         <dump-root
             description="Root location of repository dumps"
-            conditional="Must exist in file system">/svnroot/dumps</dump-root>
+            conditional="Must exist in file system">C:\svnroot\dumps</dump-root>
         <hotcopy-root
             description="Root location of repository hotcopy"
-            conditional="Must exist in file system">/svnroot/hotcopy</hotcopy-root>
+            conditional="Must exist in file system">C:\svnroot\hotcopy</hotcopy-root>
         <fs-type
             description="Default type of repository created"
             conditional="bdb or fsfs">fsfs</fs-type>
@@ -58,7 +58,16 @@
             conditional="true or false">false</archive>
     </logs>
 
-    <bugtraq description="Bugtraq settings">
+    <unison description="Settings for Unison backup">
+        <unison-bin
+            description="Full path and name of Unison binary file"
+            conditional="If empty assumes Subversion binaries can be found in environment path">C:\Program Files\Unison\unison.exe</unison-bin>
+        <unison-root
+            description="Root location for unison backups"
+            conditional="Must exist in file system">C:\svnroot\unison</unison-root>
+    </unison>
+
+    <bugtraq description="Settings for Bugtraq">
         <message
             description="Bugtracking log message format"
             conditional="Must contain %BUGID%">Issue : %BUGID%</message>
