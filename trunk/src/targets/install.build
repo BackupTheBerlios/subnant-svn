@@ -30,7 +30,7 @@ $Id$
         <echo message="Created ${wrapper} wrapper script" level="Warning" />
         <echo message="Searching environment path for ${install-bindir}" level="Warning" />
         <echo message="Found in path, subnant command should be available" level="Warning"
-            unless="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}" />
+            if="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}" />
         <echo message="Not found, please add ${install-bindir} to your environment path" level="Warning"
             unless="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}" />
     </target>
