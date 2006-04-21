@@ -14,9 +14,9 @@ $Id$
 
 Goals:
 
-  * Backup multiple repositiories (hotcopy+verify|dump+compress->email result)
+  * Easy backup of multiple repositiories
 
-  * Migrate multiple repositories (verify->dump->create->load->verify)
+  * Easy migration of multiple repositories
 
   * Provide hook-script functionality similar to Subversion's own scripts,
     but without the need for third party tools (Perl,Python,sendmail,etc)
@@ -136,7 +136,16 @@ Repository targets:
     Verify some or all repositories in svn-root
 
 
+
 Repository hook targets:
+
+  * backup
+
+    Invoke Unison to backup a repository immediately after a post-commit
+
+    For more information about unison:
+    http://www.cis.upenn.edu/~bcpierce/unison/
+
 
   * check-case-insensitive
 

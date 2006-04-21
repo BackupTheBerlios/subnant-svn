@@ -44,6 +44,10 @@ logdir              ${log-dir}
 max-age             ${max-age}
 archive             ${archive}
 
+Backup settings:
+unison-bin          ${unison-bin}
+backup-root         ${backup-root}
+
 Bugtraq settings:
 
 message             ${bugtraq-message}
@@ -73,6 +77,8 @@ logregex            ${bugtraq-logregex}
         <xmlpeek file="${subnant-config}" xpath="/configuration/mail/prefix"               property="mail-prefix" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/logs/max-age"              property="max-age" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/logs/archive"              property="archive" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/backup/unison-bin"         property="unison-bin" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/backup/backup-root"        property="backup-root" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/message"           property="bugtraq-message" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/append"            property="bugtraq-append" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/url"               property="bugtraq-url" />
@@ -105,6 +111,9 @@ logregex            ${bugtraq-logregex}
         <!-- Ready log settings -->
         <property name="log-dir"         value="${logdir}"           if="${directory::exists(logdir)}" />
         <property name="log-dir"         value="[invalid] ${logdir}" unless="${directory::exists(logdir)}" />
+        <!-- Ready Backup settings -->
+        <property name="unison-bin"      value="[invalid] ${unison-bin}" unless="${file::exists(unison-bin)}" />
+        <property name="backup-root"     value="[invalid] ${backup-root}" unless="${directory::exists(backup-root)}" />
         <!-- Ready bugtraq settings -->
         <!-- xmlpeek doesn't like CDATA, so search for start/end tags and remove from url if found -->
         <property name="bugtraq-url" value="${string::trim(bugtraq-url)}" />

@@ -1,0 +1,55 @@
+<?xml version="1.0" ?>
+<!--
+Copyright (C) 2005 Simon McKenna
+
+Licensed under the GNU General Public License
+http://www.gnu.org/copyleft/gpl.html
+
+$Id$
+-->
+<project name="backup" default="backup" xmlns="http://nant.sf.net/release/latest/nant.xsd">
+
+    <target name="backup" depends="init">
+        <exec program="${unison-bin}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="unison-result">
+            <arg value="-batch" />
+            <arg value="${repos}" />
+            <arg value="${backup-repos}" />
+            <arg value="-force" />
+            <arg value="${repos}" />
+        </exec>
+        <if test="${unison-result!='0' and failonerror!='false'}">
+            <log-echo message="*** ERROR executing unison backup on repository ${repos} ***" file="${subnant-output}" />
+        </if>
+        <fail unless="${file::exists(exec-output)}" message="*** ERROR unison output file not found: ${exec-output} ***" />
+    </target>
+   
+    <target name="init">
+        <fail unless="${property::exists('repos')}" message="repos not set" />
+        <fail unless="${string::contains(string::to-lower(repos),string::to-lower(svn-root))}"
+            message="full path to svn-root must be passed" />
+        <property name="backup-repos" value="${path::combine(backup-root,path::get-file-name(repos))}" />
+        <mkdir dir="${backup-repos}" unless="${directory::exists(backup-repos)}" />
+    </target>
+
+    <target name="help">
+        <echo level="Warning">
+            <![CDATA[backup:
+   
+Usage: subnant backup -D:repos=<repos> [-D:<option>=<value>]
+
+Purpose: Used in post-commit hook to synchronise backup repository against live
+repository using unison. Can also be called outside of post-commit hook, 
+for example: as a scheduled task or cron job. 
+
+Required:
+repos           full path to repository
+
+Options:
+
+Examples:
+subnant backup -D:repos=/path/to/repos
+]]>
+        </echo>
+    </target>
+   
+</project>
