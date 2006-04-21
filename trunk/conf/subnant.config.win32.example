@@ -58,14 +58,14 @@
             conditional="true or false">false</archive>
     </logs>
 
-    <unison description="Settings for Unison backup">
+    <backup description="Settings for backup">
         <unison-bin
             description="Full path and name of Unison binary"
             conditional="Must exist in file system">C:\Program Files\Unison\unison.exe</unison-bin>
-        <unison-root
-            description="Root location for unison backups"
-            conditional="Must exist in file system">C:\svnroot\unison-backup</unison-root>
-    </unison>
+        <backup-root
+            description="Root location for backups"
+            conditional="Must exist in file system">C:\svnroot\backup</backup-root>
+    </backup>
 
     <bugtraq description="Settings for Bugtraq">
         <message
