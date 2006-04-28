@@ -12,47 +12,47 @@ $Id$
     <target name="config" depends="init">
         <echo level="Warning">
             <![CDATA[
-Operating system    ${operating-system::to-string(environment::get-operating-system())}
-NAnt version        ${assemblyname::get-version(assembly::get-name(nant::get-assembly()))}
-Subnant config      ${subnant-config}
+Operating system      ${operating-system::to-string(environment::get-operating-system())}
+NAnt version          ${assemblyname::get-version(assembly::get-name(nant::get-assembly()))}
+Subnant config        ${subnant-config}
 
 Program locations:
-nantcontrib-bindir  ${nantcontrib-dir}
-svn-bindir          ${svn-dir}
+  nantcontrib-bindir  ${nantcontrib-dir}
+  svn-bindir          ${svn-dir}
 
 Repository settings:
-svn-root            ${svn-rootdir}
-dump-root           ${dump-rootdir}
-hotcopy-root        ${hotcopy-rootdir}
-fs-type             ${fs-type}
-config-dir          ${config-dir}
-verify-hotcopy      ${verify}
-compress-dump       ${compress}
+  svn-root            ${svn-rootdir}
+  dump-root           ${dump-rootdir}
+  hotcopy-root        ${hotcopy-rootdir}
+  fs-type             ${fs-type}
+  config-dir          ${config-dir}
+  verify-hotcopy      ${verify}
+  compress-dump       ${compress}
 
 Mail settings:
-from                ${mail-from}
-host                ${mail-host}
-tolist              ${mail-tolist}
-subject prefix      ${mail-prefix}
+  from                ${mail-from}
+  host                ${mail-host}
+  tolist              ${mail-tolist}
+  subject prefix      ${mail-prefix}
 
 Log settings:
-logdir              ${log-dir}
-max-age             ${max-age}
-archive             ${archive}
+  logdir              ${log-dir}
+  max-age             ${max-age}
+  archive             ${archive}
 
 Backup settings:
-unison-bin          ${unison-bin}
-unison-logdir       ${unison-logdir}
-backup-root         ${backup-root}
+  unison-bin          ${unison-bin}
+  unison-logdir       ${unison-logdir}
+  backup-root         ${backup-root}
 
 Bugtraq settings:
-message             ${bugtraq-message}
-append              ${bugtraq-append}
-url                 ${bugtraq-url}
-label               ${bugtraq-label}
-number              ${bugtraq-number}
-warnifnoissue       ${bugtraq-warnifnoissue}
-logregex            ${bugtraq-logregex}
+  message             ${bugtraq-message}
+  append              ${bugtraq-append}
+  url                 ${bugtraq-url}
+  label               ${bugtraq-label}
+  number              ${bugtraq-number}
+  warnifnoissue       ${bugtraq-warnifnoissue}
+  logregex            ${bugtraq-logregex}
 ]]>
         </echo>
     </target>
