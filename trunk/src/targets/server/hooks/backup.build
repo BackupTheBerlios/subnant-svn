@@ -16,6 +16,9 @@ $Id$
             <arg value="${backup-repos}" />
             <arg value="-force" />
             <arg value="${repos}" />
+            <arg value="-log" if="${bool::parse(unison-log)}" />
+            <arg value="-logfile" if="${bool::parse(unison-log)}" />
+            <arg value="${unison-logfile}" if="${bool::parse(unison-log)}" />
         </exec>
         <if test="${unison-result!='0' and failonerror!='false'}">
             <log-echo message="*** ERROR executing unison backup on repository ${repos} ***" file="${subnant-output}" />
@@ -25,10 +28,20 @@ $Id$
    
     <target name="init">
         <fail unless="${property::exists('repos')}" message="repos not set" />
-        <fail unless="${string::contains(string::to-lower(repos),string::to-lower(svn-root))}"
+        <fail unless="${directory::exists(path::get-directory-name(repos))}"
             message="full path to svn-root must be passed" />
         <property name="backup-repos" value="${path::combine(backup-root,path::get-file-name(repos))}" />
         <mkdir dir="${backup-repos}" unless="${directory::exists(backup-repos)}" />
+        <property name="unison-log" value="false" overwrite="false" />
+        <if test="${bool::parse(unison-log)}">
+            <xmlpeek file="${subnant-config}" xpath="/configuration/backup/unison-logdir" property="unison-logdir" />
+            <property name="unison-logfile" value="${path::combine(unison-logdir,path::get-file-name(repos)+'.log')}" overwrite="false" />
+            <fail unless="${directory::exists(path::get-directory-name(unison-logfile))}"
+                message="Unison logfile directory: ${unison-logdir} not found" />
+        </if>
+        <if test="${not bool::parse(unison-log)}">
+            <property name="unison-logfile" value="" overwrite="false" />
+        </if>
     </target>
 
     <target name="help">
@@ -45,9 +58,13 @@ Required:
 repos           full path to repository
 
 Options:
+unsion-log      set true to log Unison output
+unison-logfile  full path to Unison log file *
+
+* If option not set, unison-logdir in subnant.config combined with repos name
 
 Examples:
-subnant backup -D:repos=/path/to/repos
+subnant backup -D:repos=/path/to/repos -D:unison-log=true
 ]]>
         </echo>
     </target>

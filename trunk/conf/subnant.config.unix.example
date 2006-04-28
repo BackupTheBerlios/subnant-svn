@@ -51,10 +51,10 @@
             description="Location where Subnant log files are stored"
             conditional="If empty use default directory subnant/logs"></logdir>
         <max-age
-            description="Number of days to keeps logs"
+            description="Number of days to keep Subnant logs"
             conditional="Integer value from -1 where -1 = forever and 0 = only keep last">7</max-age>
         <archive
-            description="Archive and compress old logs into logdir/archive.zip instead of deleting when past max-age"
+            description="Archive and compress old Subnant logs into logdir/archive.zip instead of deleting when past max-age"
             conditional="true or false">false</archive>
     </logs>
 
@@ -62,6 +62,9 @@
         <unison-bin
             description="Full path and name of Unison binary"
             conditional="Must exist in file system">/usr/bin/unison</unison-bin>
+        <unison-logdir
+            description="Location where Unison log files are stored"
+            conditional="If empty use default directory subnant/logs"></unison-logdir>
         <backup-root
             description="Root location for backups"
             conditional="Must exist in file system">/svnroot/backup</backup-root>

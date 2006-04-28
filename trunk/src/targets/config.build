@@ -15,14 +15,12 @@ $Id$
 Operating system    ${operating-system::to-string(environment::get-operating-system())}
 NAnt version        ${assemblyname::get-version(assembly::get-name(nant::get-assembly()))}
 Subnant config      ${subnant-config}
-   
+
 Program locations:
-  
 nantcontrib-bindir  ${nantcontrib-dir}
 svn-bindir          ${svn-dir}
 
 Repository settings:
-
 svn-root            ${svn-rootdir}
 dump-root           ${dump-rootdir}
 hotcopy-root        ${hotcopy-rootdir}
@@ -32,24 +30,22 @@ verify-hotcopy      ${verify}
 compress-dump       ${compress}
 
 Mail settings:
-
 from                ${mail-from}
 host                ${mail-host}
 tolist              ${mail-tolist}
 subject prefix      ${mail-prefix}
 
 Log settings:
-
 logdir              ${log-dir}
 max-age             ${max-age}
 archive             ${archive}
 
 Backup settings:
 unison-bin          ${unison-bin}
+unison-logdir       ${unison-logdir}
 backup-root         ${backup-root}
 
 Bugtraq settings:
-
 message             ${bugtraq-message}
 append              ${bugtraq-append}
 url                 ${bugtraq-url}
@@ -78,6 +74,7 @@ logregex            ${bugtraq-logregex}
         <xmlpeek file="${subnant-config}" xpath="/configuration/logs/max-age"              property="max-age" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/logs/archive"              property="archive" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/backup/unison-bin"         property="unison-bin" />
+        <xmlpeek file="${subnant-config}" xpath="/configuration/backup/unison-logdir"      property="unison-logdir" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/backup/backup-root"        property="backup-root" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/message"           property="bugtraq-message" />
         <xmlpeek file="${subnant-config}" xpath="/configuration/bugtraq/append"            property="bugtraq-append" />
@@ -94,26 +91,27 @@ logregex            ${bugtraq-logregex}
         <!-- Ready repository settings -->
         <property name="svn-rootdir"     value="${svn-root}"               unless="${string::get-length(svn-root)==0}" />
         <property name="svn-rootdir"     value="[not set]"                 if="${string::get-length(svn-root)==0}" />
-        <property name="svn-rootdir"     value="[invalid] ${svn-root}"     if="${string::get-length(svn-root)>0 and directory::exists(svn-root)==false}" />
+        <property name="svn-rootdir"     value="[INVALID] ${svn-root}"     if="${string::get-length(svn-root)>0 and directory::exists(svn-root)==false}" />
         <property name="dump-rootdir"    value="${dump-root}"              unless="${string::get-length(dump-root)==0}" />
         <property name="dump-rootdir"    value="[not set]"                 if="${string::get-length(dump-root)==0}" />
-        <property name="dump-rootdir"    value="[invalid] ${dump-root}"    if="${string::get-length(dump-root)>0 and directory::exists(dump-root)==false}" />
+        <property name="dump-rootdir"    value="[INVALID] ${dump-root}"    if="${string::get-length(dump-root)>0 and directory::exists(dump-root)==false}" />
         <property name="hotcopy-rootdir" value="${hotcopy-root}"           unless="${string::get-length(hotcopy-root)==0}" />
         <property name="hotcopy-rootdir" value="[not set]"                 if="${string::get-length(hotcopy-root)==0}" />
-        <property name="hotcopy-rootdir" value="[invalid] ${hotcopy-root}" if="${string::get-length(hotcopy-root)>0 and directory::exists(hotcopy-root)==false}" />
+        <property name="hotcopy-rootdir" value="[INVALID] ${hotcopy-root}" if="${string::get-length(hotcopy-root)>0 and directory::exists(hotcopy-root)==false}" />
         <property name="config-dir"      value="[not set]"                 if="${string::get-length(config-dir)==0}" />
         <!-- Ready backup settings -->
         <property name="verify"          value="${string::trim(string::to-lower(verify-hotcopy))}" />
         <property name="level"           value="${string::trim(string::to-lower(compress-dump))}" />
         <property name="compress"        value="level ${level}"     if="${level!='false' and int::parse(level)&gt;=1 and int::parse(level)&lt;=9}" />
         <property name="compress"        value="[disabled]"         if="${level=='false'}" />
-        <property name="compress"        value="[invalid] ${level}" if="${level!='false' and (int::parse(level)&lt;1 or int::parse(level)&gt;9)}" />
+        <property name="compress"        value="[INVALID] ${level}" if="${level!='false' and (int::parse(level)&lt;1 or int::parse(level)&gt;9)}" />
         <!-- Ready log settings -->
         <property name="log-dir"         value="${logdir}"           if="${directory::exists(logdir)}" />
-        <property name="log-dir"         value="[invalid] ${logdir}" unless="${directory::exists(logdir)}" />
+        <property name="log-dir"         value="[INVALID] ${logdir}" unless="${directory::exists(logdir)}" />
         <!-- Ready Backup settings -->
-        <property name="unison-bin"      value="[invalid] ${unison-bin}" unless="${file::exists(unison-bin)}" />
-        <property name="backup-root"     value="[invalid] ${backup-root}" unless="${directory::exists(backup-root)}" />
+        <property name="unison-bin"      value="[INVALID] ${unison-bin}"    unless="${file::exists(unison-bin)}" />
+        <property name="unison-logdir"   value="[INVALID] ${unison-logdir}" unless="${directory::exists(unison-logdir)}" />
+        <property name="backup-root"     value="[INVALID] ${backup-root}"   unless="${directory::exists(backup-root)}" />
         <!-- Ready bugtraq settings -->
         <!-- xmlpeek doesn't like CDATA, so search for start/end tags and remove from url if found -->
         <property name="bugtraq-url" value="${string::trim(bugtraq-url)}" />
