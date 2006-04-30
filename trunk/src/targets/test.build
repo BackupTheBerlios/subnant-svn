@@ -42,11 +42,11 @@ $Id$
         <property name="svn-root"     value="${path::combine(test-root,'repos')}" />
         <property name="dump-root"    value="${path::combine(test-root,'dumps')}" />
         <property name="hotcopy-root" value="${path::combine(test-root,'hotcopy')}" />
-        <property name="backup-root" value="${path::combine(test-root,'backup')}" />
+        <property name="backup-root"  value="${path::combine(test-root,'backup')}" />
         <mkdir dir="${svn-root}"     unless="${directory::exists(svn-root)}" />
         <mkdir dir="${dump-root}"    unless="${directory::exists(dump-root)}" />
         <mkdir dir="${hotcopy-root}" unless="${directory::exists(hotcopy-root)}" />
-        <mkdir dir="${backup-root}" unless="${directory::exists(backup-root)}" />
+        <mkdir dir="${backup-root}"  unless="${directory::exists(backup-root)}" />
     </target>
 
     <target name="init-hooks">

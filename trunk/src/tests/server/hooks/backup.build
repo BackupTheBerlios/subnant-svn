@@ -19,7 +19,7 @@ $Id$
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-hook">
             <properties>
                 <property name="hook"      value="post-commit" />
-                <property name="hook-exec" value="subnant backup -D:repos=${hook-param}1 -D:backup-root=${backup-root}" />
+                <property name="hook-exec" value="subnant backup -D:repos=${hook-param}1" />
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy" />
