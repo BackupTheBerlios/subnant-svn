@@ -89,6 +89,15 @@ Run:
 
 Repository targets:
 
+  * backup
+
+    Invoke Unison to backup a repository.  Note that this can also be caled
+    in a post-commit.
+
+    For more information about unison:
+    http://www.cis.upenn.edu/~bcpierce/unison/
+
+
   * create
 
     Create one or more repositories under svn-root using configuration in
@@ -138,14 +147,6 @@ Repository targets:
 
 
 Repository hook targets:
-
-  * backup
-
-    Invoke Unison to backup a repository immediately after a post-commit
-
-    For more information about unison:
-    http://www.cis.upenn.edu/~bcpierce/unison/
-
 
   * check-case-insensitive
 

@@ -97,7 +97,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     <!-- Repository hooks targets -->
     <target name="backup" description="Backup repository using Unison"
         depends="init,init-repos,init-backup,verify-repos-exists">
-        <nant buildfile="targets/server/hooks/backup.build" target="${subnant::get-target()}" />
+        <nant buildfile="targets/server/backup.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="check-case-insensitive" description="::TODO:: Prevent adding existing files with different case"
