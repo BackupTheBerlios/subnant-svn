@@ -14,15 +14,13 @@ $Id$
         <if test="${string::get-length(files-added)!=0}">
             <call target="search-for-case-conflicts" />
         </if>
-        <stderr message="check-case-insensitive is incomplete (W.I.P)" />
-        <fail message="check-case-insensitive is incomplete (W.I.P)" />   
     </target>
-   
+
     <target name="init">
         <fail unless="${property::exists('repos')}" message="repos not set" />
         <fail unless="${property::exists('txn')}"   message="txn not set" />
-        <property name="file-exists-msg" overwrite="false"
-            value="Cannot add as file(s) already exist with the same name but different case" />
+        <property name="path-exists-msg" overwrite="false"
+            value="Cannot add @PATH@ as it already exists with the same name but different case" />
         <property name="files-added" value="" />
         <property name="paths-added" value="" />
         <property name="path"        value="" />
@@ -43,24 +41,31 @@ $Id$
         <foreach item="String" in="${files-added}" delim="${newline}" property="file-added">
             <property name="test-path" value="" />
             <property name="test-path" if="${string::contains(file-added,'/')}"
-                value="${string::substring(file-added,0,string::last-index-of(file-added, '/'))}" />
+                value="${'/' + string::substring(file-added,0,string::last-index-of(file-added, '/'))}" />
             <property name="paths-added"
                 if="${(string::get-length(test-path)!=0) and (not string::contains(paths-added, test-path))}" 
                 value="${paths-added + test-path + newline}" />
         </foreach>
-        <stderr message="paths-added: ${paths-added}" />
-        <fail message="paths-added: ${paths-added}" />   
+        <!-- Paths added at root will be empty -->
+        <property name="paths-added" value="/" if="${string::get-length(paths-added)==0}" />
         <!-- Loop through each unique path and verify directories and files within -->
-        <foreach item="Line" in="${paths-added}" property="path">
-            <!-- Verify full path of directory against existing path -->
+        <foreach item="String" in="${paths-added}" delim="${newline}" property="path">
+            <!-- Verify directory path against existing by searching on path -->
+            <property name="subcommand" value="tree" />
+            <call target="exec-svnlook" />
+            <if test="${svnlook-result!='0'}">
+                <property name="path-exists-msg" value="string::replace(path-exists-msg, '@PATH@', path)}" />
+                <stderr message="${path-exists-msg}" />
+                <fail message="${path-exists-msg}" />
+            </if>
             <!-- Retrieve list of existing files in current path --> 
             <property name="subcommand" value="tree" />
             <call target="exec-svnlook" />
             <loadfile file="${exec-output}" property="tree-result" />
-            <!-- 5th step - Perform case-insensitive check on each added file for an existing match -->
+            <!-- 5th step - Perform case-insensitive check on each added file for an existing match >
             <foreach item="Line" in="${added-files-in-path}" property="added-file-in-path">
-                <!-- 6th step - If a existing file found verify that it matches existing case -->
-            </foreach>
+                <--6th step - If a existing file found verify that it matches existing case >
+            </foreach-->
         </foreach>
     </target>
 
@@ -68,10 +73,10 @@ $Id$
         <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
             <arg value="${subcommand}" />
             <arg value="${repos}" />
-            <arg value="${path}"      if="${subcommand=='tree'}" />
-            <arg value="--full-paths" if="${subcommand=='tree'}" />
-            <arg value="--transaction" />
-            <arg value="${txn}" />
+            <arg value="${path}"       if="${subcommand=='tree'}" />
+            <arg value="--full-paths"  if="${subcommand=='tree'}" />
+            <arg value="--transaction" if="${subcommand=='changed'}" />
+            <arg value="${txn}"        if="${subcommand=='changed'}" />
         </exec>
         <if test="${svnlook-result!='0' and failonerror!='false'}">
             <log-echo message="*** ERROR executing svnlook ${subcommand} on repository ${repos} ***" file="${subnant-output}" />
@@ -85,8 +90,8 @@ $Id$
 
 Usage: subnant check-case-insensitive -D:repos=<repo> -D:txn=<txn> [-D:<option>=<value>]
 
-Purpose: Check files being added to repository do not already exist with
-the same name in the same path, but with a different case
+Purpose: Check directories and files being added to repository do not already
+exist with the same name in the same path, but with a different case
 
 Should only be used in conjunction with a pre-commit hook
 
@@ -95,7 +100,8 @@ repos            full path to repository
 txn              Subversion transaction number
 
 Options:
-file-exists-msg  override default error returned when existing file found
+path-exists-msg  override default error returned when existing file found,
+                 use @PATH@ token to replace with name of conflict
 
 Example:
 subnant check-case-insensitive -D:repos=/path/to/repo -D:txn=1-1

@@ -10,15 +10,7 @@ $Id$
 <project name="test-check-case-insensitive" default="test-check-case-insensitive" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="test-check-case-insensitive" depends="init">
-        <!-- Add and commit a lowercase text.txt file -->
-        <echo message="Subnant test file" file="${path::combine(wc,'test.txt')}" />
-        <exec program="${svn}" commandline="add test.txt" workingdir="${wc}" failonerror="true" />
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
-            <properties>
-                <property name="should-pass" value="true" />
-            </properties>
-        </nant>
-        <!-- Delete (not using svn) test.txt, try to add and commit uppercased TEST.TXT file -->
+        <!-- Delete test.txt not using svn, try to add and commit uppercased TEST.TXT file -->
         <delete file="${path::combine(wc,'test.txt')}" />
         <echo message="Subnant TEST file" file="${path::combine(wc,'TEST.TXT')}" />
         <exec program="${svn}" commandline="add TEST.TXT" workingdir="${wc}" failonerror="true" />
@@ -27,17 +19,12 @@ $Id$
                 <property name="should-pass" value="false" />
             </properties>
         </nant>
-        <!-- Delete (not using svn) TEST.TXT, try to add and commit mixed case TeSt.TxT file -->
-        <delete file="${path::combine(wc,'TEST.TXT')}" />
-        <echo message="Subnant TeSt file" file="${path::combine(wc,'TeSt.TxT')}" />
-        <exec program="${svn}" commandline="add TeSt.TxT" workingdir="${wc}" failonerror="true" />
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
-            <properties>
-                <property name="should-pass" value="false" />
-            </properties>
-        </nant>
-        <!-- ::TODO:: Test directories under working copy path (test/TEST/TeSt) also fail as expected -->
-        <!-- ::TODO:: Test files under directories under working copy path (test/test.txt, test/TEST.TXT, TEST/TEST.TXT, TeSt/TeSt.txt) also fail as expected -->
+        <!-- ::TODO:: Test directories under working copy path (test/TEST/TeSt) also fail as expected>
+        <echo message="Subnant test/test.txt file" file="${path::combine(path::combine(wc,'test'),'test.txt')}" />
+        <exec program="${svn}" commandline="add test" workingdir="${wc}" failonerror="true" />
+        <exec program="${svn}" commandline="add test/test.txt" workingdir="${wc}" failonerror="true" /-->
+        <!-- ::TODO:: Test files under directories under working copy path (test/test.txt,
+                      test/TEST.TXT, TEST/TEST.TXT, TeSt/TeSt.txt) also fail as expected -->
     </target>
 
     <target name="init">
