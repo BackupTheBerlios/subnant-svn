@@ -9,4 +9,4 @@ export PKG_CONFIG_PATH="/usr/lib/pkgconfig"
 
 # Visit http://subnant.berlios.de for details on command below
 
-subnant check-case-insensitive commit-message -D:repos="$1" -D:txn="$2"
+subnant case-insensitive commit-message -D:repos="$1" -D:txn="$2"

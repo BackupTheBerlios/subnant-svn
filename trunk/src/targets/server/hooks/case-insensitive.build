@@ -7,9 +7,9 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="check-case-insensitive" default="check-case-insensitive" xmlns="http://nant.sf.net/release/latest/nant.xsd">
+<project name="case-insensitive" default="case-insensitive" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
-    <target name="check-case-insensitive" depends="init,check-for-files-added">
+    <target name="case-insensitive" depends="init,check-for-files-added">
         <!-- Stop right now if no files were added -->
         <if test="${string::get-length(files-added)!=0}">
             <call target="search-for-case-conflicts" />
@@ -20,10 +20,10 @@ $Id$
         <fail unless="${property::exists('repos')}" message="repos not set" />
         <fail unless="${property::exists('txn')}"   message="txn not set" />
         <property name="path-exists-msg" overwrite="false"
-            value="Cannot add @PATH@ as it already exists with the same name but different case" />
-        <property name="files-added" value="" />
-        <property name="paths-added" value="" />
-        <property name="path"        value="" />
+            value="Cannot add @PATH@ as it already exists with a different case" />
+        <property name="files-added"  value="" />
+        <property name="paths-added"  value="" />
+        <property name="path"         value="" />
     </target>
 
     <target name="check-for-files-added">
@@ -31,7 +31,7 @@ $Id$
         <call target="exec-svnlook" />
         <foreach item="Line" in="${exec-output}" property="changed">
             <if test="${string::substring(changed,0,1)=='A'}">
-                <property name="files-added" value="${files-added + string::substring(changed,4,string::get-length(changed)-4) + newline}" />
+                <property name="files-added" value="${files-added + '/' + string::substring(changed,4,string::get-length(changed)-4) + newline}" />
             </if>
         </foreach>
     </target>
@@ -41,7 +41,7 @@ $Id$
         <foreach item="String" in="${files-added}" delim="${newline}" property="file-added">
             <property name="test-path" value="" />
             <property name="test-path" if="${string::contains(file-added,'/')}"
-                value="${'/' + string::substring(file-added,0,string::last-index-of(file-added, '/'))}" />
+                value="${string::substring(file-added,0,string::last-index-of(file-added, '/'))}" />
             <property name="paths-added"
                 if="${(string::get-length(test-path)!=0) and (not string::contains(paths-added, test-path))}" 
                 value="${paths-added + test-path + newline}" />
@@ -50,22 +50,32 @@ $Id$
         <property name="paths-added" value="/" if="${string::get-length(paths-added)==0}" />
         <!-- Loop through each unique path and verify directories and files within -->
         <foreach item="String" in="${paths-added}" delim="${newline}" property="path">
-            <!-- Verify directory path against existing by searching on path -->
+            <!-- Test directory path by searching against existing using path added -->
+            <property name="failonerror" value="false" />
             <property name="subcommand" value="tree" />
             <call target="exec-svnlook" />
             <if test="${svnlook-result!='0'}">
-                <property name="path-exists-msg" value="string::replace(path-exists-msg, '@PATH@', path)}" />
+                <property name="path-exists-msg" value="${string::replace(path-exists-msg, '@PATH@', path)}" />
                 <stderr message="${path-exists-msg}" />
                 <fail message="${path-exists-msg}" />
             </if>
+            <property name="failonerror" value="true" />
             <!-- Retrieve list of existing files in current path --> 
             <property name="subcommand" value="tree" />
             <call target="exec-svnlook" />
-            <loadfile file="${exec-output}" property="tree-result" />
-            <!-- 5th step - Perform case-insensitive check on each added file for an existing match >
-            <foreach item="Line" in="${added-files-in-path}" property="added-file-in-path">
-                <--6th step - If a existing file found verify that it matches existing case >
-            </foreach-->
+            <loadfile file="${exec-output}" property="existing-case-sensitive" />
+            <property name="existing-case-insensitive" value="${string::to-lower(existing-case-sensitive)}" />
+            <!-- Perform case-insensitive check on each added file for an existing match -->
+            <foreach item="String" in="${files-added}" delim="${newline}" property="file-added">
+                <!--stderr message="file-added:${file-added}${newline}existing-case-sensitive:${existing-case-sensitive}${newline}existing-case-insensitive:${existing-case-insensitive}" />
+                <fail message="file-added:${file-added}${newline}existing-case-sensitive:${existing-case-sensitive}${newline}existing-case-insensitive:${existing-case-insensitive}" /-->
+                <!--If a existing file found verify that it matches existing case -->
+                <if test="${string::contains(existing-case-insensitive,string::to-lower(file-added)) and not string::contains(existing-case-sensitive,file-added)}">
+                    <property name="path-exists-msg" value="${string::replace(path-exists-msg, '@PATH@', file-added)}" />
+                    <stderr message="${path-exists-msg}" />
+                    <fail message="${path-exists-msg}" />
+                </if>
+            </foreach>
         </foreach>
     </target>
 
@@ -86,11 +96,11 @@ $Id$
 
     <target name="help">
         <echo level="Warning">
-            <![CDATA[check-case-insensitive:
+            <![CDATA[case-insensitive:
 
-Usage: subnant check-case-insensitive -D:repos=<repo> -D:txn=<txn> [-D:<option>=<value>]
+Usage: subnant case-insensitive -D:repos=<repo> -D:txn=<txn> [-D:<option>=<value>]
 
-Purpose: Check directories and files being added to repository do not already
+Purpose: Prevent directories and files being added to repository that already
 exist with the same name in the same path, but with a different case
 
 Should only be used in conjunction with a pre-commit hook
@@ -104,7 +114,7 @@ path-exists-msg  override default error returned when existing file found,
                  use @PATH@ token to replace with name of conflict
 
 Example:
-subnant check-case-insensitive -D:repos=/path/to/repo -D:txn=1-1
+subnant case-insensitive -D:repos=/path/to/repo -D:txn=1-1
 ]]>
         </echo>
     </target>

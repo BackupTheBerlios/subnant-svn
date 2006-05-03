@@ -148,10 +148,10 @@ Repository targets:
 
 Repository hook targets:
 
-  * check-case-insensitive
+  * case-insensitive
 
-    Check files being added to the repository do not already exist with
-    the same name in the same path, but with a different filename case
+    Prevent directories and files being added to repository that already
+    exist with the same name in the same path, but with a different case
 
 
   * commit-email

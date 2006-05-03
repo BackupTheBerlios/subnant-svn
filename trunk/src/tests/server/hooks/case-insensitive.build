@@ -7,20 +7,30 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$
 -->
-<project name="test-check-case-insensitive" default="test-check-case-insensitive" xmlns="http://nant.sf.net/release/latest/nant.xsd">
+<project name="test-case-insensitive" default="test-case-insensitive" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
-    <target name="test-check-case-insensitive" depends="init">
-        <!-- Delete test.txt not using svn, try to add and commit uppercased TEST.TXT file -->
-        <delete file="${path::combine(wc,'test.txt')}" />
-        <echo message="Subnant TEST file" file="${path::combine(wc,'TEST.TXT')}" />
+    <target name="test-case-insensitive" depends="init">
+        <!-- Rename test.txt to TEST.TXT not using svn, try to add and commit...should fail -->
+        <move file="${path::combine(wc,'test.txt')}" tofile="${path::combine(wc,'TEST-TMP.TXT')}"/>
+        <move file="${path::combine(wc,'TEST-TMP.TXT')}" tofile="${path::combine(wc,'TEST.TXT')}"/>
         <exec program="${svn}" commandline="add TEST.TXT" workingdir="${wc}" failonerror="true" />
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
+                <property name="test-message" value="adding TEST.TXT file" />
                 <property name="should-pass" value="false" />
             </properties>
         </nant>
-        <!-- ::TODO:: Test directories under working copy path (test/TEST/TeSt) also fail as expected>
-        <echo message="Subnant test/test.txt file" file="${path::combine(path::combine(wc,'test'),'test.txt')}" />
+        <exec program="${svn}" commandline="revert ." workingdir="${wc}" failonerror="true" />
+        <!-- Test directories under working copy path (test/TEST/TeSt) also fail as expected-->
+        <mkdir dir="${path::combine(wc,'test')}" />
+        <exec program="${svn}" commandline="add test" workingdir="${wc}" failonerror="true" />
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
+            <properties>
+                <property name="test-message" value="adding test directory" />
+                <property name="should-pass"  value="false" />
+            </properties>
+        </nant>
+        <!--echo message="Subnant test/test.txt file" file="${path::combine(path::combine(wc,'test'),'test.txt')}" />
         <exec program="${svn}" commandline="add test" workingdir="${wc}" failonerror="true" />
         <exec program="${svn}" commandline="add test/test.txt" workingdir="${wc}" failonerror="true" /-->
         <!-- ::TODO:: Test files under directories under working copy path (test/test.txt,
@@ -37,7 +47,7 @@ $Id$
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-hook">
             <properties>
                 <property name="hook"      value="pre-commit" />
-                <property name="hook-exec" value="subnant check-case-insensitive -D:repos=${hook-param}1 -D:txn=${hook-param}2" />
+                <property name="hook-exec" value="subnant case-insensitive -D:repos=${hook-param}1 -D:txn=${hook-param}2" />
             </properties>
         </nant>
         <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy" />

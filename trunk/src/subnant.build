@@ -100,9 +100,9 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
         <nant buildfile="targets/server/backup.build" target="${subnant::get-target()}" />
     </target>
 
-    <target name="check-case-insensitive" description="::TODO:: Prevent adding existing files with different case"
+    <target name="case-insensitive" description="Prevent adding existing paths with different case"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
-        <nant buildfile="targets/server/hooks/check-case-insensitive.build" target="${subnant::get-target()}" />
+        <nant buildfile="targets/server/hooks/case-insensitive.build" target="${subnant::get-target()}" />
     </target>
 
     <target name="commit-email" description="Generate email about commits using post-commit hook"

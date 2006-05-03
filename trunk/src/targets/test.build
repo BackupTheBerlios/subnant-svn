@@ -70,7 +70,7 @@ $Id$
             <foreach item="String" delim="," in="${target}" property="test-target">
                 <property name="test-target" value="${string::to-lower(string::trim(test-target))}" />
                 <regex 
-                    pattern="(?'valid'.*(backup|bugtraq|check-case-insensitive|commit-(email|message)|create|dump|hotcopy|load|migrate|mirror|revprop-change-email|upgrade-bdb|verify))" 
+                    pattern="(?'valid'.*(backup|bugtraq|case-insensitive|commit-(email|message)|create|dump|hotcopy|load|migrate|mirror|revprop-change-email|upgrade-bdb|verify))" 
                     input="${test-target}" failonerror="false" />
                 <call target="run-test" />
             </foreach>
@@ -99,7 +99,7 @@ $Id$
             <property name="test-target" value="verify" />
             <call target="run-test" />
             <!-- Hook targets -->
-            <property name="test-target" value="check-case-insensitive" />
+            <property name="test-target" value="case-insensitive" />
             <call target="run-test" />
             <property name="test-target" value="commit-email" />
             <call target="run-test" />
@@ -122,8 +122,8 @@ $Id$
         <if test="${test-target=='backup' or test-target=='create' or test-target=='dump' or test-target=='hotcopy' or test-target=='load' or test-target=='migrate' or test-target=='mirror' or test-target=='upgrade-bdb' or test-target=='verify'}">
             <property name="build-path" value="${subnant-root}/src/tests/server" />
         </if>
-        <!-- Hook targets: check-case-insensitive,commit-email,commit-message,revprop-change-email -->
-        <if test="${test-target=='check-case-insensitive' or test-target=='commit-email' or test-target=='commit-message' or test-target=='revprop-change-email'}">
+        <!-- Hook targets: case-insensitive,commit-email,commit-message,revprop-change-email -->
+        <if test="${test-target=='case-insensitive' or test-target=='commit-email' or test-target=='commit-message' or test-target=='revprop-change-email'}">
             <property name="build-path" value="${subnant-root}/src/tests/server/hooks" />
         </if>
         <fail if="${build-path==''}" message="Unknown test target: ${test-target}" />
@@ -328,7 +328,7 @@ Purpose: Execute Subnant targets in a test environment
 
 Tests targets:
 backup, bugtraq, create, dump, hotcopy, load, migrate, upgrade-bdb, verify,
-check-case-insensitive, commit-email, commit-message, revprop-change-email
+case-insensitive, commit-email, commit-message, revprop-change-email
 
 Options:
 target          comma separated list of test targets *
