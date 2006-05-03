@@ -50,6 +50,7 @@ $Id$
         <property name="paths-added" value="/" if="${string::get-length(paths-added)==0}" />
         <!-- Loop through each unique path and verify directories and files within -->
         <foreach item="String" in="${paths-added}" delim="${newline}" property="path">
+            <!-- ::TODO:: Retrieve list of existing directories above current path, then compare as per file --> 
             <!-- Test directory path by searching against existing using path added -->
             <property name="failonerror" value="false" />
             <property name="subcommand" value="tree" />
