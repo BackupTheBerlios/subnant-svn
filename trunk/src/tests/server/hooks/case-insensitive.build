@@ -20,16 +20,20 @@ $Id$
                 <property name="should-pass" value="false" />
             </properties>
         </nant>
-        <exec program="${svn}" commandline="revert ." workingdir="${wc}" failonerror="true" />
+        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy" />
         <!-- Test directories under working copy path (test/TEST/TeSt) also fail as expected-->
         <mkdir dir="${path::combine(wc,'test')}" />
         <exec program="${svn}" commandline="add test" workingdir="${wc}" failonerror="true" />
         <nant buildfile="${subnant-root}/src/targets/test.build" target="commit-workingcopy">
             <properties>
                 <property name="test-message" value="adding test directory" />
-                <property name="should-pass"  value="false" />
+                <property name="should-pass"  value="true" />
             </properties>
         </nant>
+        <delete dir="${path::combine(wc,'test')}" />
+        <mkdir dir="${path::combine(wc,'TEST')}" />
+        <exec program="${svn}" commandline='import TEST "${subnant::to-uri(path::combine(svn-root,repos))}" -m "adding TEST directory"'
+            workingdir="${wc}" failonerror="true" />
         <!--echo message="Subnant test/test.txt file" file="${path::combine(path::combine(wc,'test'),'test.txt')}" />
         <exec program="${svn}" commandline="add test" workingdir="${wc}" failonerror="true" />
         <exec program="${svn}" commandline="add test/test.txt" workingdir="${wc}" failonerror="true" /-->
@@ -50,7 +54,6 @@ $Id$
                 <property name="hook-exec" value="subnant case-insensitive -D:repos=${hook-param}1 -D:txn=${hook-param}2" />
             </properties>
         </nant>
-        <nant buildfile="${subnant-root}/src/targets/test.build" target="create-workingcopy" />
     </target>
 
 </project>

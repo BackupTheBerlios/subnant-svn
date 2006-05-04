@@ -54,6 +54,11 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <!-- Repository (server) targets -->
+    <target name="backup" description="Backup repository using Unison"
+        depends="init,init-repos,init-backup,verify-repos-exists">
+        <nant buildfile="targets/server/backup.build" target="${subnant::get-target()}" />
+    </target>
+
     <target name="create" description="Create repositories"
         depends="init,init-repos,init-svnadmin">
         <nant buildfile="targets/server/create.build" target="${subnant::get-target()}" />
@@ -95,11 +100,6 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <!-- Repository hooks targets -->
-    <target name="backup" description="Backup repository using Unison"
-        depends="init,init-repos,init-backup,verify-repos-exists">
-        <nant buildfile="targets/server/backup.build" target="${subnant::get-target()}" />
-    </target>
-
     <target name="case-insensitive" description="Prevent adding existing paths with different case"
         depends="init,init-repos,init-svnlook,verify-repos-exists">
         <nant buildfile="targets/server/hooks/case-insensitive.build" target="${subnant::get-target()}" />

@@ -37,6 +37,7 @@ $Id$
     </target>
 
     <target name="search-for-case-conflicts">
+        <property name="failonerror" value="false" />
         <!-- Build distinct list of paths for files added -->
         <foreach item="String" in="${files-added}" delim="${newline}" property="file-added">
             <property name="test-path" value="" />
@@ -46,38 +47,61 @@ $Id$
                 if="${(string::get-length(test-path)!=0) and (not string::contains(paths-added, test-path))}" 
                 value="${paths-added + test-path + newline}" />
         </foreach>
-        <!-- Paths added at root will be empty -->
+        <!-- File added at root with no subdirectories will have an empty path -->
         <property name="paths-added" value="/" if="${string::get-length(paths-added)==0}" />
         <!-- Loop through each unique path and verify directories and files within -->
-        <foreach item="String" in="${paths-added}" delim="${newline}" property="path">
-            <!-- ::TODO:: Retrieve list of existing directories above current path, then compare as per file --> 
-            <!-- Test directory path by searching against existing using path added -->
-            <property name="failonerror" value="false" />
-            <property name="subcommand" value="tree" />
-            <call target="exec-svnlook" />
-            <if test="${svnlook-result!='0'}">
-                <property name="path-exists-msg" value="${string::replace(path-exists-msg, '@PATH@', path)}" />
-                <stderr message="${path-exists-msg}" />
-                <fail message="${path-exists-msg}" />
-            </if>
-            <property name="failonerror" value="true" />
-            <!-- Retrieve list of existing files in current path --> 
-            <property name="subcommand" value="tree" />
-            <call target="exec-svnlook" />
-            <loadfile file="${exec-output}" property="existing-case-sensitive" />
-            <property name="existing-case-insensitive" value="${string::to-lower(existing-case-sensitive)}" />
-            <!-- Perform case-insensitive check on each added file for an existing match -->
-            <foreach item="String" in="${files-added}" delim="${newline}" property="file-added">
-                <!--stderr message="file-added:${file-added}${newline}existing-case-sensitive:${existing-case-sensitive}${newline}existing-case-insensitive:${existing-case-insensitive}" />
-                <fail message="file-added:${file-added}${newline}existing-case-sensitive:${existing-case-sensitive}${newline}existing-case-insensitive:${existing-case-insensitive}" /-->
-                <!--If a existing file found verify that it matches existing case -->
-                <if test="${string::contains(existing-case-insensitive,string::to-lower(file-added)) and not string::contains(existing-case-sensitive,file-added)}">
-                    <property name="path-exists-msg" value="${string::replace(path-exists-msg, '@PATH@', file-added)}" />
+        <foreach item="String" in="${paths-added}" delim="${newline}" property="path-added">
+            <!-- Verify directory being added doesn't already exist with different case -->
+            <if test="${path-added!='/'}">
+                <!-- Assume we start at root -->
+                <property name="path-parent" value="/" /> 
+                <!-- Only go higher if we're not already at root -->
+                <property name="path-parent" if="${string::last-index-of(path-added, '/')&gt;0}"
+                    value="${string::substring(path-added, 0, string::last-index-of(path-added, '/'))}" />
+                <!-- Root could be empty (assumed at start) or path could be only be 1 level down -->
+                <property name="path-parent" if="${path-parent!='/'}" 
+                    value="${string::substring(path-parent, 0, string::last-index-of(path-parent, '/'))}" />
+                <!-- Retrieve list of repositories directories above current path -->
+                <property name="path" value="${path-parent}" />
+                <property name="subcommand" value="tree" />
+                <call target="exec-svnlook" />
+                <!-- svnlook may fail if higher part of path has different case -->
+                <if test="${svnlook-result!='0'}">
+                    <property name="path-exists-msg" value="${string::replace(path-exists-msg, '@PATH@', path-added)}" />
                     <stderr message="${path-exists-msg}" />
                     <fail message="${path-exists-msg}" />
                 </if>
-            </foreach>
+                <loadfile file="${exec-output}" property="existing-case-sensitive" />
+                <property name="existing-case-insensitive" value="${string::to-lower(existing-case-sensitive)}" />
+                <!-- Compare existing repository directoris against current added directory -->
+                <if test="${string::contains(existing-case-insensitive,string::to-lower(path-added)) and not string::contains(existing-case-sensitive,path-added)}">
+                    <property name="path-exists-msg" value="${string::replace(path-exists-msg, '@PATH@', path-added)}" />
+                    <stderr message="${path-exists-msg}" />
+                    <fail message="${path-exists-msg}" />
+                </if>
+            </if>
+            <!-- Retrieve list of existing files in current path --> 
+            <property name="path" value="${path-added}" />
+            <property name="subcommand" value="tree" />
+            <call target="exec-svnlook" />
+            <!-- svnlook may fail if only directory was added and no files exist yet -->
+            <if test="${svnlook-result=='0'}">
+                <loadfile file="${exec-output}" property="existing-case-sensitive" />
+                <property name="existing-case-insensitive" value="${string::to-lower(existing-case-sensitive)}" />
+                <!-- Perform case-insensitive check on each added file for an existing match -->
+                <foreach item="String" in="${files-added}" delim="${newline}" property="file-added">
+                    <!--stderr message="file-added:${file-added}${newline}existing-case-sensitive:${existing-case-sensitive}${newline}existing-case-insensitive:${existing-case-insensitive}" />
+                    <fail message="file-added:${file-added}${newline}existing-case-sensitive:${existing-case-sensitive}${newline}existing-case-insensitive:${existing-case-insensitive}" /-->
+                    <!--If a existing file found verify that it matches existing case -->
+                    <if test="${string::contains(existing-case-insensitive,string::to-lower(file-added)) and not string::contains(existing-case-sensitive,file-added)}">
+                        <property name="path-exists-msg" value="${string::replace(path-exists-msg, '@PATH@', file-added)}" />
+                        <stderr message="${path-exists-msg}" />
+                        <fail message="${path-exists-msg}" />
+                    </if>
+                </foreach>
+            </if>
         </foreach>
+        <property name="failonerror" value="true" />
     </target>
 
     <target name="exec-svnlook">
