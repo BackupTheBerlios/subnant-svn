@@ -187,13 +187,15 @@ $Id$
                 <exec program="printenv" commandline="PKG_CONFIG_PATH" output="${exec-output}" />
                 <loadfile file="${exec-output}" property="pkg-config-path" />
                 <echo message="#!/bin/sh" file="${hook-script}" append="false" />
-                <echo message='export PKG_CONFIG_PATH="${string::trim(pkg-config-path)}"' file="${hook-script}" append="true" />
-                <echo message='export HOME="${test-root}"' file="${hook-script}" append="true" />
+                <echo message="export PKG_CONFIG_PATH=${string::trim(pkg-config-path)}" file="${hook-script}" append="true" />
+                <echo message="export HOME=${test-root}" file="${hook-script}" append="true" />
                 <echo message="${hook-exec}" file="${hook-script}" append="true" />
                 <exec program="chmod" commandline="a+x ${hook-script}" />
             </if>
             <if test="${platform::is-win32()}">
-                <echo message='set USERPROFILE="${test-root}"' file="${hook-script}" append="false" />
+                <!-- USERPROFILE used by Unison -->
+                <echo message="@echo off" file="${hook-script}" append="false" />
+                <echo message="set USERPROFILE=${test-root}" file="${hook-script}" append="true" />
                 <echo message="${hook-exec}" file="${hook-script}" append="true" />
             </if>
             <fail unless="${file::exists(hook-script)}" message="*** ERROR creating hook ${hook} ***" />

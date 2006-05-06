@@ -5,7 +5,11 @@
 # Subversion has no environment variables set when hooks are executed,
 # Subnant requires PKG_CONFIG_PATH set, so modify export to suit
 
-export PKG_CONFIG_PATH="/usr/lib/pkgconfig"
+export PKG_CONFIG_PATH=/usr/lib/pkgconfig
+
+# Set suitable HOME environment variable if executing backup target
+#
+# export HOME=/home/svn
 
 # Visit http://subnant.berlios.de for details on command below
 
