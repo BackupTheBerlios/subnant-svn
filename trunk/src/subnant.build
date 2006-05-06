@@ -138,7 +138,7 @@ subnant migrate -D:to-svn-root=/svn2root/repos -D:to-svn-bindir=/svn2/bin]]>
     </target>
 
     <target name="test" description="Test main targets"
-        depends="init,init-repos,init-wc,init-svn,init-svnadmin,init-svnlook,init-shell,init-svnlook">
+        depends="init,init-repos,init-backup,init-wc,init-svn,init-svnadmin,init-svnlook,init-shell,init-svnlook">
         <nant buildfile="targets/test.build" target="${subnant::get-target()}" />
     </target>
 
