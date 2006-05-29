@@ -17,6 +17,9 @@ $Id$
     </target>
 
     <target name="init">
+        <!-- ::TODO:: Remove this condition once development is finished -->
+        <fail unless="${subnant::get-target() == 'test' or subnant::get-target() == 'help'}"
+              message="case-sensitive target still under development, only test or help will run" />
         <fail unless="${property::exists('repos')}" message="repos not set" />
         <fail unless="${property::exists('txn')}"   message="txn not set" />
         <property name="path-exists-msg" overwrite="false"
