@@ -1,9 +1,21 @@
+
+// Copyright (C) 2006 Simon McKenna
+//
+// Licensed under the GNU General Public License
+// http://www.gnu.org/copyleft/gpl.html
+//
+// $Id$ 
+
 using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace subnant
+namespace Subnant
 {
+    /// <summary>
+    /// Used by Subversion post-commit (or similar) hooks to ensure client doesn't have
+    /// to wait after commit has completed before allowing client to continue.
+    /// </summary>
     class HookStart
     {
         string fileName;
@@ -11,20 +23,15 @@ namespace subnant
 
         static void Main(string[] args)
         {
-            HookStart program = new HookStart(args);
-
-            if (args.Length > 0 && program.exists())
-            {
-                program.start();
-            }
+            HookStart hookStart = new HookStart(args);
         }
 
         HookStart(string[] args)
         {
             if (args.Length == 0)
             {
-                Console.WriteLine("Starts long running process for Subversion hooks");
-                Console.WriteLine("Usage: HookStart.exe <path/to/program> [arguments]");
+                Console.WriteLine("Starts process. Built for use with Subversion hooks");
+                Console.WriteLine("Usage: HookStart.exe <path/to/process> [arguments]");
             }
             else
             {
@@ -34,6 +41,11 @@ namespace subnant
                 for (int index = 1; index < args.Length; index++)
                 {
                     arguments.SetValue(args[index], index - 1);
+                }
+
+                if (exists())
+                {
+                    start();
                 }
             }
         }
@@ -56,7 +68,6 @@ namespace subnant
             Process process = new Process();
 
             process.StartInfo.FileName = fileName;
-            process.StartInfo.CreateNoWindow = true;
             process.StartInfo.Arguments = String.Join(" ", arguments);
 
             process.Start();
