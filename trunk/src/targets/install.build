@@ -9,37 +9,58 @@ $Id$
 -->
 <project name="install" default="install" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
-    <target name="install" depends="init-windows,init-linux,install-windows,install-linux" />
+    <target name="install" depends="init-windows,init-linux,build-hookstart,install-windows,install-linux" />
 
     <target name="init-windows" if="${platform::is-win32()}">
         <property name="install-prefix" value="${environment::get-folder-path('ProgramFiles')}"
             overwrite="false" />
-        <property name="install-bindir" value="${path::combine(install-prefix, 'Subnant')}" />
-        <property name="wrapper" value="${path::combine(install-bindir, 'subnant.bat')}" />
+        <property name="install-dir" value="${path::combine(install-prefix, 'Subnant')}" />
+        <property name="wrapper" value="${path::combine(install-dir, 'subnant.bat')}" />
+        <property name="wrapper-hookstart" value="${path::combine(install-dir, 'hookstart.bat')}" />
     </target>
 
     <target name="init-linux" if="${platform::is-unix()}">
         <property name="install-prefix" value="/usr/local" overwrite="false" />
-        <property name="install-bindir" value="${path::combine(install-prefix, 'bin')}" />
-        <property name="wrapper" value="${path::combine(install-bindir, 'subnant')}" />
+        <property name="install-dir" value="${path::combine(install-prefix, 'bin')}" />
+        <property name="wrapper" value="${path::combine(install-dir, 'subnant')}" />
+        <property name="wrapper-hookstart" value="${path::combine(install-dir, 'hookstart')}" />
+    </target>
+
+    <target name="build-hookstart">
+        <mkdir dir="${install-dir}" unless="${directory::exists(install-dir)}" />
+        <csc target="exe" output="${path::combine(subnant-root, 'bin\HookStart.exe')}">
+            <sources>
+                <include name="${subnant-root}\src\include\HookStart.cs"/>
+            </sources>
+        </csc>
+        <exec if="${platform::is-unix()}" program="chmod" 
+              commandline="a+x ${path::combine(subnant-root, 'bin/HookStart.exe')}" 
+              failonerror="${failonerror}" resultproperty="exec-result" />
     </target>
 
     <target name="install-windows" if="${platform::is-win32()}">
         <echo file="${wrapper}" append="false">@echo off</echo>
         <echo file="${wrapper}" append="true">nant -emacs -indent:-8 -quiet -nologo -buildfile:"${subnant-root}\src\subnant.build" %*</echo>
         <echo message="Created ${wrapper} wrapper script" level="Warning" />
-        <echo message="Searching environment path for ${install-bindir}" level="Warning" />
-        <echo message="Found in path, subnant command should be available" level="Warning"
-            if="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}" />
-        <echo message="Not found, please add ${install-bindir} to your environment path" level="Warning"
-            unless="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-bindir))}" />
+        <echo file="${wrapper-hookstart}" append="false">@echo off</echo>
+        <echo file="${wrapper-hookstart}" append="true">"${subnant-root}\bin\HookStart.exe" "${install-dir}\subnant.bat" %*</echo>
+        <echo message="Created ${wrapper-hookstart} wrapper script" level="Warning" />
+        <echo message="Searching environment path for ${install-dir}" level="Warning" />
+        <echo message="Found in path, subnant and hookstart commands should be available" level="Warning"
+            if="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-dir))}" />
+        <echo message="Not found, please add ${install-dir} to your environment path" level="Warning"
+            unless="${string::contains(string::to-lower(environment::get-variable('PATH')),string::to-lower(install-dir))}" />
     </target>
 
     <target name="install-linux" if="${platform::is-unix()}">
         <echo file="${wrapper}" append="false">#!/bin/sh</echo>
         <echo file="${wrapper}" append="true">nant -emacs -indent:-8 -quiet -nologo -buildfile:${subnant-root}/src/subnant.build $@</echo>
-        <exec program="chmod" commandline="a+x ${path::combine(install-bindir, 'subnant')}" failonerror="${failonerror}" resultproperty="exec-result" />
+        <exec program="chmod" commandline="a+x ${wrapper}" failonerror="${failonerror}" resultproperty="exec-result" />
         <echo message="Created ${wrapper} wrapper script" level="Warning" />
+        <echo file="${wrapper-hookstart}" append="false">#!/bin/sh</echo>
+        <echo file="${wrapper-hookstart}" append="true">${subnant-root}/bin/HookStart.exe ${install-dir}/subnant $@</echo>
+        <exec program="chmod" commandline="a+x ${wrapper-hookstart}" failonerror="${failonerror}" resultproperty="exec-result" />
+        <echo message="Created ${wrapper-hookstart} wrapper script" level="Warning" />
     </target>
 
     <target name="help">
@@ -48,10 +69,13 @@ $Id$
 
 Usage: nant install [-D:<option>=<value>]
 
-Purpose: Create subnant wrapper script
+Purpose: Create subnant and hookstart wrapper scripts
 
 Installation creates a shortcut to run Subnant under NAnt, it does not copy
 or move existing files
+
+The hookstart wrapper script executes HookStart.exe (included with Subnant)
+which is a simple process starter for spawning long running Subversion hook
 
 Options:
 install-prefix   directory in which Subnant directory is created *

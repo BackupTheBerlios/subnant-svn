@@ -4,4 +4,4 @@ REM POST-COMMIT HOOK - Details in repos/hooks/post-commit.tmpl
 REM
 REM Visit http://subnant.berlios.de for details on command below
 
-start /b subnant commit-email -D:repos=%1 -D:rev=%2
+hookstart commit-email -D:repos=%1 -D:rev=%2

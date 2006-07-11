@@ -4,4 +4,4 @@ REM POST-REVPROP-CHANGE HOOK - Details in repos/hooks/post-revprop-change.tmpl
 REM
 REM Visit http://subnant.berlios.de for details on command below
 
-start /b subnant revprop-email -D:repos=%1 -D:rev=%2 -D:user=%3 -D:propname=%4 -D:action=%5
+hookstart revprop-email -D:repos=%1 -D:rev=%2 -D:user=%3 -D:propname=%4 -D:action=%5
