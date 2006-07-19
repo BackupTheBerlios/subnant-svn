@@ -34,6 +34,8 @@ Prerequisites:
 
   * Subversion >= 1.1.3
 
+  * Unison >= 2.7.1 (when using backup target)  
+
 
 Windows Installation:
 
