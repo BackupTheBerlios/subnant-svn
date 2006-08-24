@@ -10,19 +10,24 @@ $Id$
 <project name="commit-message" default="commit-message" xmlns="http://nant.sf.net/release/latest/nant.xsd">
 
     <target name="commit-message" depends="init">
-        <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" resultproperty="svnlook-result">
+        <exec program="${svnlook}" failonerror="${failonerror}" output="${exec-output}" append="false" 
+        	resultproperty="svnlook-result">
             <arg value="log" />
             <arg value="${repos}" />
             <arg value="--transaction" />
             <arg value="${txn}" />
         </exec>
         <if test="${svnlook-result!='0' and failonerror!='false'}">
-            <log-echo message="*** ERROR executing svnlook log on repository ${repos} ***" file="${subnant-output}" />
+            <log-echo message="*** ERROR executing svnlook log on repository ${repos} ***"
+            	file="${subnant-output}" />
         </if>
-        <fail unless="${file::exists(exec-output)}" message="*** ERROR svnlook log output file not found: ${exec-output} ***" />
+        <fail unless="${file::exists(exec-output)}" 
+        	message="*** ERROR svnlook log output file not found: ${exec-output} ***" />
         <loadfile file="${exec-output}" property="log-message" />
-        <if test="${string::get-length(string::trim(log-message))==0}">
-            <log-echo message="Commit denied - no log message entered for repository ${repos} on transaction ${txn}" file="${subnant-output}" />
+        <if test="${string::get-length(string::trim(log-message)) &lt; int::parse(min-length)}">
+            <log-echo 
+            	message="Commit denied - insufficient log message for repository ${repos} on transaction ${txn}"
+            	file="${subnant-output}" />
             <stderr message="${no-log-msg}" />
             <fail message="${no-log-msg}" />
         </if>
@@ -31,7 +36,9 @@ $Id$
     <target name="init">
         <fail unless="${property::exists('repos')}" message="repos not set" />
         <fail unless="${property::exists('txn')}"   message="txn not set" />
-        <property name="no-log-msg" value="No log message entered" overwrite="false" />
+        <property name="no-log-msg" value="Insufficient log message" overwrite="false" />
+        <property name="min-length" value="1" overwrite="false" />
+        <fail unless="${int::parse(min-length) &gt; 0}" message="min-length must be greater than 0" />
     </target>
 
     <target name="help">
@@ -40,17 +47,21 @@ $Id$
    
 Usage: subnant commit-message -D:repos=<repos> -D:txn=<txn> [-D:<option>=<value>]
 
-Purpose: Used in pre-commit hook to ensure log message has been entered
+Purpose: Used in pre-commit hook to ensure log message has been entered,
+and meets the minimum length required
 
 Required:
 repos           full path to repository
 txn             Subversion transaction number
 
 Options:
-no-log-msg      override default error returned when no log message entered
+no-log-msg      error returned, defaults to "Insufficient log message"
+min-length      minimum accepted length of log message, defaults to 1
 
 Examples:
 subnant commit-message -D:repos=/path/to/repos -D:txn=1-1
+subnant commit-message -D:repos=/path/to/repos -D:txn=1-1
+ -D:no-log-msg="Rejected, minimum log message length is 10" -D:min-length=10
 ]]>
         </echo>
     </target>

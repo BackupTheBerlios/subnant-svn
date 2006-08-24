@@ -99,8 +99,8 @@ $Id$
             <property name="test-target" value="verify" />
             <call target="run-test" />
             <!-- Hook targets -->
-            <property name="test-target" value="case-insensitive" />
-            <call target="run-test" />
+            <!--property name="test-target" value="case-insensitive" />
+            <call target="run-test" /-->
             <property name="test-target" value="commit-email" />
             <call target="run-test" />
             <property name="test-target" value="commit-message" />
@@ -209,13 +209,16 @@ $Id$
             <arg line='commit --message "${test-message}"'/>
         </exec>
         <if test="${svn-result=='0' and bool::parse(should-pass)==true}">
-            <log-echo message="Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)}" file="${subnant-output}" />
+            <log-echo 
+            	message="Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)}" 
+            	file="${subnant-output}" />
         </if>
         <if test="${svn-result!='0' and bool::parse(should-pass)!=true}">
             <log-echo message="Commit failed as expected" file="${subnant-output}" />
         </if>
         <if test="${svn-result=='0' and bool::parse(should-pass)!=true}">
-            <fail message="*** ERROR Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} when it should have failed ***" />
+            <fail 
+            	message="*** ERROR Committed ${path::get-file-name(wc)} to ${path::get-file-name(repos)} when it should have failed ***" />
         </if>
         <if test="${svn-result!='0' and bool::parse(should-pass)==true}">
             <fail message="*** ERROR committing ${path::get-file-name(wc)} to ${path::get-file-name(repos)} ***" />
