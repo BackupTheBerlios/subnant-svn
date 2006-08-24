@@ -169,7 +169,8 @@ Repository hook targets:
 
   * commit-message
 
-    Ensures log message is entered by using pre-commit hook
+    Ensures log message is entered by using pre-commit hook. Allows minimum
+    length of log message to be set.
 
 
   * revprop-change-email
