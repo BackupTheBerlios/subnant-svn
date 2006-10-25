@@ -93,8 +93,8 @@ Repository targets:
 
   * backup
 
-    Invoke Unison to backup a repository.  Note that this can also be caled
-    in a post-commit.
+    Invoke Unison to backup a repository.  Note that this can also be 
+    called in a post-commit hook.
 
     For more information about unison:
     http://www.cis.upenn.edu/~bcpierce/unison/
@@ -169,8 +169,7 @@ Repository hook targets:
 
   * commit-message
 
-    Ensures log message is entered by using pre-commit hook. Allows minimum
-    length of log message to be set.
+    Ensures log message is entered by using pre-commit hook
 
 
   * revprop-change-email
