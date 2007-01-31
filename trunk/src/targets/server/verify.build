@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html
 
 $Id$ 
 -->
-<project name="verify" default="verify" xmlns="http://nant.sf.net/release/latest/nant.xsd">
+<project name="verify" default="verify" xmlns="http://nant.sf.net/release/0.85/nant.xsd">
 
     <target name="verify" depends="init">
         <foreach item="String" delim="," in="${verify-repos}" property="repo">

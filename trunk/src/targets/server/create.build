@@ -7,7 +7,7 @@ http://www.gnu.org/copyleft/gpl.html <http://www.gnu.org/copyleft/gpl.html>
 
 $Id$ 
 -->
-<project name="create" default="create" xmlns="http://nant.sf.net/release/latest/nant.xsd">
+<project name="create" default="create" xmlns="http://nant.sf.net/release/0.85/nant.xsd">
 
     <target name="create" depends="init">
         <foreach item="String" delim="," in="${create-repos}" property="repo">
